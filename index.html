@@ -54,6 +54,20 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 @keyframes dotBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.2)}}
 .runner-dot{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(246,173,85,.4),0 0 16px #f6ad55,0 0 4px #fff}
 #map-live{position:absolute;top:14px;right:14px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.78);border:1px solid rgba(104,211,145,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#68d391;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px)}
+@keyframes wxIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes windRock{0%,100%{rotate:var(--wd)}40%{rotate:calc(var(--wd) + 14deg)}70%{rotate:calc(var(--wd) - 9deg)}}
+#weather-panel{position:absolute;top:14px;left:14px;z-index:1000;background:rgba(13,17,23,.84);border:1px solid rgba(99,179,237,.28);border-radius:14px;padding:14px 16px;backdrop-filter:blur(12px);min-width:175px;animation:wxIn .6s .4s ease both;color:#c9d1d9;font-size:12px}
+#wx-hdr{font-size:10px;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+#wx-main{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#wx-icon{font-size:2rem;line-height:1}
+#wx-temp{font-size:1.75rem;font-weight:800;color:#fff;line-height:1}
+#wx-cond{font-size:11px;color:#8b949e;margin-top:3px}
+#wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.wx-row{}
+.wx-v{font-size:13px;font-weight:600;color:#f6ad55;line-height:1.3}
+.wx-l{font-size:10px;color:#6e7681;letter-spacing:1px;margin-top:1px}
+#wx-arrow{display:inline-block;font-size:14px}
+#wx-upd{font-size:10px;color:#484f58;margin-top:10px;padding-top:8px;border-top:1px solid #21262d}
 #map-live-dot{width:6px;height:6px;border-radius:50%;background:#68d391;animation:liveBlink 1.4s ease-in-out infinite}
 
 /* 푸터 */
@@ -125,6 +139,21 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div class="section-label">🗺 나의 걷기 지역</div>
     <div id="map-section">
       <div id="walk-map"></div>
+      <div id="weather-panel">
+        <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
+        <div id="wx-main">
+          <span id="wx-icon">⋯</span>
+          <div><div id="wx-temp">—</div><div id="wx-cond">불러오는 중…</div></div>
+        </div>
+        <div id="wx-grid">
+          <div class="wx-row"><div class="wx-v" id="wx-feels">—</div><div class="wx-l">체감온도</div></div>
+          <div class="wx-row"><div class="wx-v" id="wx-humid">—</div><div class="wx-l">습도</div></div>
+          <div class="wx-row"><div class="wx-v" id="wx-wind">—</div><div class="wx-l">풍속</div></div>
+          <div class="wx-row"><div class="wx-v"><span id="wx-arrow">↑</span> <span id="wx-wdir">—</span></div><div class="wx-l">풍향</div></div>
+          <div class="wx-row" style="grid-column:1/-1"><div class="wx-v" id="wx-precip">—</div><div class="wx-l">강수량</div></div>
+        </div>
+        <div id="wx-upd">—</div>
+      </div>
       <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
       <div id="map-overlay">
         <div class="map-card">
@@ -804,6 +833,65 @@ buildWeekday();
   // 카피라이트
   document.getElementById('footer-copy').textContent =
     `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
+})();
+
+// ── 날씨 (Open-Meteo, 성남/판교) ────────────────────────────────────
+(async function loadWeather() {
+  const WX_ICON = {
+    0:'☀️', 1:'🌤️', 2:'⛅', 3:'🌥️',
+    45:'🌫️', 48:'🌫️',
+    51:'🌦️', 53:'🌦️', 55:'🌧️',
+    61:'🌧️', 63:'🌧️', 65:'🌧️',
+    71:'🌨️', 73:'🌨️', 75:'❄️',
+    80:'🌦️', 81:'🌧️', 82:'⛈️',
+    95:'⛈️', 96:'⛈️', 99:'⛈️'
+  };
+  const WX_DESC = {
+    0:'맑음', 1:'대체로 맑음', 2:'구름 조금', 3:'흐림',
+    45:'안개', 48:'짙은 안개',
+    51:'이슬비', 53:'이슬비', 55:'강한 이슬비',
+    61:'비', 63:'비', 65:'강한 비',
+    71:'눈', 73:'눈', 75:'강한 눈',
+    80:'소나기', 81:'소나기', 82:'강한 소나기',
+    95:'뇌우', 96:'뇌우(우박)', 99:'강한 뇌우'
+  };
+  const DIRS = ['N','NE','E','SE','S','SW','W','NW'];
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.145&longitude=127.422&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,weather_code&timezone=Asia/Seoul');
+    const json = await res.json();
+    const c = json.current;
+    const code = c.weather_code;
+    const wd = c.wind_direction_10m;
+
+    document.getElementById('wx-icon').textContent  = WX_ICON[code] ?? '🌡️';
+    document.getElementById('wx-temp').textContent  = Math.round(c.temperature_2m) + '°C';
+    document.getElementById('wx-cond').textContent  = WX_DESC[code] ?? '—';
+    document.getElementById('wx-feels').textContent = Math.round(c.apparent_temperature) + '°C';
+    document.getElementById('wx-humid').textContent = c.relative_humidity_2m + '%';
+    document.getElementById('wx-wind').textContent  = c.wind_speed_10m.toFixed(1) + ' m/s';
+    document.getElementById('wx-wdir').textContent  = DIRS[Math.round(wd / 45) % 8];
+    document.getElementById('wx-precip').textContent = c.precipitation.toFixed(1) + ' mm';
+
+    // 풍향 화살표 회전 + 흔들림 애니메이션
+    const arrow = document.getElementById('wx-arrow');
+    arrow.style.setProperty('--wd', wd + 'deg');
+    arrow.style.rotate = wd + 'deg';
+    let t0 = null;
+    (function rockArrow(ts) {
+      if (!t0) t0 = ts;
+      const wobble = Math.sin((ts - t0) / 1200 * Math.PI) * 11;
+      arrow.style.rotate = (wd + wobble) + 'deg';
+      requestAnimationFrame(rockArrow);
+    })(performance.now());
+
+    // 업데이트 시각
+    const t = new Date(c.time);
+    const hh = t.getHours().toString().padStart(2,'0');
+    const mm = t.getMinutes().toString().padStart(2,'0');
+    document.getElementById('wx-upd').textContent = `${hh}:${mm} 기준 · Open-Meteo`;
+  } catch(e) {
+    document.getElementById('wx-cond').textContent = '날씨 정보를 불러올 수 없습니다';
+  }
 })();
 </script>
 </body>
