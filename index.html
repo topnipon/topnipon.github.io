@@ -73,7 +73,9 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #wd-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-top:8px}
 .wd-bar-wrap{text-align:center}
 .wd-label{font-size:0.72rem;color:#8b949e;margin-bottom:6px}
-.wd-bar-bg{background:#21262d;border-radius:6px;height:160px;display:flex;align-items:flex-end;overflow:hidden}
+.wd-bar-bg{background:#21262d;border-radius:6px;height:200px;display:flex;align-items:flex-end;overflow:hidden}
+#chart-monthly-wrap{height:340px;position:relative}
+#wd-grid-wrap{height:340px;display:flex;flex-direction:column;justify-content:flex-end}
 .wd-bar-fill{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1)}
 .wd-val{font-size:0.78rem;color:#f6ad55;margin-top:6px;font-weight:600}
 </style>
@@ -127,13 +129,13 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div>
       <div class="section-label">📊 월별 총 거리</div>
       <div class="chart-wrap">
-        <canvas id="chart-monthly"></canvas>
+        <div id="chart-monthly-wrap"><canvas id="chart-monthly"></canvas></div>
       </div>
     </div>
     <div>
       <div class="section-label">📅 요일별 평균</div>
       <div class="chart-wrap">
-        <div id="wd-grid"></div>
+        <div id="wd-grid-wrap"><div id="wd-grid"></div></div>
       </div>
     </div>
   </div>
@@ -328,6 +330,7 @@ function buildMonthly() {
     },
     options:{
       indexAxis:'y',
+      maintainAspectRatio:false,
       animation:{duration:800,easing:'easeOutQuart'},
       plugins:{
         legend:{display:false},
