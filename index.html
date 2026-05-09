@@ -49,6 +49,11 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .map-card-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
 .map-card-sub{font-size:0.72rem;color:#c9d1d9;margin-top:4px}
 @keyframes flowDash{to{stroke-dashoffset:-24}}
+@keyframes markerPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.5);opacity:0}}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.15}}
+.runner-dot{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(246,173,85,.4),0 0 16px #f6ad55,0 0 4px #fff}
+#map-live{position:absolute;top:14px;right:14px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.78);border:1px solid rgba(104,211,145,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#68d391;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px)}
+#map-live-dot{width:6px;height:6px;border-radius:50%;background:#68d391;animation:liveBlink 1.4s ease-in-out infinite}
 
 /* 푸터 */
 #footer{background:#161b22;border-top:1px solid #30363d;padding:40px 20px;margin-top:8px}
@@ -119,6 +124,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div class="section-label">🗺 나의 걷기 지역</div>
     <div id="map-section">
       <div id="walk-map"></div>
+      <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
       <div id="map-overlay">
         <div class="map-card">
           <div class="map-card-val" id="mc-total">—</div>
@@ -139,6 +145,16 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
           <div class="map-card-val" id="mc-best-day">—</div>
           <div class="map-card-lbl">Best Single Day</div>
           <div class="map-card-sub" id="mc-best-day-date">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-avg">—</div>
+          <div class="map-card-lbl">Daily Average</div>
+          <div class="map-card-sub" id="mc-avg-sub">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-streak">—</div>
+          <div class="map-card-lbl">Best Streak</div>
+          <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
         </div>
       </div>
     </div>
@@ -503,64 +519,188 @@ function buildWeekday() {
 }
 
 // ── 지도 ────────────────────────────────────────────────────────────
-const walkMap = L.map('walk-map', {zoomControl:false, attributionControl:false, dragging:false, scrollWheelZoom:false})
-  .setView([37.145, 127.422], 14);
+const CENTER = [37.145, 127.422];
+const walkMap = L.map('walk-map', {
+  zoomControl:false, attributionControl:false,
+  dragging:false, scrollWheelZoom:false
+}).setView(CENTER, 14);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(walkMap);
 
-// 실제 GPS 기반 대표 경로 (성남/판교 인근)
-const ROUTES = [
-  { color:'#f6ad55', weight:3, delay:0, coords:[
-    [37.1433,127.4186],[37.1445,127.4198],[37.1462,127.4210],[37.1478,127.4225],
-    [37.1492,127.4248],[37.1498,127.4272],[37.1489,127.4295],[37.1468,127.4312],
-    [37.1445,127.4305],[37.1422,127.4288],[37.1408,127.4262],[37.1412,127.4237],
-    [37.1425,127.4215],[37.1433,127.4186]
-  ]},
-  { color:'#68d391', weight:2.5, delay:-1.2, coords:[
-    [37.1510,127.4155],[37.1498,127.4172],[37.1482,127.4188],[37.1465,127.4202],
-    [37.1448,127.4216],[37.1432,127.4230],[37.1418,127.4245],[37.1402,127.4260],
-    [37.1388,127.4274],[37.1375,127.4262],[37.1380,127.4242],[37.1395,127.4228]
-  ]},
-  { color:'#63b3ed', weight:2, delay:-0.6, coords:[
-    [37.1460,127.4330],[37.1472,127.4348],[37.1488,127.4365],[37.1505,127.4352],
-    [37.1518,127.4335],[37.1524,127.4315],[37.1512,127.4298],[37.1495,127.4284],
-    [37.1478,127.4298],[37.1465,127.4315],[37.1460,127.4330]
-  ]},
-  { color:'#f6ad55', weight:1.5, delay:-2.0, coords:[
-    [37.1390,127.4180],[37.1405,127.4195],[37.1420,127.4210],[37.1435,127.4225],
-    [37.1450,127.4240],[37.1465,127.4255],[37.1480,127.4270],[37.1495,127.4285],
-    [37.1510,127.4300],[37.1525,127.4315]
-  ]},
-  { color:'#e879f9', weight:2, delay:-1.6, coords:[
-    [37.1550,127.4200],[37.1538,127.4218],[37.1522,127.4235],[37.1506,127.4250],
-    [37.1490,127.4265],[37.1474,127.4278],[37.1458,127.4268],[37.1444,127.4252],
-    [37.1432,127.4238],[37.1420,127.4224]
-  ]},
-];
+const MAP_PAL = ['#f6ad55','#68d391','#63b3ed','#e879f9','#fb923c','#a78bfa','#ffd060','#f87171'];
 
-ROUTES.forEach(r => {
-  const line = L.polyline(r.coords, {
-    color: r.color, weight: r.weight, opacity: 0.9,
-  }).addTo(walkMap);
+// 카드 바깥 엣지에서 시작해 맵 중심부로 이어지는 경로 생성
+function mkRoute(n, spread) {
+  // 상/하/좌/우 중 랜덤 엣지에서 시작 (뷰포트 밖)
+  const side = Math.floor(Math.random() * 4);
+  const latEdge = 0.058, lngEdge = 0.088;
+  let sLat, sLng;
+  if      (side === 0) { sLat = CENTER[0] + latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
+  else if (side === 1) { sLat = CENTER[0] - latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
+  else if (side === 2) { sLat = CENTER[0] + (Math.random()-.5)*latEdge; sLng = CENTER[1] + lngEdge; }
+  else                 { sLat = CENTER[0] + (Math.random()-.5)*latEdge; sLng = CENTER[1] - lngEdge; }
+  // 끝점: 맵 중심부 안쪽
+  const eLat = CENTER[0] + (Math.random()-.5)*.022;
+  const eLng = CENTER[1] + (Math.random()-.5)*.032;
+  const pts = [];
+  const noise = spread * n * .35;
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    // 중간 구간에서 노이즈가 가장 크게 (sin 곡선)
+    const nScale = Math.sin(t * Math.PI);
+    pts.push([
+      sLat + (eLat - sLat) * t + (Math.random()-.5) * noise * nScale,
+      sLng + (eLng - sLng) * t + (Math.random()-.5) * noise * nScale
+    ]);
+  }
+  return pts;
+}
+
+// Catmull-Rom 스플라인으로 경로 부드럽게 처리
+function catmullRom(p0, p1, p2, p3, t) {
+  const t2 = t * t, t3 = t2 * t;
+  return [
+    .5 * (2*p1[0] + (-p0[0]+p2[0])*t + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+    .5 * (2*p1[1] + (-p0[1]+p2[1])*t + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+  ];
+}
+function smoothRoute(pts, steps) {
+  const out = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i-1)], p1 = pts[i];
+    const p2 = pts[i+1], p3 = pts[Math.min(pts.length-1, i+2)];
+    for (let j = 0; j < steps; j++) out.push(catmullRom(p0, p1, p2, p3, j / steps));
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+
+// 경로 위 임의 위치 보간 (t: 0~1)
+function routeAt(c, t) {
+  const n = c.length - 1;
+  const i = Math.min(Math.floor(t * n), n - 1);
+  const f = t * n - i;
+  return [c[i][0] + (c[i+1][0] - c[i][0]) * f, c[i][1] + (c[i+1][1] - c[i][1]) * f];
+}
+
+// ① 흐르는 점선 경로 (6개, 매 방문마다 랜덤)
+const flowRoutes = Array.from({length: 6}, (_, i) => {
+  const coords = smoothRoute(mkRoute(8 + Math.floor(Math.random() * 8), .006), 12);
+  const color = MAP_PAL[i];
+  const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 2.5, opacity: .85}).addTo(walkMap);
   setTimeout(() => {
-    const el = line.getElement();
-    if (el) {
-      el.style.strokeDasharray = '14 10';
-      el.style.animation = `flowDash 1.8s linear infinite`;
-      el.style.animationDelay = r.delay + 's';
-    }
-  }, 400);
+    const el = poly.getElement();
+    if (!el) return;
+    const d = 10 + Math.floor(Math.random() * 8), g = 5 + Math.floor(Math.random() * 6);
+    el.style.strokeDasharray = `${d} ${g}`;
+    el.style.animation = `flowDash ${(1.2 + Math.random() * 1.2).toFixed(2)}s linear infinite`;
+    el.style.animationDelay = `${-(Math.random() * 3).toFixed(2)}s`;
+  }, 500);
+  return {coords, color};
 });
 
-// 카드 데이터
-const bestMonth = MONTHS.reduce((a,b)=>b[1]>a[1]?b:a);
-const [bmy,bmm] = bestMonth[0].split('-');
-document.getElementById('mc-total').textContent = Math.round(TOTAL).toLocaleString('ko-KR')+' km';
+// ② 그려지고 지워지는 경로 (3개, 루프)
+const drawRoutes = Array.from({length: 3}, (_, i) => {
+  const coords = smoothRoute(mkRoute(10 + Math.floor(Math.random() * 6), .007), 12);
+  const color = MAP_PAL[(i + 2) % MAP_PAL.length];
+  const poly = L.polyline(coords, {color, weight: 2.5, opacity: .9}).addTo(walkMap);
+  return {coords, poly, color};
+});
+setTimeout(() => {
+  drawRoutes.forEach((r, i) => {
+    const el = r.poly.getElement();
+    if (!el) return;
+    const len = el.getTotalLength ? el.getTotalLength() : 400;
+    el.style.strokeDasharray = len;
+    el.style.strokeDashoffset = len;
+    const dur = 3500 + i * 700;
+    const phase = i * 1300;
+    let t0 = null;
+    function drawLoop(ts) {
+      if (!t0) t0 = ts - phase;
+      const t = ((ts - t0) % dur) / dur;
+      // 0→0.45: 그리기, 0.45→0.55: 유지, 0.55→1: 지우기
+      const off = t < .45 ? len * (1 - t / .45) : t < .55 ? 0 : len * ((t - .55) / .45);
+      el.style.strokeDashoffset = off;
+      requestAnimationFrame(drawLoop);
+    }
+    requestAnimationFrame(drawLoop);
+  });
+}, 600);
+
+// ③ 이동하는 러너 도트
+const runCoords = smoothRoute(mkRoute(16, .007), 12);
+L.polyline(runCoords, {color: '#fff', weight: 1, opacity: .12}).addTo(walkMap);
+const runIcon = L.divIcon({
+  className: '',
+  html: '<div class="runner-dot"></div>',
+  iconSize: [10, 10], iconAnchor: [5, 5]
+});
+const runMarker = L.marker(runCoords[0], {icon: runIcon, zIndexOffset: 1000}).addTo(walkMap);
+let r0 = null;
+function runLoop(ts) {
+  if (!r0) r0 = ts;
+  runMarker.setLatLng(routeAt(runCoords, ((ts - r0) % 7000) / 7000));
+  requestAnimationFrame(runLoop);
+}
+requestAnimationFrame(runLoop);
+
+// ④ 소나 펄스 서클 (중심에서 퍼져나가는 원)
+[180, 500, 1000].forEach((baseR, i) => {
+  const c = L.circle(CENTER, {radius: baseR, color: MAP_PAL[i], weight: 1, fillOpacity: 0, opacity: 0}).addTo(walkMap);
+  const dur = 2800 + i * 600;
+  let s0 = null;
+  function sonarLoop(ts) {
+    if (!s0) s0 = ts - i * 900;
+    const t = ((ts - s0) % dur) / dur;
+    c.setRadius(baseR + t * baseR * 2.2);
+    c.setStyle({opacity: (1 - t) * .5});
+    requestAnimationFrame(sonarLoop);
+  }
+  setTimeout(() => requestAnimationFrame(sonarLoop), i * 900);
+});
+
+// ⑤ 펄스 마커 (경로 시작/끝점)
+function addPM(latlng, color, delay) {
+  const s = 8 + Math.floor(Math.random() * 4);
+  L.marker(latlng, {icon: L.divIcon({
+    className: '',
+    html: `<div style="position:relative;width:${s*2}px;height:${s*2}px">
+      <div style="position:absolute;inset:0;border-radius:50%;background:${color};animation:markerPulse 2s ${delay}s ease-out infinite;opacity:.7"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:${color};box-shadow:0 0 6px ${color}"></div>
+    </div>`,
+    iconSize: [s*2, s*2], iconAnchor: [s, s]
+  })}).addTo(walkMap);
+}
+flowRoutes.forEach((r, i) => {
+  addPM(r.coords[0], r.color, (i * .4) % 2);
+  if (Math.random() > .4) addPM(r.coords[r.coords.length - 1], r.color, ((i * .4) + .8) % 2);
+});
+drawRoutes.forEach((r, i) => addPM(r.coords[0], r.color, i * .6));
+
+// ⑥ 카드 데이터 + 최장 연속일 계산
+function calcStreak() {
+  const dts = Object.keys(RAW).filter(d => RAW[d] > 0).sort();
+  let max = 1, cur = 1;
+  for (let i = 1; i < dts.length; i++) {
+    const diff = (new Date(dts[i]) - new Date(dts[i-1])) / 86400000;
+    if (diff === 1) { cur++; max = Math.max(max, cur); } else cur = 1;
+  }
+  return max;
+}
+const STREAK = calcStreak();
+const bestMonth = MONTHS.reduce((a, b) => b[1] > a[1] ? b : a);
+const [bmy, bmm] = bestMonth[0].split('-');
+document.getElementById('mc-total').textContent = Math.round(TOTAL).toLocaleString('ko-KR') + ' km';
 document.getElementById('mc-equiv').textContent = `서울↔부산 ${(TOTAL/400).toFixed(1)}회 왕복`;
-document.getElementById('mc-days').textContent = DAYS.length+' 일';
+document.getElementById('mc-days').textContent = DAYS.length + ' 일';
 document.getElementById('mc-best-month').textContent = `${bmy}.${bmm}`;
 document.getElementById('mc-best-month-km').textContent = `${Math.round(bestMonth[1]).toLocaleString('ko-KR')} km 기록`;
-document.getElementById('mc-best-day').textContent = MAX.km.toFixed(1)+' km';
+document.getElementById('mc-best-day').textContent = MAX.km.toFixed(1) + ' km';
 document.getElementById('mc-best-day-date').textContent = MAX.date;
+document.getElementById('mc-avg').textContent = AVG + ' km';
+document.getElementById('mc-avg-sub').textContent = `총 ${DAYS.length}일 기준`;
+document.getElementById('mc-streak').textContent = STREAK + ' 일';
+document.getElementById('mc-streak-sub').textContent = '연속 걷기 최장 기록';
 
 // 전체 즉시 렌더링
 buildHeatmap();
