@@ -428,13 +428,13 @@ const mountainPlugin = {
   beforeDraw(chart) {
     const {ctx, chartArea:{left, bottom, width, height}} = chart;
     const PEAKS = [
-      {ko:'에베레스트', h:8849, lw:.55},
-      {ko:'K2',         h:8611, lw:.42},
-      {ko:'칸첸중가',   h:8586, lw:.60},
-      {ko:'마칼루',     h:8485, lw:.45},
-      {ko:'킬리만자로', h:5895, lw:.50},
-      {ko:'몽블랑',     h:4808, lw:.48},
       {ko:'후지산',     h:3776, lw:.38},
+      {ko:'몽블랑',     h:4808, lw:.48},
+      {ko:'킬리만자로', h:5895, lw:.50},
+      {ko:'마칼루',     h:8485, lw:.45},
+      {ko:'칸첸중가',   h:8586, lw:.60},
+      {ko:'K2',         h:8611, lw:.42},
+      {ko:'에베레스트', h:8849, lw:.55},
     ];
     const N = PEAKS.length, maxH = PEAKS[0].h, maxPx = height * .82, slotW = width / N;
     ctx.save();
