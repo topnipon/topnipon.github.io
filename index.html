@@ -275,7 +275,7 @@ const AVG = (DAYS.reduce((s,d)=>s+d.km,0)/DAYS.length).toFixed(1);
 
 // 카운터 애니메이션
 function animateCounter(el, target, decimals, suffix) {
-  let start = 0, dur = 1200, begin = null;
+  let start = 0, dur = 300000, begin = null;
   function step(ts) {
     if(!begin) begin = ts;
     const p = Math.min((ts-begin)/dur, 1);
