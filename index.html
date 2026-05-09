@@ -41,7 +41,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 /* 지도 섹션 */
 #map-section{position:relative;border-radius:12px;overflow:hidden;height:480px;border:1px solid #30363d}
 #walk-map{width:100%;height:100%}
-.leaflet-tile{filter:brightness(0.55) saturate(0.6)}
+.leaflet-tile{filter:brightness(0.78) saturate(0.85)}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none}
 #map-overlay{position:absolute;bottom:20px;left:20px;right:20px;z-index:1000;pointer-events:none;display:flex;gap:12px;flex-wrap:wrap}
 .map-card{background:rgba(13,17,23,0.82);border:1px solid rgba(246,173,85,0.3);border-radius:12px;padding:14px 18px;backdrop-filter:blur(10px);flex:1;min-width:120px}
@@ -533,7 +533,7 @@ const MAP_PAL = ['#f6ad55','#68d391','#63b3ed','#e879f9','#fb923c','#a78bfa','#f
 function mkRoute(n, spread) {
   // 상/하/좌/우 중 랜덤 엣지에서 시작 (뷰포트 밖)
   const side = Math.floor(Math.random() * 4);
-  const latEdge = 0.058, lngEdge = 0.088;
+  const latEdge = 0.09, lngEdge = 0.13;
   let sLat, sLng;
   if      (side === 0) { sLat = CENTER[0] + latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
   else if (side === 1) { sLat = CENTER[0] - latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
@@ -585,7 +585,7 @@ function routeAt(c, t) {
 
 // ① 흐르는 점선 경로 (6개, 매 방문마다 랜덤)
 const flowRoutes = Array.from({length: 6}, (_, i) => {
-  const coords = smoothRoute(mkRoute(8 + Math.floor(Math.random() * 8), .006), 12);
+  const coords = smoothRoute(mkRoute(10 + Math.floor(Math.random() * 14), .009), 12);
   const color = MAP_PAL[i];
   const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 2.5, opacity: .85}).addTo(walkMap);
   setTimeout(() => {
@@ -601,7 +601,7 @@ const flowRoutes = Array.from({length: 6}, (_, i) => {
 
 // ② 그려지고 지워지는 경로 (3개, 루프)
 const drawRoutes = Array.from({length: 3}, (_, i) => {
-  const coords = smoothRoute(mkRoute(10 + Math.floor(Math.random() * 6), .007), 12);
+  const coords = smoothRoute(mkRoute(12 + Math.floor(Math.random() * 12), .009), 12);
   const color = MAP_PAL[(i + 2) % MAP_PAL.length];
   const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 3, opacity: .9}).addTo(walkMap);
   return {coords, poly, color};
@@ -629,7 +629,7 @@ setTimeout(() => {
 }, 600);
 
 // ③ 이동하는 러너 도트
-const runCoords = smoothRoute(mkRoute(16, .007), 12);
+const runCoords = smoothRoute(mkRoute(18, .009), 12);
 L.polyline(runCoords, {color: '#fff', weight: 1, opacity: .12}).addTo(walkMap);
 const runIcon = L.divIcon({
   className: '',
