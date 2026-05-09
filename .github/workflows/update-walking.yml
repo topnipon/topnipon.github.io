@@ -15,9 +15,7 @@ jobs:
 
       - name: Update walking-data.json
         run: |
-          DATE="${{ github.event.client_payload.date }}"
-          KM="${{ github.event.client_payload.km }}"
-          jq --arg d "$DATE" --argjson k "$KM" '.[$d] = $k' walking-data.json > tmp.json
+          jq --arg d "${{ github.event.client_payload.date }}" --argjson k "${{ github.event.client_payload.km }}" '.[$d] = $k' walking-data.json > tmp.json
           mv tmp.json walking-data.json
 
       - name: Commit and push
