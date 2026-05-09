@@ -423,6 +423,66 @@ function buildMonthly() {
 }
 
 // ── 차트 (누적 라인) ─────────────────────────────────────────────────
+const mountainPlugin = {
+  id: 'mountainBg',
+  beforeDraw(chart) {
+    const {ctx, chartArea:{left, bottom, width, height}} = chart;
+    const PEAKS = [
+      {ko:'에베레스트', h:8849, lw:.55},
+      {ko:'K2',         h:8611, lw:.42},
+      {ko:'칸첸중가',   h:8586, lw:.60},
+      {ko:'마칼루',     h:8485, lw:.45},
+      {ko:'킬리만자로', h:5895, lw:.50},
+      {ko:'몽블랑',     h:4808, lw:.48},
+      {ko:'후지산',     h:3776, lw:.38},
+    ];
+    const N = PEAKS.length, maxH = PEAKS[0].h, maxPx = height * .82, slotW = width / N;
+    ctx.save();
+    PEAKS.forEach((pk, i) => {
+      const cx = left + (i + .5) * slotW;
+      const pxH = (pk.h / maxH) * maxPx;
+      const peakY = bottom - pxH;
+      const bw = slotW * .72;
+      const lw = bw * pk.lw, rw = bw * (1 - pk.lw);
+      const snowH = pxH * .13;
+      // 산 실루엣
+      ctx.beginPath();
+      ctx.moveTo(cx - lw, bottom);
+      ctx.lineTo(cx, peakY);
+      ctx.lineTo(cx + rw, bottom);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(110,140,170,.07)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(180,210,240,.13)';
+      ctx.lineWidth = .8;
+      ctx.stroke();
+      // 설산 하이라이트
+      ctx.beginPath();
+      ctx.moveTo(cx - lw*(snowH/pxH), peakY + snowH);
+      ctx.lineTo(cx, peakY);
+      ctx.lineTo(cx + rw*(snowH/pxH), peakY + snowH);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,.09)';
+      ctx.fill();
+      // 정상 점
+      ctx.beginPath();
+      ctx.arc(cx, peakY, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(246,173,85,.7)';
+      ctx.fill();
+      // 높이
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(246,173,85,.55)';
+      ctx.font = '9px monospace';
+      ctx.fillText(pk.h.toLocaleString()+'m', cx, peakY - 17);
+      // 산 이름
+      ctx.fillStyle = 'rgba(180,200,220,.45)';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(pk.ko, cx, peakY - 5);
+    });
+    ctx.restore();
+  }
+};
+
 function buildJourney() {
   if(chartJourney) return;
   const ctx=document.getElementById('chart-journey').getContext('2d');
@@ -480,7 +540,8 @@ function buildJourney() {
           ticks:{color:'#8b949e',callback:v=>v.toLocaleString()+'km'}
         }
       }
-    }
+    },
+    plugins:[mountainPlugin]
   });
 
   // 마일스톤
