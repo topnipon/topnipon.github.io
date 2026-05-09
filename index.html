@@ -51,6 +51,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 @keyframes flowDash{to{stroke-dashoffset:-24}}
 @keyframes markerPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.5);opacity:0}}
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.15}}
+@keyframes dotBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.2)}}
 .runner-dot{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(246,173,85,.4),0 0 16px #f6ad55,0 0 4px #fff}
 #map-live{position:absolute;top:14px;right:14px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.78);border:1px solid rgba(104,211,145,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#68d391;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px)}
 #map-live-dot{width:6px;height:6px;border-radius:50%;background:#68d391;animation:liveBlink 1.4s ease-in-out infinite}
@@ -602,7 +603,7 @@ const flowRoutes = Array.from({length: 6}, (_, i) => {
 const drawRoutes = Array.from({length: 3}, (_, i) => {
   const coords = smoothRoute(mkRoute(10 + Math.floor(Math.random() * 6), .007), 12);
   const color = MAP_PAL[(i + 2) % MAP_PAL.length];
-  const poly = L.polyline(coords, {color, weight: 2.5, opacity: .9}).addTo(walkMap);
+  const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 3, opacity: .9}).addTo(walkMap);
   return {coords, poly, color};
 });
 setTimeout(() => {
@@ -677,7 +678,18 @@ flowRoutes.forEach((r, i) => {
 });
 drawRoutes.forEach((r, i) => addPM(r.coords[0], r.color, i * .6));
 
-// ⑥ 카드 데이터 + 최장 연속일 계산
+// ⑥ 경로 끝점 이모지 dot
+function addEndDot(latlng, color, delay) {
+  L.marker(latlng, {icon: L.divIcon({
+    className: '',
+    html: `<div style="font-size:20px;line-height:1;color:${color};animation:dotBounce 2s ${delay}s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 0 4px ${color})">●</div>`,
+    iconSize: [20, 20], iconAnchor: [10, 10]
+  }), zIndexOffset: 900}).addTo(walkMap);
+}
+flowRoutes.forEach((r, i) => addEndDot(r.coords[r.coords.length - 1], r.color, (i * 0.3) % 2));
+drawRoutes.forEach((r, i) => addEndDot(r.coords[r.coords.length - 1], r.color, (i * 0.5) % 2));
+
+// ⑦ 카드 데이터 + 최장 연속일 계산
 function calcStreak() {
   const dts = Object.keys(RAW).filter(d => RAW[d] > 0).sort();
   let max = 1, cur = 1;
