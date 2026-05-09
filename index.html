@@ -115,9 +115,23 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #grid-bottom .chart-wrap{display:flex;flex-direction:column}
 .wd-bar-fill{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1)}
 .wd-val{font-size:0.78rem;color:#f6ad55;margin-top:6px;font-weight:600}
+
+/* ── 인터랙션 ───────────────────────────────────────────────────── */
+#progress-bar{position:fixed;top:0;left:0;height:2px;z-index:10000;width:0%;background:linear-gradient(90deg,#c46200,#f6ad55,#ffd060,#f6ad55);box-shadow:0 0 8px rgba(246,173,85,.6);transition:width .08s linear}
+.cursor-trail{position:fixed;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,rgba(246,173,85,.9),transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);animation:trailFade .65s ease forwards}
+@keyframes trailFade{from{opacity:.9;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(3.5)}}
+.sc{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;cursor:default}
+.sc:hover{transform:translateY(-5px);border-color:rgba(246,173,85,.5);box-shadow:0 12px 30px rgba(246,173,85,.14)}
+.sc-val{transition:color .2s ease}
+.sc:hover .sc-val{color:#ffd060}
+@keyframes cardRipple{0%{box-shadow:0 0 0 0 rgba(246,173,85,.5)}100%{box-shadow:0 0 0 24px rgba(246,173,85,0)}}
+.sc.rippling{animation:cardRipple .55s ease}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
 </style>
 </head>
 <body>
+<div id="progress-bar"></div>
 
 <div id="tooltip"><div id="tt-date"></div><div id="tt-km"></div></div>
 
@@ -1048,6 +1062,80 @@ async function loadWeather(lat, lng, locationLabel) {
     document.getElementById('wx-cond').textContent = '날씨 정보 없음';
   }
 }
+
+// ── 인터랙션 시스템 ──────────────────────────────────────────────────
+
+// ① 스크롤 진행 바
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / Math.max(document.body.scrollHeight - window.innerHeight, 1) * 100;
+  document.getElementById('progress-bar').style.width = Math.min(pct, 100) + '%';
+}, {passive: true});
+
+// ② 커서 발광 트레일 (마우스 디바이스만)
+if (window.matchMedia('(pointer:fine)').matches) {
+  let lastT = 0;
+  document.addEventListener('mousemove', e => {
+    const now = Date.now();
+    if (now - lastT < 30) return;
+    lastT = now;
+    const d = document.createElement('div');
+    d.className = 'cursor-trail';
+    d.style.cssText = `left:${e.clientX}px;top:${e.clientY}px`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 650);
+  }, {passive: true});
+}
+
+// ③ 스탯 카드 클릭 리플
+document.querySelectorAll('.sc').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.remove('rippling');
+    void card.offsetWidth;
+    card.classList.add('rippling');
+    card.addEventListener('animationend', () => card.classList.remove('rippling'), {once: true});
+  });
+});
+
+// ④ 섹션 스크롤 reveal (IntersectionObserver)
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
+  });
+}, {threshold: 0.07, rootMargin: '0px 0px -40px 0px'});
+document.querySelectorAll('#content > div').forEach((el, i) => {
+  el.classList.add('reveal');
+  el.style.transitionDelay = (i * 0.1) + 's';
+  revObs.observe(el);
+});
+
+// ⑤ 히트맵 이웃 셀 파급 효과
+(function addHeatmapRipple() {
+  const svg = document.getElementById('heatmap-svg');
+  const cells = [...svg.querySelectorAll('.hm-cell')];
+  const STEP = 17;
+  cells.forEach(rect => {
+    const cx = parseFloat(rect.getAttribute('x'));
+    const cy = parseFloat(rect.getAttribute('y'));
+    rect.addEventListener('mouseenter', () => {
+      cells.forEach(r => {
+        const dx = (parseFloat(r.getAttribute('x')) - cx) / STEP;
+        const dy = (parseFloat(r.getAttribute('y')) - cy) / STEP;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist === 0) {
+          r.style.filter = 'brightness(1.6)'; r.style.opacity = '1';
+        } else if (dist < 3.5) {
+          r.style.opacity = String(Math.max(0.15, 1 - dist * 0.28));
+          r.style.filter = dist < 1.5 ? 'brightness(1.2)' : '';
+        } else {
+          r.style.opacity = '0.1'; r.style.filter = '';
+        }
+      });
+    });
+    rect.addEventListener('mouseleave', () => {
+      cells.forEach(r => { r.style.opacity = ''; r.style.filter = ''; });
+    });
+  });
+})();
 
 // 현재 위치 감지 → fallback 성남
 if (navigator.geolocation) {
