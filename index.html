@@ -28,6 +28,13 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #grid-bottom{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
 #grid-bottom>div{display:flex;flex-direction:column}
 #grid-bottom .chart-wrap{flex:1}
+@media(max-width:640px){
+  #grid-bottom{grid-template-columns:1fr}
+  #content{padding:0 16px 40px}
+  #header{padding:24px 16px 0}
+  #footer{padding:28px 16px}
+  #footer-inner{grid-template-columns:1fr;gap:20px}
+}
 
 /* 푸터 */
 #footer{background:#161b22;border-top:1px solid #30363d;padding:40px;margin-top:8px}
