@@ -139,6 +139,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div class="section-label">🗺 나의 걷기 지역</div>
     <div id="map-section">
       <div id="walk-map"></div>
+      <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
       <div id="weather-panel">
         <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
         <div id="wx-main">
@@ -835,64 +836,229 @@ buildWeekday();
     `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
 })();
 
-// ── 날씨 (Open-Meteo, 성남/판교) ────────────────────────────────────
-(async function loadWeather() {
-  const WX_ICON = {
-    0:'☀️', 1:'🌤️', 2:'⛅', 3:'🌥️',
-    45:'🌫️', 48:'🌫️',
-    51:'🌦️', 53:'🌦️', 55:'🌧️',
-    61:'🌧️', 63:'🌧️', 65:'🌧️',
-    71:'🌨️', 73:'🌨️', 75:'❄️',
-    80:'🌦️', 81:'🌧️', 82:'⛈️',
-    95:'⛈️', 96:'⛈️', 99:'⛈️'
-  };
-  const WX_DESC = {
-    0:'맑음', 1:'대체로 맑음', 2:'구름 조금', 3:'흐림',
-    45:'안개', 48:'짙은 안개',
-    51:'이슬비', 53:'이슬비', 55:'강한 이슬비',
-    61:'비', 63:'비', 65:'강한 비',
-    71:'눈', 73:'눈', 75:'강한 눈',
-    80:'소나기', 81:'소나기', 82:'강한 소나기',
-    95:'뇌우', 96:'뇌우(우박)', 99:'강한 뇌우'
-  };
-  const DIRS = ['N','NE','E','SE','S','SW','W','NW'];
-  try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.145&longitude=127.422&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,weather_code&timezone=Asia/Seoul');
-    const json = await res.json();
-    const c = json.current;
-    const code = c.weather_code;
-    const wd = c.wind_direction_10m;
+// ── 날씨 + 날씨 효과 애니메이션 ─────────────────────────────────────
+const WX_ICON = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'🌥️',45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+const WX_DESC = {
+  0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',
+  45:'안개',48:'짙은 안개',51:'이슬비',53:'이슬비',55:'강한 이슬비',
+  61:'비',63:'비',65:'강한 비',71:'눈',73:'눈',75:'강한 눈',
+  80:'소나기',81:'소나기',82:'강한 소나기',95:'뇌우',96:'뇌우(우박)',99:'강한 뇌우'
+};
+const DIRS = ['N','NE','E','SE','S','SW','W','NW'];
 
-    document.getElementById('wx-icon').textContent  = WX_ICON[code] ?? '🌡️';
-    document.getElementById('wx-temp').textContent  = Math.round(c.temperature_2m) + '°C';
-    document.getElementById('wx-cond').textContent  = WX_DESC[code] ?? '—';
-    document.getElementById('wx-feels').textContent = Math.round(c.apparent_temperature) + '°C';
-    document.getElementById('wx-humid').textContent = c.relative_humidity_2m + '%';
-    document.getElementById('wx-wind').textContent  = c.wind_speed_10m.toFixed(1) + ' m/s';
-    document.getElementById('wx-wdir').textContent  = DIRS[Math.round(wd / 45) % 8];
+// ── 날씨 효과 캔버스 ─────────────────────────────────────────────────
+const wxCanvas = document.getElementById('wx-canvas');
+const wxCtx = wxCanvas.getContext('2d');
+let wxRaf = null;
+
+function resizeWxCanvas() {
+  wxCanvas.width  = wxCanvas.offsetWidth;
+  wxCanvas.height = wxCanvas.offsetHeight;
+}
+resizeWxCanvas();
+window.addEventListener('resize', resizeWxCanvas);
+
+function stopWxEffect() {
+  if (wxRaf) { cancelAnimationFrame(wxRaf); wxRaf = null; }
+  wxCtx.clearRect(0, 0, wxCanvas.width, wxCanvas.height);
+}
+
+function fxRain(count, heavy) {
+  stopWxEffect();
+  const pts = Array.from({length: count}, () => ({
+    x: Math.random() * wxCanvas.width,
+    y: Math.random() * wxCanvas.height,
+    len: heavy ? 18 + Math.random()*10 : 9 + Math.random()*8,
+    spd: heavy ? 13 + Math.random()*6  : 6 + Math.random()*5,
+    op:  0.2 + Math.random() * 0.45,
+  }));
+  (function draw() {
+    const {width:w, height:h} = wxCanvas;
+    wxCtx.clearRect(0, 0, w, h);
+    pts.forEach(p => {
+      p.y += p.spd; p.x += p.spd * 0.18;
+      if (p.y > h + 20 || p.x > w + 20) { p.x = Math.random()*w; p.y = -15; }
+      wxCtx.strokeStyle = `rgba(174,214,241,${p.op})`;
+      wxCtx.lineWidth = heavy ? 1.5 : 0.9;
+      wxCtx.beginPath();
+      wxCtx.moveTo(p.x, p.y);
+      wxCtx.lineTo(p.x - p.len*0.18, p.y - p.len);
+      wxCtx.stroke();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxSnow(count) {
+  stopWxEffect();
+  const t0 = performance.now();
+  const pts = Array.from({length: count}, () => ({
+    x: Math.random() * wxCanvas.width, y: Math.random() * wxCanvas.height,
+    r: 1.5 + Math.random()*2.5, spd: 0.7 + Math.random()*1.4,
+    drift: (Math.random()-.5)*.3, phase: Math.random()*Math.PI*2,
+    op: 0.5 + Math.random()*.5,
+  }));
+  (function draw(ts) {
+    const {width:w, height:h} = wxCanvas;
+    const t = (ts - t0) / 1000;
+    wxCtx.clearRect(0, 0, w, h);
+    pts.forEach(p => {
+      p.y += p.spd; p.x += p.drift + Math.sin(t + p.phase) * 0.4;
+      if (p.y > h+10) { p.y = -10; p.x = Math.random()*w; }
+      wxCtx.fillStyle = `rgba(255,255,255,${p.op})`;
+      wxCtx.beginPath(); wxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })(performance.now());
+}
+
+function fxFog() {
+  stopWxEffect();
+  const {width:w, height:h} = wxCanvas;
+  const blobs = Array.from({length: 7}, (_, i) => ({
+    x: (i/6)*w*1.3 - w*.15, y: h*(.1 + Math.random()*.7),
+    rw: w*(.4+Math.random()*.5), rh: h*(.1+Math.random()*.1),
+    spd: (Math.random()-.5)*.4, op: .03 + Math.random()*.05,
+  }));
+  (function draw() {
+    const {width:W, height:H} = wxCanvas;
+    wxCtx.clearRect(0, 0, W, H);
+    blobs.forEach(b => {
+      b.x += b.spd;
+      if (b.x - b.rw > W) b.x = -b.rw;
+      if (b.x + b.rw < 0) b.x = W + b.rw;
+      const g = wxCtx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.rw);
+      g.addColorStop(0, `rgba(200,212,224,${b.op})`);
+      g.addColorStop(1, 'rgba(200,212,224,0)');
+      wxCtx.fillStyle = g;
+      wxCtx.beginPath(); wxCtx.ellipse(b.x, b.y, b.rw, b.rh, 0, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxSun() {
+  stopWxEffect();
+  const t0 = performance.now();
+  const sparks = Array.from({length: 30}, () => ({
+    x: Math.random()*wxCanvas.width, y: Math.random()*wxCanvas.height,
+    r: 1+Math.random()*2, spd: .4+Math.random()*.8, phase: Math.random()*Math.PI*2,
+  }));
+  (function draw(ts) {
+    const {width:w, height:h} = wxCanvas;
+    const t = (ts - t0)/1000;
+    wxCtx.clearRect(0, 0, w, h);
+    const g = wxCtx.createLinearGradient(0,0,0,h*.6);
+    g.addColorStop(0,'rgba(255,200,60,0.07)'); g.addColorStop(1,'rgba(255,200,60,0)');
+    wxCtx.fillStyle = g; wxCtx.fillRect(0,0,w,h);
+    sparks.forEach(p => {
+      const a = (Math.sin(t*p.spd+p.phase)+1)/2 * 0.7;
+      wxCtx.fillStyle = `rgba(255,220,80,${a})`;
+      wxCtx.beginPath(); wxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })(performance.now());
+}
+
+function fxCloud() {
+  stopWxEffect();
+  const {width:w, height:h} = wxCanvas;
+  const clouds = Array.from({length: 5}, (_, i) => ({
+    x: (i/4)*w*1.2 - w*.1, y: h*(.08+Math.random()*.25),
+    r: 45+Math.random()*45, spd: .25+Math.random()*.3, op: .04+Math.random()*.05,
+  }));
+  (function draw() {
+    const {width:W, height:H} = wxCanvas;
+    wxCtx.clearRect(0, 0, W, H);
+    clouds.forEach(c => {
+      c.x += c.spd; if (c.x - c.r > W) c.x = -c.r;
+      wxCtx.fillStyle = `rgba(180,192,205,${c.op})`;
+      wxCtx.beginPath();
+      wxCtx.arc(c.x, c.y, c.r, 0, Math.PI*2);
+      wxCtx.arc(c.x+c.r*.65, c.y-c.r*.22, c.r*.65, 0, Math.PI*2);
+      wxCtx.arc(c.x-c.r*.5,  c.y-c.r*.12, c.r*.55, 0, Math.PI*2);
+      wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxThunder() {
+  fxRain(90, true);
+  function flash() {
+    const {width:w, height:h} = wxCanvas;
+    wxCtx.fillStyle = 'rgba(220,230,255,0.18)';
+    wxCtx.fillRect(0,0,w,h);
+    setTimeout(()=>{ wxCtx.clearRect(0,0,w,h); }, 80);
+    setTimeout(()=>{ wxCtx.fillStyle='rgba(220,230,255,0.10)'; wxCtx.fillRect(0,0,w,h); }, 130);
+    setTimeout(()=>{ wxCtx.clearRect(0,0,w,h); }, 200);
+    setTimeout(flash, 3500 + Math.random()*5000);
+  }
+  setTimeout(flash, 1200);
+}
+
+function applyWxEffect(code) {
+  if      (code === 0)                          fxSun();
+  else if ([1,2,3].includes(code))              fxCloud();
+  else if ([45,48].includes(code))              fxFog();
+  else if ([51,53,55].includes(code))           fxRain(35, false);
+  else if ([61,63,80,81].includes(code))        fxRain(70, false);
+  else if ([65,82].includes(code))              fxRain(110, true);
+  else if ([71,73,75].includes(code))           fxSnow(55);
+  else if ([95,96,99].includes(code))           fxThunder();
+}
+
+// ── 날씨 데이터 로드 (Geolocation → Open-Meteo) ──────────────────────
+async function loadWeather(lat, lng, locationLabel) {
+  document.getElementById('wx-hdr').textContent = `🌡 현재 날씨 · ${locationLabel}`;
+  try {
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,weather_code&timezone=Asia%2FSeoul`);
+    const json = await res.json();
+    const c = json.current, code = c.weather_code, wd = c.wind_direction_10m;
+
+    document.getElementById('wx-icon').textContent   = WX_ICON[code]  ?? '🌡️';
+    document.getElementById('wx-temp').textContent   = Math.round(c.temperature_2m) + '°C';
+    document.getElementById('wx-cond').textContent   = WX_DESC[code]  ?? '—';
+    document.getElementById('wx-feels').textContent  = Math.round(c.apparent_temperature) + '°C';
+    document.getElementById('wx-humid').textContent  = c.relative_humidity_2m + '%';
+    document.getElementById('wx-wind').textContent   = c.wind_speed_10m.toFixed(1) + ' m/s';
+    document.getElementById('wx-wdir').textContent   = DIRS[Math.round(wd/45) % 8];
     document.getElementById('wx-precip').textContent = c.precipitation.toFixed(1) + ' mm';
 
-    // 풍향 화살표 회전 + 흔들림 애니메이션
     const arrow = document.getElementById('wx-arrow');
-    arrow.style.setProperty('--wd', wd + 'deg');
     arrow.style.rotate = wd + 'deg';
-    let t0 = null;
+    let r0 = null;
     (function rockArrow(ts) {
-      if (!t0) t0 = ts;
-      const wobble = Math.sin((ts - t0) / 1200 * Math.PI) * 11;
-      arrow.style.rotate = (wd + wobble) + 'deg';
+      if (!r0) r0 = ts;
+      arrow.style.rotate = (wd + Math.sin((ts-r0)/1200*Math.PI)*11) + 'deg';
       requestAnimationFrame(rockArrow);
     })(performance.now());
 
-    // 업데이트 시각
     const t = new Date(c.time);
-    const hh = t.getHours().toString().padStart(2,'0');
-    const mm = t.getMinutes().toString().padStart(2,'0');
-    document.getElementById('wx-upd').textContent = `${hh}:${mm} 기준 · Open-Meteo`;
+    document.getElementById('wx-upd').textContent =
+      `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')} 기준`;
+
+    applyWxEffect(code);
   } catch(e) {
-    document.getElementById('wx-cond').textContent = '날씨 정보를 불러올 수 없습니다';
+    document.getElementById('wx-cond').textContent = '날씨 정보 없음';
   }
-})();
+}
+
+// 현재 위치 감지 → fallback 성남
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => loadWeather(pos.coords.latitude, pos.coords.longitude, '현재 위치'),
+    ()  => loadWeather(37.145, 127.422, '성남'),
+    {timeout: 6000}
+  );
+} else {
+  loadWeather(37.145, 127.422, '성남');
+}
 </script>
 </body>
 </html>
