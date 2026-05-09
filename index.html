@@ -41,13 +41,12 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   #header{padding:24px 16px 0}
   #footer{padding:28px 16px}
   #footer-inner{grid-template-columns:1fr;gap:20px}
-  #weather-panel{position:relative;top:auto;left:auto;margin-top:10px;padding:12px 14px;min-width:0;width:100%;border-radius:10px}
-  #wx-hdr,#wx-upd{display:none}
-  #wx-main{margin-bottom:8px;gap:8px}
-  #wx-icon{font-size:1.6rem}
-  #wx-temp{font-size:1.2rem}
+  #weather-panel{padding:8px 10px;min-width:0;max-width:calc(100% - 28px)}
+  #wx-hdr,#wx-upd,#wx-grid{display:none}
+  #wx-main{margin-bottom:0;gap:6px}
+  #wx-icon{font-size:1.5rem}
+  #wx-temp{font-size:1.15rem}
   #wx-cond{font-size:10px}
-  #wx-grid{grid-template-columns:repeat(4,1fr);gap:6px 8px}
 }
 
 /* 지도 섹션 */
@@ -56,7 +55,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #walk-map{width:100%;height:100%}
 .leaflet-tile{filter:brightness(1.05) saturate(1.1)}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none}
-#map-overlay{position:absolute;bottom:20px;left:20px;right:20px;z-index:1000;pointer-events:none;display:flex;gap:12px;flex-wrap:wrap}
+#map-overlay{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .map-card{background:rgba(13,17,23,0.82);border:1px solid rgba(246,173,85,0.3);border-radius:12px;padding:14px 18px;backdrop-filter:blur(10px);flex:1;min-width:120px}
 .map-card-val{font-size:1.4rem;font-weight:800;color:#f6ad55;line-height:1}
 .map-card-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
@@ -174,54 +173,54 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
         <div id="walk-map"></div>
         <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
         <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
-        <div id="map-overlay">
-          <div class="map-card">
-            <div class="map-card-val" id="mc-total">—</div>
-            <div class="map-card-lbl">Total Distance</div>
-            <div class="map-card-sub" id="mc-equiv">—</div>
+        <div id="weather-panel">
+          <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
+          <div id="wx-main">
+            <span id="wx-icon">⋯</span>
+            <div><div id="wx-temp">—</div><div id="wx-cond">불러오는 중…</div></div>
           </div>
-          <div class="map-card">
-            <div class="map-card-val" id="mc-days">—</div>
-            <div class="map-card-lbl">Active Days</div>
-            <div class="map-card-sub" id="mc-period">2025.05 – 2026.05</div>
+          <div id="wx-grid">
+            <div class="wx-row"><div class="wx-v" id="wx-feels">—</div><div class="wx-l">체감온도</div></div>
+            <div class="wx-row"><div class="wx-v" id="wx-humid">—</div><div class="wx-l">습도</div></div>
+            <div class="wx-row"><div class="wx-v" id="wx-wind">—</div><div class="wx-l">풍속</div></div>
+            <div class="wx-row"><div class="wx-v"><span id="wx-arrow">↑</span> <span id="wx-wdir">—</span></div><div class="wx-l">풍향</div></div>
+            <div class="wx-row" style="grid-column:1/-1"><div class="wx-v" id="wx-precip">—</div><div class="wx-l">강수량</div></div>
           </div>
-          <div class="map-card">
-            <div class="map-card-val" id="mc-best-month">—</div>
-            <div class="map-card-lbl">Best Month</div>
-            <div class="map-card-sub" id="mc-best-month-km">—</div>
-          </div>
-          <div class="map-card">
-            <div class="map-card-val" id="mc-best-day">—</div>
-            <div class="map-card-lbl">Best Single Day</div>
-            <div class="map-card-sub" id="mc-best-day-date">—</div>
-          </div>
-          <div class="map-card">
-            <div class="map-card-val" id="mc-avg">—</div>
-            <div class="map-card-lbl">Daily Average</div>
-            <div class="map-card-sub" id="mc-avg-sub">—</div>
-          </div>
-          <div class="map-card">
-            <div class="map-card-val" id="mc-streak">—</div>
-            <div class="map-card-lbl">Best Streak</div>
-            <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
-          </div>
-        </div>
+          <div id="wx-upd">—</div>
+        </div><!-- /weather-panel -->
       </div><!-- /map-section -->
-      <div id="weather-panel">
-        <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
-        <div id="wx-main">
-          <span id="wx-icon">⋯</span>
-          <div><div id="wx-temp">—</div><div id="wx-cond">불러오는 중…</div></div>
+      <div id="map-overlay">
+        <div class="map-card">
+          <div class="map-card-val" id="mc-total">—</div>
+          <div class="map-card-lbl">Total Distance</div>
+          <div class="map-card-sub" id="mc-equiv">—</div>
         </div>
-        <div id="wx-grid">
-          <div class="wx-row"><div class="wx-v" id="wx-feels">—</div><div class="wx-l">체감온도</div></div>
-          <div class="wx-row"><div class="wx-v" id="wx-humid">—</div><div class="wx-l">습도</div></div>
-          <div class="wx-row"><div class="wx-v" id="wx-wind">—</div><div class="wx-l">풍속</div></div>
-          <div class="wx-row"><div class="wx-v"><span id="wx-arrow">↑</span> <span id="wx-wdir">—</span></div><div class="wx-l">풍향</div></div>
-          <div class="wx-row" style="grid-column:1/-1"><div class="wx-v" id="wx-precip">—</div><div class="wx-l">강수량</div></div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-days">—</div>
+          <div class="map-card-lbl">Active Days</div>
+          <div class="map-card-sub" id="mc-period">2025.05 – 2026.05</div>
         </div>
-        <div id="wx-upd">—</div>
-      </div><!-- /weather-panel -->
+        <div class="map-card">
+          <div class="map-card-val" id="mc-best-month">—</div>
+          <div class="map-card-lbl">Best Month</div>
+          <div class="map-card-sub" id="mc-best-month-km">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-best-day">—</div>
+          <div class="map-card-lbl">Best Single Day</div>
+          <div class="map-card-sub" id="mc-best-day-date">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-avg">—</div>
+          <div class="map-card-lbl">Daily Average</div>
+          <div class="map-card-sub" id="mc-avg-sub">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-streak">—</div>
+          <div class="map-card-lbl">Best Streak</div>
+          <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
+        </div>
+      </div>
     </div><!-- /map-wrap -->
   </div>
 
