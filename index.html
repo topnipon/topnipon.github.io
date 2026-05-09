@@ -900,6 +900,9 @@ document.getElementById('mc-avg-steps').textContent = AVG_STEPS.toLocaleString('
 const avgStepsPerKm = TOTAL_STEPS > 0 && TOTAL > 0 ? Math.round(TOTAL_STEPS/TOTAL) : 0;
 document.getElementById('mc-steps-per-km').textContent = `km당 ${avgStepsPerKm.toLocaleString()}보`;
 
+// switchMonthly를 전역에서 호출 가능하도록 등록
+window.switchMonthly = switchMonthly;
+
 // 전체 즉시 렌더링
 buildHeatmap();
 buildMonthly();
@@ -1219,8 +1222,6 @@ document.querySelectorAll('#content > div').forEach((el, i) => {
   });
 })();
 
-}); // fetch .then(RAW => { ... }) 끝
-
 // 현재 위치 감지 → fallback 성남
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
@@ -1231,6 +1232,8 @@ if (navigator.geolocation) {
 } else {
   loadWeather(37.145, 127.422, '성남');
 }
+
+}); // fetch .then(RAW => { ... }) 끝
 </script>
 </body>
 </html>
