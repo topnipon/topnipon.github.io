@@ -41,15 +41,17 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   #header{padding:24px 16px 0}
   #footer{padding:28px 16px}
   #footer-inner{grid-template-columns:1fr;gap:20px}
-  #weather-panel{padding:8px 10px;min-width:0}
-  #wx-hdr,#wx-grid,#wx-upd{display:none}
-  #wx-main{margin-bottom:0;gap:6px}
-  #wx-icon{font-size:1.4rem}
-  #wx-temp{font-size:1.1rem}
+  #weather-panel{position:relative;top:auto;left:auto;margin-top:10px;padding:12px 14px;min-width:0;width:100%;border-radius:10px}
+  #wx-hdr,#wx-upd{display:none}
+  #wx-main{margin-bottom:8px;gap:8px}
+  #wx-icon{font-size:1.6rem}
+  #wx-temp{font-size:1.2rem}
   #wx-cond{font-size:10px}
+  #wx-grid{grid-template-columns:repeat(4,1fr);gap:6px 8px}
 }
 
 /* 지도 섹션 */
+#map-wrap{position:relative}
 #map-section{position:relative;border-radius:12px;overflow:hidden;height:480px;border:1px solid #30363d}
 #walk-map{width:100%;height:100%}
 .leaflet-tile{filter:brightness(1.05) saturate(1.1)}
@@ -167,9 +169,44 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   <!-- 지도 -->
   <div>
     <div class="section-label">🗺 나의 걷기 지역</div>
-    <div id="map-section">
-      <div id="walk-map"></div>
-      <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
+    <div id="map-wrap">
+      <div id="map-section">
+        <div id="walk-map"></div>
+        <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
+        <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
+        <div id="map-overlay">
+          <div class="map-card">
+            <div class="map-card-val" id="mc-total">—</div>
+            <div class="map-card-lbl">Total Distance</div>
+            <div class="map-card-sub" id="mc-equiv">—</div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-val" id="mc-days">—</div>
+            <div class="map-card-lbl">Active Days</div>
+            <div class="map-card-sub" id="mc-period">2025.05 – 2026.05</div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-val" id="mc-best-month">—</div>
+            <div class="map-card-lbl">Best Month</div>
+            <div class="map-card-sub" id="mc-best-month-km">—</div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-val" id="mc-best-day">—</div>
+            <div class="map-card-lbl">Best Single Day</div>
+            <div class="map-card-sub" id="mc-best-day-date">—</div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-val" id="mc-avg">—</div>
+            <div class="map-card-lbl">Daily Average</div>
+            <div class="map-card-sub" id="mc-avg-sub">—</div>
+          </div>
+          <div class="map-card">
+            <div class="map-card-val" id="mc-streak">—</div>
+            <div class="map-card-lbl">Best Streak</div>
+            <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
+          </div>
+        </div>
+      </div><!-- /map-section -->
       <div id="weather-panel">
         <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
         <div id="wx-main">
@@ -184,41 +221,8 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
           <div class="wx-row" style="grid-column:1/-1"><div class="wx-v" id="wx-precip">—</div><div class="wx-l">강수량</div></div>
         </div>
         <div id="wx-upd">—</div>
-      </div>
-      <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
-      <div id="map-overlay">
-        <div class="map-card">
-          <div class="map-card-val" id="mc-total">—</div>
-          <div class="map-card-lbl">Total Distance</div>
-          <div class="map-card-sub" id="mc-equiv">—</div>
-        </div>
-        <div class="map-card">
-          <div class="map-card-val" id="mc-days">—</div>
-          <div class="map-card-lbl">Active Days</div>
-          <div class="map-card-sub" id="mc-period">2025.05 – 2026.05</div>
-        </div>
-        <div class="map-card">
-          <div class="map-card-val" id="mc-best-month">—</div>
-          <div class="map-card-lbl">Best Month</div>
-          <div class="map-card-sub" id="mc-best-month-km">—</div>
-        </div>
-        <div class="map-card">
-          <div class="map-card-val" id="mc-best-day">—</div>
-          <div class="map-card-lbl">Best Single Day</div>
-          <div class="map-card-sub" id="mc-best-day-date">—</div>
-        </div>
-        <div class="map-card">
-          <div class="map-card-val" id="mc-avg">—</div>
-          <div class="map-card-lbl">Daily Average</div>
-          <div class="map-card-sub" id="mc-avg-sub">—</div>
-        </div>
-        <div class="map-card">
-          <div class="map-card-val" id="mc-streak">—</div>
-          <div class="map-card-lbl">Best Streak</div>
-          <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
-        </div>
-      </div>
-    </div>
+      </div><!-- /weather-panel -->
+    </div><!-- /map-wrap -->
   </div>
 
   <!-- 히트맵 (전체 너비) -->
