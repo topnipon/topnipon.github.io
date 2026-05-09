@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>땡굴이의 걷기 기록</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.8/dist/lottie-player.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -13,8 +14,12 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 
 /* 헤더 */
 #header{padding:32px 20px 0}
+#header-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+#header-text{flex:1}
 #title{font-size:1.1rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
 #subtitle{font-size:2rem;font-weight:700;color:#fff;margin-bottom:28px}
+#lottie-character{width:160px;height:160px;flex-shrink:0;filter:drop-shadow(0 0 20px rgba(246,173,85,.25))}
+@media(max-width:640px){#lottie-character{width:100px;height:100px}}
 
 /* 스탯 카드 */
 #stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px}
@@ -136,8 +141,13 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 <div id="tooltip"><div id="tt-date"></div><div id="tt-km"></div></div>
 
 <div id="header">
-  <div id="title">My Walking Record · 2025.05 – 2026.05</div>
-  <div id="subtitle">땡굴이의 걷기 기록</div>
+  <div id="header-top">
+    <div id="header-text">
+      <div id="title">My Walking Record · 2025.05 – 2026.05</div>
+      <div id="subtitle">땡굴이의 걷기 기록</div>
+    </div>
+    <lottie-player id="lottie-character" src="./cool-man.json" background="transparent" speed="1" loop autoplay></lottie-player>
+  </div>
   <div id="stats">
     <div class="sc"><div class="sc-val" id="s-total">0</div><div class="sc-lbl">Total km</div></div>
     <div class="sc"><div class="sc-val" id="s-days">0</div><div class="sc-lbl">기록된 날</div></div>
