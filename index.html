@@ -145,7 +145,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 <body>
 <div id="progress-bar"></div>
 
-<div id="tooltip"><div id="tt-date"></div><div id="tt-km"></div></div>
+<div id="tooltip"><div id="tt-date"></div><div id="tt-km"></div><div id="tt-steps"></div></div>
 
 <div id="header">
   <div id="header-top">
@@ -299,10 +299,12 @@ fetch('./data/walking-data.json?v=' + Date.now())
 // ── 데이터 가공 ─────────────────────────────────────────────────────
 const entries = Object.entries(RAW).sort(([a],[b])=>a<b?-1:1);
 let cum = 0;
-const DAYS = entries.map(([date,km])=>{
+const DAYS = entries.map(([date,val])=>{
+  const km = typeof val === 'object' ? val.km : val;
+  const steps = typeof val === 'object' ? val.steps : 0;
   cum += km;
   const d = new Date(date+'T00:00:00');
-  return { date, km, cumKm:cum, ym:date.slice(0,7), wd:d.getDay() };
+  return { date, km, steps, cumKm:cum, ym:date.slice(0,7), wd:d.getDay() };
 });
 const TOTAL = Math.round(DAYS[DAYS.length-1].cumKm);
 const MAX = DAYS.reduce((a,b)=>b.km>a.km?b:a);
@@ -428,6 +430,7 @@ function buildHeatmap() {
         tooltip.style.top=(e.clientY-36)+'px';
         document.getElementById('tt-date').textContent=day.date;
         document.getElementById('tt-km').textContent=day.km>0?day.km.toFixed(1)+' km':'기록 없음';
+        document.getElementById('tt-steps').textContent=day.steps>0?day.steps.toLocaleString()+'보':'';
       });
       rect.addEventListener('mouseleave',()=>{ tooltip.style.opacity=0; });
       svg.appendChild(rect);
