@@ -67,7 +67,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 
 /* 히트맵 */
 #heatmap-wrap{overflow-x:hidden;padding-bottom:12px;width:100%}
-#heatmap-svg{display:block}
+#heatmap-svg{display:block;width:100%;height:auto}
 .hm-month{font-size:11px;fill:#8b949e}
 .hm-day{font-size:10px;fill:#8b949e}
 .hm-cell{rx:3;ry:3;cursor:pointer;transition:opacity .15s}
@@ -319,9 +319,8 @@ function buildHeatmap() {
   const W = weeks.length*STEP+60;
   const H = 7*STEP+50;
   svg.setAttribute('width', '100%');
-  svg.setAttribute('height', H);
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.setAttribute('preserveAspectRatio', 'xMinYMid meet');
 
   // 요일 레이블 (월~일)
   ['월','화','수','목','금','토','일'].forEach((lbl,i)=>{
