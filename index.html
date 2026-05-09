@@ -49,7 +49,6 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .map-card-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
 .map-card-sub{font-size:0.72rem;color:#c9d1d9;margin-top:4px}
 @keyframes flowDash{to{stroke-dashoffset:-24}}
-.walk-line path{stroke-dasharray:14 10;animation:flowDash 1.8s linear infinite}
 
 /* 푸터 */
 #footer{background:#161b22;border-top:1px solid #30363d;padding:40px 20px;margin-top:8px}
@@ -541,12 +540,15 @@ const ROUTES = [
 ROUTES.forEach(r => {
   const line = L.polyline(r.coords, {
     color: r.color, weight: r.weight, opacity: 0.9,
-    className: 'walk-line',
   }).addTo(walkMap);
   setTimeout(() => {
     const el = line.getElement();
-    if (el) el.style.animationDelay = r.delay + 's';
-  }, 200);
+    if (el) {
+      el.style.strokeDasharray = '14 10';
+      el.style.animation = `flowDash 1.8s linear infinite`;
+      el.style.animationDelay = r.delay + 's';
+    }
+  }, 400);
 });
 
 // 카드 데이터
