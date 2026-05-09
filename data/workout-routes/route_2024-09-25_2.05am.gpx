@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Apple Health Export" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <time>2026-05-09T05:23:18Z</time>
+  </metadata>
+  <trk>
+    <name>Route 2024-09-25 2:05am</name>
+    <trkseg>
+      <trkpt lon="127.069726" lat="37.328555"><ele>117.187351</ele><time>2024-09-24T17:04:41Z</time><extensions><speed>0.000000</speed><course>-1.000000</course><hAcc>9.582864</hAcc><vAcc>42.762379</vAcc></extensions></trkpt>
+      <trkpt lon="127.069720" lat="37.328554"><ele>110.486056</ele><time>2024-09-24T17:04:47Z</time><extensions><speed>1.284256</speed><course>-1.000000</course><hAcc>9.790357</hAcc><vAcc>42.762379</vAcc></extensions></trkpt>
+      <trkpt lon="127.069720" lat="37.328554"><ele>110.486056</ele><time>2024-09-24T17:04:51Z</time><extensions><speed>0.000000</speed><course>-1.000000</course><hAcc>9.981674</hAcc><vAcc>42.762379</vAcc></extensions></trkpt>
+      <trkpt lon="127.069743" lat="37.328467"><ele>110.509533</ele><time>2024-09-24T17:05:01Z</time><extensions><speed>-1.000000</speed><course>-1.000000</course><hAcc>11.041380</hAcc><vAcc>198.629776</vAcc></extensions></trkpt>
+      <trkpt lon="127.069743" lat="37.328467"><ele>110.509533</ele><time>2024-09-24T17:05:03Z</time><extensions><speed>-1.000000</speed><course>-1.000000</course><hAcc>11.240268</hAcc><vAcc>198.629776</vAcc></extensions></trkpt>
+      <trkpt lon="127.069728" lat="37.328468"><ele>110.509533</ele><time>2024-09-24T17:05:10Z</time><extensions><speed>1.610942</speed><course>-1.000000</course><hAcc>11.910541</hAcc><vAcc>250.000000</vAcc></extensions></trkpt>
+      <trkpt lon="127.069698" lat="37.328421"><ele>109.830600</ele><time>2024-09-24T17:05:14Z</time><extensions><speed>1.453628</speed><course>-1.000000</course><hAcc>12.277782</hAcc><vAcc>250.000000</vAcc></extensions></trkpt>
+      <trkpt lon="127.069698" lat="37.328421"><ele>109.830600</ele><time>2024-09-24T17:05:17Z</time><extensions><speed>-1.000000</speed><course>-1.000000</course><hAcc>12.545468</hAcc><vAcc>250.000000</vAcc></extensions></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

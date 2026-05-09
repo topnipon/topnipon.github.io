@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Apple Health Export" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <time>2026-05-09T05:23:45Z</time>
+  </metadata>
+  <trk>
+    <name>Route 2025-08-31 12:30pm</name>
+    <trkseg>
+      <trkpt lon="127.082291" lat="37.311609"><ele>92.495167</ele><time>2025-08-31T03:30:08Z</time><extensions><speed>0.627403</speed><course>356.213323</course><hAcc>0.935841</hAcc><vAcc>0.996287</vAcc></extensions></trkpt>
+      <trkpt lon="127.082291" lat="37.311615"><ele>92.431028</ele><time>2025-08-31T03:30:09Z</time><extensions><speed>0.712042</speed><course>356.531399</course><hAcc>0.807884</hAcc><vAcc>0.832678</vAcc></extensions></trkpt>
+      <trkpt lon="127.082290" lat="37.311622"><ele>92.365598</ele><time>2025-08-31T03:30:10Z</time><extensions><speed>0.757672</speed><course>356.932074</course><hAcc>0.730673</hAcc><vAcc>0.694066</vAcc></extensions></trkpt>
+      <trkpt lon="127.082290" lat="37.311629"><ele>92.297622</ele><time>2025-08-31T03:30:11Z</time><extensions><speed>0.775905</speed><course>358.503089</course><hAcc>0.684499</hAcc><vAcc>0.582366</vAcc></extensions></trkpt>
+      <trkpt lon="127.082290" lat="37.311636"><ele>92.225850</ele><time>2025-08-31T03:30:12Z</time><extensions><speed>0.814199</speed><course>8.147354</course><hAcc>0.661456</hAcc><vAcc>0.499100</vAcc></extensions></trkpt>
+      <trkpt lon="127.082293" lat="37.311643"><ele>92.149662</ele><time>2025-08-31T03:30:13Z</time><extensions><speed>0.859208</speed><course>17.924140</course><hAcc>0.657125</hAcc><vAcc>0.443106</vAcc></extensions></trkpt>
+      <trkpt lon="127.082296" lat="37.311651"><ele>92.069353</ele><time>2025-08-31T03:30:14Z</time><extensions><speed>0.889020</speed><course>27.435640</course><hAcc>0.662730</hAcc><vAcc>0.409729</vAcc></extensions></trkpt>
+      <trkpt lon="127.082301" lat="37.311658"><ele>91.986041</ele><time>2025-08-31T03:30:15Z</time><extensions><speed>0.934310</speed><course>32.742260</course><hAcc>0.679012</hAcc><vAcc>0.392340</vAcc></extensions></trkpt>
+      <trkpt lon="127.082308" lat="37.311665"><ele>91.901507</ele><time>2025-08-31T03:30:16Z</time><extensions><speed>1.004286</speed><course>38.395350</course><hAcc>0.694100</hAcc><vAcc>0.384548</vAcc></extensions></trkpt>
+      <trkpt lon="127.082315" lat="37.311671"><ele>91.818088</ele><time>2025-08-31T03:30:17Z</time><extensions><speed>0.874162</speed><course>47.129142</course><hAcc>0.691253</hAcc><vAcc>0.381655</vAcc></extensions></trkpt>
+      <trkpt lon="127.082322" lat="37.311676"><ele>91.738504</ele><time>2025-08-31T03:30:18Z</time><extensions><speed>0.782056</speed><course>50.748810</course><hAcc>0.701458</hAcc><vAcc>0.380825</vAcc></extensions></trkpt>
+      <trkpt lon="127.082328" lat="37.311680"><ele>91.666543</ele><time>2025-08-31T03:30:19Z</time><extensions><speed>0.697443</speed><course>49.804188</course><hAcc>0.735962</hAcc><vAcc>0.380709</vAcc></extensions></trkpt>
+      <trkpt lon="127.082334" lat="37.311684"><ele>91.605187</ele><time>2025-08-31T03:30:20Z</time><extensions><speed>0.588588</speed><course>48.613348</course><hAcc>0.794628</hAcc><vAcc>0.380797</vAcc></extensions></trkpt>
+      <trkpt lon="127.082338" lat="37.311687"><ele>91.557752</ele><time>2025-08-31T03:30:21Z</time><extensions><speed>0.493352</speed><course>46.758695</course><hAcc>0.874523</hAcc><vAcc>0.380913</vAcc></extensions></trkpt>
+      <trkpt lon="127.082342" lat="37.311690"><ele>91.526659</ele><time>2025-08-31T03:30:22Z</time><extensions><speed>0.412048</speed><course>44.111370</course><hAcc>0.968565</hAcc><vAcc>0.381029</vAcc></extensions></trkpt>
+      <trkpt lon="127.082345" lat="37.311692"><ele>91.513234</ele><time>2025-08-31T03:30:23Z</time><extensions><speed>0.342490</speed><course>41.090841</course><hAcc>1.070381</hAcc><vAcc>0.381115</vAcc></extensions></trkpt>
+      <trkpt lon="127.082347" lat="37.311695"><ele>91.517463</ele><time>2025-08-31T03:30:24Z</time><extensions><speed>0.288240</speed><course>37.397488</course><hAcc>1.176443</hAcc><vAcc>0.381143</vAcc></extensions></trkpt>
+      <trkpt lon="127.082349" lat="37.311697"><ele>91.538008</ele><time>2025-08-31T03:30:25Z</time><extensions><speed>0.248434</speed><course>33.067520</course><hAcc>1.284791</hAcc><vAcc>0.381238</vAcc></extensions></trkpt>
+      <trkpt lon="127.082350" lat="37.311698"><ele>91.572406</ele><time>2025-08-31T03:30:26Z</time><extensions><speed>0.214819</speed><course>28.556330</course><hAcc>1.396437</hAcc><vAcc>0.382008</vAcc></extensions></trkpt>
+      <trkpt lon="127.082351" lat="37.311700"><ele>91.617410</ele><time>2025-08-31T03:30:27Z</time><extensions><speed>0.186231</speed><course>23.915453</course><hAcc>1.516262</hAcc><vAcc>0.385074</vAcc></extensions></trkpt>
+      <trkpt lon="127.082352" lat="37.311702"><ele>91.669565</ele><time>2025-08-31T03:30:28Z</time><extensions><speed>0.162551</speed><course>19.162245</course><hAcc>1.651436</hAcc><vAcc>0.393762</vAcc></extensions></trkpt>
+      <trkpt lon="127.082353" lat="37.311703"><ele>91.725762</ele><time>2025-08-31T03:30:29Z</time><extensions><speed>0.143823</speed><course>14.421527</course><hAcc>1.810248</hAcc><vAcc>0.413620</vAcc></extensions></trkpt>
+      <trkpt lon="127.082353" lat="37.311704"><ele>91.783571</ele><time>2025-08-31T03:30:30Z</time><extensions><speed>0.129056</speed><course>9.808807</course><hAcc>2.001053</hAcc><vAcc>0.452006</vAcc></extensions></trkpt>
+      <trkpt lon="127.082353" lat="37.311705"><ele>91.841384</ele><time>2025-08-31T03:30:31Z</time><extensions><speed>0.123561</speed><course>7.023959</course><hAcc>2.231027</hAcc><vAcc>0.516164</vAcc></extensions></trkpt>
+      <trkpt lon="127.082353" lat="37.311706"><ele>91.898417</ele><time>2025-08-31T03:30:32Z</time><extensions><speed>0.119902</speed><course>5.502481</course><hAcc>2.505268</hAcc><vAcc>0.610678</vAcc></extensions></trkpt>
+      <trkpt lon="127.082353" lat="37.311707"><ele>91.954548</ele><time>2025-08-31T03:30:33Z</time><extensions><speed>0.117100</speed><course>4.908322</course><hAcc>2.826651</hAcc><vAcc>0.736099</vAcc></extensions></trkpt>
+      <trkpt lon="127.082354" lat="37.311708"><ele>92.014580</ele><time>2025-08-31T03:30:34Z</time><extensions><speed>0.116049</speed><course>4.737990</course><hAcc>3.228478</hAcc><vAcc>0.903951</vAcc></extensions></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

@@ -292,7 +292,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 
 <script>
 // ── 데이터 (walking-data.json에서 동적 로드) ─────────────────────────
-fetch('./walking-data.json?v=' + Date.now())
+fetch('./data/walking-data.json?v=' + Date.now())
   .then(r => r.json())
   .then(RAW => {
 
