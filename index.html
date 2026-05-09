@@ -136,6 +136,15 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .sc:hover{transform:translateY(-5px);border-color:rgba(246,173,85,.5);box-shadow:0 12px 30px rgba(246,173,85,.14)}
 .sc-val{transition:color .2s ease}
 .sc:hover .sc-val{color:#ffd060}
+.sc.steps{border-color:rgba(104,211,145,0.3)}
+.sc.steps .sc-val{color:#68d391}
+.sc.steps:hover{border-color:rgba(104,211,145,0.5);box-shadow:0 12px 30px rgba(104,211,145,0.14)}
+.sc.steps:hover .sc-val{color:#9ae6b4}
+#chart-toggle{display:flex;gap:8px;margin-bottom:16px}
+.toggle-btn{background:#21262d;border:1px solid #30363d;border-radius:20px;padding:5px 14px;font-size:0.72rem;color:#8b949e;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.toggle-btn.active{background:rgba(246,173,85,0.15);border-color:#f6ad55;color:#f6ad55}
+.toggle-btn.active.steps{background:rgba(104,211,145,0.15);border-color:#68d391;color:#68d391}
+#tt-steps{color:#68d391;font-size:11px}
 @keyframes cardRipple{0%{box-shadow:0 0 0 0 rgba(246,173,85,.5)}100%{box-shadow:0 0 0 24px rgba(246,173,85,0)}}
 .sc.rippling{animation:cardRipple .55s ease}
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
@@ -160,6 +169,8 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div class="sc"><div class="sc-val" id="s-days">0</div><div class="sc-lbl">기록된 날</div></div>
     <div class="sc"><div class="sc-val" id="s-avg">0</div><div class="sc-lbl">일평균 km</div></div>
     <div class="sc"><div class="sc-val" id="s-max">0</div><div class="sc-lbl">최장 하루</div></div>
+    <div class="sc steps"><div class="sc-val" id="s-total-steps">0</div><div class="sc-lbl">Total 걸음</div></div>
+    <div class="sc steps"><div class="sc-val" id="s-avg-steps">0</div><div class="sc-lbl">일평균 걸음</div></div>
   </div>
 </div>
 
@@ -220,6 +231,16 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
           <div class="map-card-lbl">Best Streak</div>
           <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
         </div>
+        <div class="map-card" style="border-color:rgba(104,211,145,0.3)">
+          <div class="map-card-val" id="mc-total-steps" style="color:#68d391">—</div>
+          <div class="map-card-lbl">Total Steps</div>
+          <div class="map-card-sub" id="mc-steps-sub">—</div>
+        </div>
+        <div class="map-card" style="border-color:rgba(104,211,145,0.3)">
+          <div class="map-card-val" id="mc-avg-steps" style="color:#68d391">—</div>
+          <div class="map-card-lbl">Daily Avg Steps</div>
+          <div class="map-card-sub" id="mc-steps-per-km">—</div>
+        </div>
       </div>
     </div><!-- /map-wrap -->
   </div>
@@ -254,8 +275,12 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   <!-- 월별 + 요일 (2열) -->
   <div id="grid-bottom">
     <div>
-      <div class="section-label">📊 월별 총 거리</div>
+      <div class="section-label">📊 월별 통계</div>
       <div class="chart-wrap">
+        <div id="chart-toggle">
+          <button class="toggle-btn active" id="btn-km" onclick="switchMonthly('km')">거리 km</button>
+          <button class="toggle-btn steps" id="btn-steps" onclick="switchMonthly('steps')">걸음 수</button>
+        </div>
         <div id="chart-monthly-wrap"><canvas id="chart-monthly"></canvas></div>
       </div>
     </div>
@@ -309,6 +334,9 @@ const DAYS = entries.map(([date,val])=>{
 const TOTAL = Math.round(DAYS[DAYS.length-1].cumKm);
 const MAX = DAYS.reduce((a,b)=>b.km>a.km?b:a);
 const AVG = (DAYS.reduce((s,d)=>s+d.km,0)/DAYS.length).toFixed(1);
+const TOTAL_STEPS = DAYS.reduce((s,d)=>s+d.steps, 0);
+const AVG_STEPS = Math.round(TOTAL_STEPS / DAYS.length);
+const MAX_STEPS = DAYS.reduce((a,b)=>b.steps>a.steps?b:a);
 
 // 카운터 애니메이션
 function animateCounter(el, target, decimals, suffix) {
@@ -327,6 +355,8 @@ animateCounter(document.getElementById('s-total'), TOTAL, 0, ' km');
 animateCounter(document.getElementById('s-days'), DAYS.length, 0, ' 일');
 animateCounter(document.getElementById('s-avg'), parseFloat(AVG), 1, ' km');
 animateCounter(document.getElementById('s-max'), MAX.km, 1, ' km');
+animateCounter(document.getElementById('s-total-steps'), TOTAL_STEPS, 0, '');
+animateCounter(document.getElementById('s-avg-steps'), AVG_STEPS, 0, '');
 
 // ── 월별 데이터 ──────────────────────────────────────────────────────
 const monthlyMap = {};
@@ -337,6 +367,9 @@ const MONTH_LABELS = MONTHS.map(([ym])=>{
   return `${y}.${m}`;
 });
 const MONTH_VALS = MONTHS.map(([,v])=>Math.round(v));
+const monthlyStepsMap = {};
+DAYS.forEach(({ym,steps})=>{ monthlyStepsMap[ym]=(monthlyStepsMap[ym]||0)+steps; });
+const MONTH_STEPS = MONTHS.map(([ym])=>Math.round((monthlyStepsMap[ym]||0)/1000)*1000);
 
 // ── 요일별 데이터 ────────────────────────────────────────────────────
 const wdSum=[0,0,0,0,0,0,0], wdCnt=[0,0,0,0,0,0,0];
@@ -344,6 +377,9 @@ DAYS.forEach(({wd,km})=>{ wdSum[wd]+=km; wdCnt[wd]++; });
 const WD_LABELS=['일','월','화','수','목','금','토'];
 const WD_AVG=wdSum.map((s,i)=>wdCnt[i]?(s/wdCnt[i]).toFixed(1):0);
 const WD_COLORS=['#e879f9','#60a5fa','#34d399','#fbbf24','#f87171','#a78bfa','#fb923c'];
+const wdStepsSum=[0,0,0,0,0,0,0], wdStepsCnt=[0,0,0,0,0,0,0];
+DAYS.forEach(({wd,steps})=>{ if(steps>0){wdStepsSum[wd]+=steps;wdStepsCnt[wd]++;} });
+const WD_STEPS_AVG=wdStepsSum.map((s,i)=>wdStepsCnt[i]?Math.round(s/wdStepsCnt[i]):0);
 
 // ── 히트맵 ──────────────────────────────────────────────────────────
 function kmColor(km) {
@@ -440,22 +476,34 @@ function buildHeatmap() {
 
 // ── 차트 (월별 바) ──────────────────────────────────────────────────
 let chartMonthly=null, chartJourney=null;
+let monthlyMode = 'km';
+
+function switchMonthly(mode) {
+  monthlyMode = mode;
+  document.getElementById('btn-km').className = 'toggle-btn' + (mode==='km'?' active':'');
+  document.getElementById('btn-steps').className = 'toggle-btn steps' + (mode==='steps'?' active':'');
+  if(chartMonthly) { chartMonthly.destroy(); chartMonthly=null; }
+  buildMonthly();
+}
 
 function buildMonthly() {
   if(chartMonthly) return;
   const ctx=document.getElementById('chart-monthly').getContext('2d');
+  const isSteps = monthlyMode === 'steps';
+  const vals = isSteps ? MONTH_STEPS : MONTH_VALS;
+  const color = isSteps ? '104,211,145' : '246,173,85';
   chartMonthly=new Chart(ctx,{
     type:'bar',
     data:{
       labels:MONTH_LABELS,
       datasets:[{
-        data:MONTH_VALS,
-        backgroundColor: MONTH_VALS.map(v=>{
-          const max=Math.max(...MONTH_VALS);
+        data:vals,
+        backgroundColor: vals.map(v=>{
+          const max=Math.max(...vals);
           const ratio=v/max;
-          return `rgba(246,${Math.round(100+ratio*100)},${Math.round(ratio*20)},${0.5+ratio*0.5})`;
+          return `rgba(${color},${0.5+ratio*0.5})`;
         }),
-        borderColor:'rgba(246,173,85,0.3)',
+        borderColor:`rgba(${color},0.3)`,
         borderWidth:1,
         borderRadius:6,
       }]
@@ -467,18 +515,18 @@ function buildMonthly() {
       plugins:{
         legend:{display:false},
         tooltip:{
-          callbacks:{label:ctx=>`  ${ctx.raw} km`},
+          callbacks:{label:ctx=>isSteps?`  ${ctx.raw.toLocaleString()}보`:`  ${ctx.raw} km`},
           backgroundColor:'#1c2128',
           borderColor:'#30363d',
           borderWidth:1,
           titleColor:'#c9d1d9',
-          bodyColor:'#f6ad55',
+          bodyColor:isSteps?'#68d391':'#f6ad55',
         }
       },
       scales:{
         x:{
           grid:{color:'rgba(255,255,255,0.05)'},
-          ticks:{color:'#8b949e'},
+          ticks:{color:'#8b949e',callback:v=>isSteps?v.toLocaleString():v+' km'},
         },
         y:{
           grid:{display:false},
@@ -628,16 +676,20 @@ function buildWeekday() {
   const grid=document.getElementById('wd-grid');
   if(grid.children.length>0) return;
   const maxAvg=Math.max(...WD_AVG);
+  const maxSteps=Math.max(...WD_STEPS_AVG);
   WD_LABELS.forEach((lbl,i)=>{
     const wrap=document.createElement('div');
     wrap.className='wd-bar-wrap';
     const pct=maxAvg>0?(WD_AVG[i]/maxAvg*100):0;
+    const stepsPct=maxSteps>0?(WD_STEPS_AVG[i]/maxSteps*100):0;
+    const stepsK = WD_STEPS_AVG[i]>0?(WD_STEPS_AVG[i]/1000).toFixed(1)+'k':'—';
     wrap.innerHTML=`
       <div class="wd-label">${lbl}</div>
       <div class="wd-bar-bg">
         <div class="wd-bar-fill" style="height:0%;background:${WD_COLORS[i]}" data-pct="${pct}"></div>
       </div>
-      <div class="wd-val">${WD_AVG[i]}km</div>`;
+      <div class="wd-val">${WD_AVG[i]}km</div>
+      <div style="font-size:0.65rem;color:#68d391;margin-top:2px">${stepsK}</div>`;
     grid.appendChild(wrap);
   });
   setTimeout(()=>{
@@ -819,7 +871,7 @@ drawRoutes.forEach((r, i) => addEndDot(r.coords[r.coords.length - 1], r.color, (
 
 // ⑦ 카드 데이터 + 최장 연속일 계산
 function calcStreak() {
-  const dts = Object.keys(RAW).filter(d => RAW[d] > 0).sort();
+  const dts = Object.keys(RAW).filter(d => { const v=RAW[d]; return typeof v==='object'?v.km>0:v>0; }).sort();
   let max = 1, cur = 1;
   for (let i = 1; i < dts.length; i++) {
     const diff = (new Date(dts[i]) - new Date(dts[i-1])) / 86400000;
@@ -841,6 +893,12 @@ document.getElementById('mc-avg').textContent = AVG + ' km';
 document.getElementById('mc-avg-sub').textContent = `총 ${DAYS.length}일 기준`;
 document.getElementById('mc-streak').textContent = STREAK + ' 일';
 document.getElementById('mc-streak-sub').textContent = '연속 걷기 최장 기록';
+const totalStepsM = (TOTAL_STEPS/100000000).toFixed(2);
+document.getElementById('mc-total-steps').textContent = (TOTAL_STEPS/10000).toFixed(1) + '만 보';
+document.getElementById('mc-steps-sub').textContent = `총 ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음`;
+document.getElementById('mc-avg-steps').textContent = AVG_STEPS.toLocaleString('ko-KR') + ' 보';
+const avgStepsPerKm = TOTAL_STEPS > 0 && TOTAL > 0 ? Math.round(TOTAL_STEPS/TOTAL) : 0;
+document.getElementById('mc-steps-per-km').textContent = `km당 ${avgStepsPerKm.toLocaleString()}보`;
 
 // 전체 즉시 렌더링
 buildHeatmap();
@@ -871,7 +929,7 @@ buildWeekday();
 
   // 카피라이트
   document.getElementById('footer-copy').textContent =
-    `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
+    `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음 · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
 })();
 
 // ── 날씨 + 날씨 효과 애니메이션 ─────────────────────────────────────
