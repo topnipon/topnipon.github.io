@@ -53,7 +53,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #map-wrap{position:relative}
 #map-section{position:relative;border-radius:12px;overflow:hidden;height:480px;border:1px solid #30363d}
 #walk-map{width:100%;height:100%}
-.leaflet-tile{filter:brightness(1.05) saturate(1.1)}
+.leaflet-tile{filter:brightness(3.5) saturate(1.2) contrast(0.85)}
 .leaflet-control-zoom,.leaflet-control-attribution{display:none}
 #map-overlay{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
 .map-card{background:rgba(13,17,23,0.82);border:1px solid rgba(246,173,85,0.3);border-radius:12px;padding:14px 18px;backdrop-filter:blur(10px);flex:1;min-width:120px}
@@ -712,11 +712,11 @@ function buildWeekday() {
 }
 
 // ── 지도 ────────────────────────────────────────────────────────────
-const CENTER = [37.145, 127.422];
+const CENTER = [37.335, 127.085]; // 용인 수지구 중심 — 수원 광교·성남 판교 포함
 const walkMap = L.map('walk-map', {
   zoomControl:false, attributionControl:false,
   dragging:false, scrollWheelZoom:false
-}).setView(CENTER, 14);
+}).setView(CENTER, 12);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(walkMap);
 
 // ── 수평 파형 Bar Chart ──────────────────────────────────────────────
