@@ -327,6 +327,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     </div>
   </div>
   <div id="footer-copy" id="ft-copy">—</div>
+  <div id="footer-data-date" style="text-align:center;margin-top:8px;font-size:0.68rem;color:#484f58;letter-spacing:2px;">—</div>
 </footer>
 
 <script>
@@ -991,6 +992,12 @@ buildWeekday();
   // 카피라이트
   document.getElementById('footer-copy').textContent =
     `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음 · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
+
+  // 데이터 기준일
+  const lastDate = DAYS[DAYS.length - 1].date;
+  const [ly, lm, ld] = lastDate.split('-');
+  document.getElementById('footer-data-date').textContent =
+    `데이터 기준 · ${ly}.${lm}.${ld}`;
 })();
 
 // ── 날씨 + 날씨 효과 애니메이션 ─────────────────────────────────────
