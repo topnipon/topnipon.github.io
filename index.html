@@ -766,6 +766,9 @@ const monthBounds = (() => {
 
 function drawGrid() {
   const { W, H, barW, baseY, BAR_H } = dims();
+  // 월 레이블 영역 블랙바
+  tlCtx.fillStyle = 'rgba(0,0,0,0.72)';
+  tlCtx.fillRect(0, baseY, W, LABEL_H);
   [10, 20, 30, 40].forEach(km => {
     if (km > MAX_KM) return;
     const y = baseY - (km / MAX_KM) * BAR_H;
