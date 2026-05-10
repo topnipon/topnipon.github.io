@@ -60,11 +60,15 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .map-card-val{font-size:1.4rem;font-weight:800;color:#f6ad55;line-height:1}
 .map-card-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
 .map-card-sub{font-size:0.72rem;color:#c9d1d9;margin-top:4px}
-@keyframes flowDash{to{stroke-dashoffset:-24}}
-@keyframes markerPulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.5);opacity:0}}
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.15}}
-@keyframes dotBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.2)}}
-.runner-dot{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(246,173,85,.4),0 0 16px #f6ad55,0 0 4px #fff}
+#tl-hud{position:absolute;top:14px;right:14px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none}
+#tl-tooltip{position:absolute;z-index:1002;pointer-events:none;display:none;background:rgba(13,17,23,.92);border:1px solid rgba(246,160,0,.35);border-radius:9px;padding:8px 12px;font-size:12px;line-height:1.7;white-space:nowrap;backdrop-filter:blur(8px);color:#c9d1d9}
+#tl-info{display:flex;align-items:baseline;gap:8px;background:rgba(13,17,23,.78);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px 12px;backdrop-filter:blur(8px)}
+#tl-date{font-size:12px;font-weight:700;color:#c4b5fd;letter-spacing:.5px}
+#tl-km{font-size:11px;color:#a78bfa;font-weight:600}
+#tl-cum{font-size:11px;color:rgba(255,255,255,.4);margin-left:6px}
+#tl-bar{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+#tl-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#c084fc);border-radius:2px;transition:width .12s linear}
 #map-live{position:absolute;top:14px;right:14px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.78);border:1px solid rgba(104,211,145,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#68d391;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px)}
 @keyframes wxIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes windRock{0%,100%{rotate:var(--wd)}40%{rotate:calc(var(--wd) + 14deg)}70%{rotate:calc(var(--wd) - 9deg)}}
@@ -137,7 +141,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .sc-val{transition:color .2s ease}
 .sc:hover .sc-val{color:#ffd060}
 .sc.steps{border-color:rgba(104,211,145,0.3)}
-.sc.steps .sc-val{color:#68d391}
+.sc.steps .sc-val{color:#68d391;word-break:break-all}
 .sc.steps:hover{border-color:rgba(104,211,145,0.5);box-shadow:0 12px 30px rgba(104,211,145,0.14)}
 .sc.steps:hover .sc-val{color:#9ae6b4}
 #chart-toggle{display:flex;gap:8px;margin-bottom:16px}
@@ -159,7 +163,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 <div id="header">
   <div id="header-top">
     <div id="header-text">
-      <div id="title">My Walking Record · 2025.05 – 2026.05</div>
+      <div id="title">My Walking Record · 2025.04 – 2026.05</div>
       <div id="subtitle">땡굴이의 걷기 기록</div>
     </div>
     <lottie-player id="lottie-character" src="./cool-man.json" background="transparent" speed="1" loop autoplay></lottie-player>
@@ -182,6 +186,8 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div id="map-wrap">
       <div id="map-section">
         <div id="walk-map"></div>
+        <canvas id="tl-canvas" style="position:absolute;inset:0;pointer-events:all;z-index:491;border-radius:12px"></canvas>
+        <div id="tl-tooltip"></div>
         <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
         <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
         <div id="weather-panel">
@@ -199,6 +205,14 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
           </div>
           <div id="wx-upd">—</div>
         </div><!-- /weather-panel -->
+        <div id="tl-hud">
+          <div id="tl-info">
+            <div id="tl-date">—</div>
+            <div id="tl-km">—</div>
+            <div id="tl-cum">—</div>
+          </div>
+          <div id="tl-bar"><div id="tl-bar-fill"></div></div>
+        </div>
       </div><!-- /map-section -->
       <div id="map-overlay">
         <div class="map-card">
@@ -209,7 +223,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
         <div class="map-card">
           <div class="map-card-val" id="mc-days">—</div>
           <div class="map-card-lbl">Active Days</div>
-          <div class="map-card-sub" id="mc-period">2025.05 – 2026.05</div>
+          <div class="map-card-sub" id="mc-period">2025.04 – 2026.05</div>
         </div>
         <div class="map-card">
           <div class="map-card-val" id="mc-best-month">—</div>
@@ -298,7 +312,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   <div id="footer-inner">
     <div class="ft-block">
       <div class="ft-label">기록 기간</div>
-      <div class="ft-val">2025.05 – 2026.05</div>
+      <div class="ft-val">2025.04 – 2026.05</div>
       <div class="ft-desc">1년간의 걷기 데이터를 기반으로 작성되었습니다.</div>
     </div>
     <div class="ft-block">
@@ -338,25 +352,23 @@ const TOTAL_STEPS = DAYS.reduce((s,d)=>s+d.steps, 0);
 const AVG_STEPS = Math.round(TOTAL_STEPS / DAYS.length);
 const MAX_STEPS = DAYS.reduce((a,b)=>b.steps>a.steps?b:a);
 
-// 카운터 애니메이션
-function animateCounter(el, target, decimals, suffix) {
-  let start = 0, dur = 300000, begin = null;
+// 카운터 애니메이션 — 바 차트와 동일한 ANIM_DUR 사용
+const ANIM_DUR = 20000; // ms — 카운터·바 차트 공통 완료 시간 (20초)
+let animGen = 0; // 루프 세대 — 구세대 rAF 자동 취소용
+function animateCounter(el, target, decimals, suffix, gen) {
+  let begin = null;
   function step(ts) {
+    if (gen !== animGen) return; // 새 루프 시작 시 이전 세대 중단
     if(!begin) begin = ts;
-    const p = Math.min((ts-begin)/dur, 1);
-    const ease = 1-Math.pow(1-p,3);
-    const val = (start+(target-start)*ease).toFixed(decimals);
-    el.textContent = Number(val).toLocaleString('ko-KR') + (suffix||'');
-    if(p<1) requestAnimationFrame(step);
+    const p = Math.min((ts-begin)/ANIM_DUR, 1);
+    // easeInOutCubic: 부드럽게 시작·종료, p=1 에서 정확히 완료
+    const ease = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2, 3)/2;
+    el.textContent = Number((target*ease).toFixed(decimals)).toLocaleString('ko-KR') + (suffix||'');
+    if(p < 1) requestAnimationFrame(step);
+    else el.textContent = Number(target.toFixed(decimals)).toLocaleString('ko-KR') + (suffix||'');
   }
   requestAnimationFrame(step);
 }
-animateCounter(document.getElementById('s-total'), TOTAL, 0, ' km');
-animateCounter(document.getElementById('s-days'), DAYS.length, 0, ' 일');
-animateCounter(document.getElementById('s-avg'), parseFloat(AVG), 1, ' km');
-animateCounter(document.getElementById('s-max'), MAX.km, 1, ' km');
-animateCounter(document.getElementById('s-total-steps'), TOTAL_STEPS, 0, '');
-animateCounter(document.getElementById('s-avg-steps'), AVG_STEPS, 0, '');
 
 // ── 월별 데이터 ──────────────────────────────────────────────────────
 const monthlyMap = {};
@@ -400,8 +412,8 @@ function buildHeatmap() {
   const dayMap = {};
   DAYS.forEach(d=>{ dayMap[d.date]=d.km; });
 
-  // 시작 = 2025-05-01 주의 월요일
-  const start = new Date('2025-05-01T00:00:00');
+  // 시작 = 2025-04-01 주의 월요일
+  const start = new Date('2025-04-01T00:00:00');
   const dow = start.getDay(); // 0=Sun
   const mondayOffset = dow===0?-6:1-dow;
   start.setDate(start.getDate()+mondayOffset);
@@ -707,167 +719,210 @@ const walkMap = L.map('walk-map', {
 }).setView(CENTER, 14);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(walkMap);
 
-const MAP_PAL = ['#f6ad55','#68d391','#63b3ed','#e879f9','#fb923c','#a78bfa','#ffd060','#f87171'];
+// ── 수평 파형 Bar Chart ──────────────────────────────────────────────
+const tlCanvas = document.getElementById('tl-canvas');
+const tlCtx = tlCanvas.getContext('2d');
 
-// 카드 바깥 엣지에서 시작해 맵 중심부로 이어지는 경로 생성
-function mkRoute(n, spread) {
-  // 상/하/좌/우 중 랜덤 엣지에서 시작 (뷰포트 밖)
-  const side = Math.floor(Math.random() * 4);
-  const latEdge = 0.09, lngEdge = 0.13;
-  let sLat, sLng;
-  if      (side === 0) { sLat = CENTER[0] + latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
-  else if (side === 1) { sLat = CENTER[0] - latEdge;  sLng = CENTER[1] + (Math.random()-.5)*lngEdge; }
-  else if (side === 2) { sLat = CENTER[0] + (Math.random()-.5)*latEdge; sLng = CENTER[1] + lngEdge; }
-  else                 { sLat = CENTER[0] + (Math.random()-.5)*latEdge; sLng = CENTER[1] - lngEdge; }
-  // 끝점: 맵 중심부 안쪽
-  const eLat = CENTER[0] + (Math.random()-.5)*.022;
-  const eLng = CENTER[1] + (Math.random()-.5)*.032;
-  const pts = [];
-  const noise = spread * n * .35;
-  for (let i = 0; i < n; i++) {
-    const t = i / (n - 1);
-    // 중간 구간에서 노이즈가 가장 크게 (sin 곡선)
-    const nScale = Math.sin(t * Math.PI);
-    pts.push([
-      sLat + (eLat - sLat) * t + (Math.random()-.5) * noise * nScale,
-      sLng + (eLng - sLng) * t + (Math.random()-.5) * noise * nScale
-    ]);
-  }
-  return pts;
+function resizeTlCanvas() {
+  const r = document.getElementById('map-section').getBoundingClientRect();
+  tlCanvas.width = r.width;
+  tlCanvas.height = r.height;
+}
+resizeTlCanvas();
+window.addEventListener('resize', () => { resizeTlCanvas(); redrawAll(); });
+
+const TL_DAYS = DAYS.filter(d => d.km > 0);
+const N = TL_DAYS.length;
+const MAX_KM = Math.max(...TL_DAYS.map(d => d.km));
+const MIN_KM = Math.min(...TL_DAYS.map(d => d.km));
+
+const LABEL_H  = 34;   // 월 레이블 영역
+const TOP_PAD  = 24;   // 상단 여백
+const DONE_H   = 28;   // 완료 텍스트 영역
+
+function dims() {
+  const W = tlCanvas.width, H = tlCanvas.height;
+  const barW  = W / N;
+  const baseY = H - LABEL_H;
+  const BAR_H = H - LABEL_H - TOP_PAD;   // 전체 높이 활용
+  return { W, H, barW, baseY, BAR_H };
 }
 
-// Catmull-Rom 스플라인으로 경로 부드럽게 처리
-function catmullRom(p0, p1, p2, p3, t) {
-  const t2 = t * t, t3 = t2 * t;
-  return [
-    .5 * (2*p1[0] + (-p0[0]+p2[0])*t + (2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2 + (-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
-    .5 * (2*p1[1] + (-p0[1]+p2[1])*t + (2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2 + (-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
-  ];
-}
-function smoothRoute(pts, steps) {
-  const out = [];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(0, i-1)], p1 = pts[i];
-    const p2 = pts[i+1], p3 = pts[Math.min(pts.length-1, i+2)];
-    for (let j = 0; j < steps; j++) out.push(catmullRom(p0, p1, p2, p3, j / steps));
-  }
-  out.push(pts[pts.length - 1]);
-  return out;
+function barColor(km) {
+  if (km < 3)  return '#3d1f00';
+  if (km < 8)  return '#7a3b00';
+  if (km < 15) return '#c46200';
+  if (km < 25) return '#f6a000';
+  return '#ffd060';
 }
 
-// 경로 위 임의 위치 보간 (t: 0~1)
-function routeAt(c, t) {
-  const n = c.length - 1;
-  const i = Math.min(Math.floor(t * n), n - 1);
-  const f = t * n - i;
-  return [c[i][0] + (c[i+1][0] - c[i][0]) * f, c[i][1] + (c[i+1][1] - c[i][1]) * f];
-}
-
-// ① 흐르는 점선 경로 (6개, 매 방문마다 랜덤)
-const flowRoutes = Array.from({length: 6}, (_, i) => {
-  const coords = smoothRoute(mkRoute(10 + Math.floor(Math.random() * 14), .009), 12);
-  const color = MAP_PAL[i];
-  const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 2.5, opacity: .85}).addTo(walkMap);
-  setTimeout(() => {
-    const el = poly.getElement();
-    if (!el) return;
-    const d = 10 + Math.floor(Math.random() * 8), g = 5 + Math.floor(Math.random() * 6);
-    el.style.strokeDasharray = `${d} ${g}`;
-    el.style.animation = `flowDash ${(1.2 + Math.random() * 1.2).toFixed(2)}s linear infinite`;
-    el.style.animationDelay = `${-(Math.random() * 3).toFixed(2)}s`;
-  }, 500);
-  return {coords, color};
-});
-
-// ② 그려지고 지워지는 경로 (3개, 루프)
-const drawRoutes = Array.from({length: 3}, (_, i) => {
-  const coords = smoothRoute(mkRoute(12 + Math.floor(Math.random() * 12), .009), 12);
-  const color = MAP_PAL[(i + 2) % MAP_PAL.length];
-  const poly = L.polyline(coords, {color, weight: 1.5 + Math.random() * 3, opacity: .9}).addTo(walkMap);
-  return {coords, poly, color};
-});
-setTimeout(() => {
-  drawRoutes.forEach((r, i) => {
-    const el = r.poly.getElement();
-    if (!el) return;
-    const len = el.getTotalLength ? el.getTotalLength() : 400;
-    el.style.strokeDasharray = len;
-    el.style.strokeDashoffset = len;
-    const dur = 3500 + i * 700;
-    const phase = i * 1300;
-    let t0 = null;
-    function drawLoop(ts) {
-      if (!t0) t0 = ts - phase;
-      const t = ((ts - t0) % dur) / dur;
-      // 0→0.45: 그리기, 0.45→0.55: 유지, 0.55→1: 지우기
-      const off = t < .45 ? len * (1 - t / .45) : t < .55 ? 0 : len * ((t - .55) / .45);
-      el.style.strokeDashoffset = off;
-      requestAnimationFrame(drawLoop);
-    }
-    requestAnimationFrame(drawLoop);
+const monthBounds = (() => {
+  const out = []; let last = '';
+  TL_DAYS.forEach((d, i) => {
+    if (d.ym !== last) { out.push({ i, label: d.ym.slice(5) + '월' }); last = d.ym; }
   });
-}, 600);
+  return out;
+})();
 
-// ③ 이동하는 러너 도트
-const runCoords = smoothRoute(mkRoute(18, .009), 12);
-L.polyline(runCoords, {color: '#fff', weight: 1, opacity: .12}).addTo(walkMap);
-const runIcon = L.divIcon({
-  className: '',
-  html: '<div class="runner-dot"></div>',
-  iconSize: [10, 10], iconAnchor: [5, 5]
-});
-const runMarker = L.marker(runCoords[0], {icon: runIcon, zIndexOffset: 1000}).addTo(walkMap);
-let r0 = null;
-function runLoop(ts) {
-  if (!r0) r0 = ts;
-  runMarker.setLatLng(routeAt(runCoords, ((ts - r0) % 7000) / 7000));
-  requestAnimationFrame(runLoop);
+function drawGrid() {
+  const { W, H, barW, baseY, BAR_H } = dims();
+  [10, 20, 30, 40].forEach(km => {
+    if (km > MAX_KM) return;
+    const y = baseY - (km / MAX_KM) * BAR_H;
+    tlCtx.beginPath();
+    tlCtx.moveTo(0, y); tlCtx.lineTo(W, y);
+    tlCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+    tlCtx.lineWidth = 1;
+    tlCtx.stroke();
+    tlCtx.fillStyle = 'rgba(255,255,255,0.18)';
+    tlCtx.font = '9px sans-serif';
+    tlCtx.textAlign = 'left';
+    tlCtx.textBaseline = 'bottom';
+    tlCtx.fillText(km + 'km', 4, y - 2);
+  });
+  monthBounds.forEach(({ i, label }) => {
+    const x = i * barW;
+    tlCtx.beginPath();
+    tlCtx.moveTo(x, TOP_PAD); tlCtx.lineTo(x, baseY);
+    tlCtx.strokeStyle = 'rgba(255,255,255,0.13)';
+    tlCtx.lineWidth = 1;
+    tlCtx.setLineDash([2, 4]);
+    tlCtx.stroke();
+    tlCtx.setLineDash([]);
+    tlCtx.fillStyle = 'rgba(255,255,255,0.4)';
+    tlCtx.font = 'bold 10px sans-serif';
+    tlCtx.textAlign = 'left';
+    tlCtx.textBaseline = 'middle';
+    tlCtx.fillText(label, x + 3, baseY + LABEL_H / 2);
+  });
 }
-requestAnimationFrame(runLoop);
 
-// ④ 소나 펄스 서클 (중심에서 퍼져나가는 원)
-[180, 500, 1000].forEach((baseR, i) => {
-  const c = L.circle(CENTER, {radius: baseR, color: MAP_PAL[i], weight: 1, fillOpacity: 0, opacity: 0}).addTo(walkMap);
-  const dur = 2800 + i * 600;
-  let s0 = null;
-  function sonarLoop(ts) {
-    if (!s0) s0 = ts - i * 900;
-    const t = ((ts - s0) % dur) / dur;
-    c.setRadius(baseR + t * baseR * 2.2);
-    c.setStyle({opacity: (1 - t) * .5});
-    requestAnimationFrame(sonarLoop);
+function drawSingleBar(i, progress) {
+  const { barW, baseY, BAR_H } = dims();
+  const day = TL_DAYS[i];
+  const norm = (day.km - MIN_KM) / (MAX_KM - MIN_KM);
+  const fullH = BAR_H * (0.28 + norm * 0.72);
+  const h = fullH * progress;
+  if (h < 0.5) return;
+  const color = barColor(day.km);
+  const x = i * barW;
+  if (day.km >= 15) { tlCtx.shadowColor = color; tlCtx.shadowBlur = day.km >= 25 ? 5 : 2; }
+  tlCtx.globalAlpha = 0.85;
+  tlCtx.fillStyle = color;
+  tlCtx.fillRect(x, baseY - h, Math.max(1, barW - 0.4), h);
+  tlCtx.shadowBlur = 0;
+  tlCtx.globalAlpha = 1;
+}
+
+function easeOut(t) {
+  // 부드러운 단일 오버슈트 (back-out) — 목표 높이를 8% 초과 후 안착
+  const c1 = 1.5, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+const GROW_DUR  = 680;  // 개별 바 성장 시간 (ms)
+const STAGGER   = (ANIM_DUR - GROW_DUR) / (N - 1); // 마지막 바가 정확히 ANIM_DUR 에 완료
+const TOTAL_DUR = ANIM_DUR;
+
+let tlRaf = null, tlTimer = null, tlStartTs = null;
+
+function fmtDate(s) { const [y, m, d] = s.split('-'); return `${y}.${m}.${d}`; }
+
+function animate(ts) {
+  if (!tlStartTs) tlStartTs = ts;
+  const elapsed = ts - tlStartTs;
+
+  tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+  drawGrid();
+
+  let lastIdx = -1;
+  TL_DAYS.forEach((day, i) => {
+    const t = elapsed - i * STAGGER;
+    if (t <= 0) return;
+    drawSingleBar(i, easeOut(Math.min(t / GROW_DUR, 1)));
+    lastIdx = i;
+  });
+
+  // HUD
+  if (lastIdx >= 0) {
+    const day = TL_DAYS[lastIdx];
+    let cum = 0; for (let i = 0; i <= lastIdx; i++) cum += TL_DAYS[i].km;
+    document.getElementById('tl-date').textContent = fmtDate(day.date);
+    document.getElementById('tl-km').textContent = day.km.toFixed(1) + ' km · ' + (day.steps || 0).toLocaleString('ko-KR') + '보';
+    document.getElementById('tl-cum').textContent = '누적 ' + Math.round(cum).toLocaleString('ko-KR') + ' km';
+    document.getElementById('tl-bar-fill').style.width = ((lastIdx + 1) / N * 100).toFixed(1) + '%';
   }
-  setTimeout(() => requestAnimationFrame(sonarLoop), i * 900);
+
+  if (elapsed < TOTAL_DUR) {
+    tlRaf = requestAnimationFrame(animate);
+  } else {
+    tlTimer = setTimeout(startAll, 10000);
+  }
+}
+
+function startAll() {
+  // 카운터 초기화 + 재시작
+  animGen++;
+  const g = animGen;
+  document.getElementById('s-total').textContent = '0 km';
+  document.getElementById('s-days').textContent = '0 일';
+  document.getElementById('s-avg').textContent = '0.0 km';
+  document.getElementById('s-max').textContent = '0.0 km';
+  document.getElementById('s-total-steps').textContent = '0';
+  document.getElementById('s-avg-steps').textContent = '0';
+  animateCounter(document.getElementById('s-total'), TOTAL, 0, ' km', g);
+  animateCounter(document.getElementById('s-days'), DAYS.length, 0, ' 일', g);
+  animateCounter(document.getElementById('s-avg'), parseFloat(AVG), 1, ' km', g);
+  animateCounter(document.getElementById('s-max'), MAX.km, 1, ' km', g);
+  animateCounter(document.getElementById('s-total-steps'), TOTAL_STEPS, 0, '', g);
+  animateCounter(document.getElementById('s-avg-steps'), AVG_STEPS, 0, '', g);
+  // 바 차트 초기화 + 재시작
+  if (tlRaf) cancelAnimationFrame(tlRaf);
+  clearTimeout(tlTimer);
+  tlStartTs = null;
+  tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+  document.getElementById('tl-bar-fill').style.width = '0%';
+  tlRaf = requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => { resizeTlCanvas(); startAll(); });
+
+// ── 바 툴팁 ──────────────────────────────────────────────────────────
+const tlTooltip = document.getElementById('tl-tooltip');
+const mapSection = document.getElementById('map-section');
+
+tlCanvas.addEventListener('mousemove', (e) => {
+  const { barW, baseY } = dims();
+  const i = Math.floor(e.offsetX / barW);
+  if (i < 0 || i >= N || e.offsetY > baseY) { tlTooltip.style.display = 'none'; return; }
+
+  // 아직 그려지지 않은 바는 툴팁 비활성
+  if (tlStartTs !== null) {
+    const elapsed = performance.now() - tlStartTs;
+    if (elapsed - i * STAGGER <= 0) { tlTooltip.style.display = 'none'; return; }
+  }
+
+  const day = TL_DAYS[i];
+  tlTooltip.innerHTML =
+    `<span style="color:#f6ad55;font-weight:700">${fmtDate(day.date)}</span><br>` +
+    `${day.km.toFixed(1)} km<br>` +
+    `${(day.steps || 0).toLocaleString('ko-KR')} 보`;
+
+  // 위치: 바 위에, 화면 경계 고려
+  const msr = mapSection.getBoundingClientRect();
+  let tx = e.clientX - msr.left + 14;
+  let ty = e.clientY - msr.top - 90;
+  if (ty < 8) ty = e.clientY - msr.top + 14;
+  if (tx + 130 > msr.width) tx = e.clientX - msr.left - 140;
+  tlTooltip.style.left = tx + 'px';
+  tlTooltip.style.top  = ty + 'px';
+  tlTooltip.style.display = 'block';
 });
 
-// ⑤ 펄스 마커 (경로 시작/끝점)
-function addPM(latlng, color, delay) {
-  const s = 8 + Math.floor(Math.random() * 4);
-  L.marker(latlng, {icon: L.divIcon({
-    className: '',
-    html: `<div style="position:relative;width:${s*2}px;height:${s*2}px">
-      <div style="position:absolute;inset:0;border-radius:50%;background:${color};animation:markerPulse 2s ${delay}s ease-out infinite;opacity:.7"></div>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:${color};box-shadow:0 0 6px ${color}"></div>
-    </div>`,
-    iconSize: [s*2, s*2], iconAnchor: [s, s]
-  })}).addTo(walkMap);
-}
-flowRoutes.forEach((r, i) => {
-  addPM(r.coords[0], r.color, (i * .4) % 2);
-  if (Math.random() > .4) addPM(r.coords[r.coords.length - 1], r.color, ((i * .4) + .8) % 2);
-});
-drawRoutes.forEach((r, i) => addPM(r.coords[0], r.color, i * .6));
+tlCanvas.addEventListener('mouseleave', () => { tlTooltip.style.display = 'none'; });
 
-// ⑥ 경로 끝점 이모지 dot
-function addEndDot(latlng, color, delay) {
-  L.marker(latlng, {icon: L.divIcon({
-    className: '',
-    html: `<div style="font-size:20px;line-height:1;color:${color};animation:dotBounce 2s ${delay}s ease-in-out infinite;display:inline-block;filter:drop-shadow(0 0 4px ${color})">●</div>`,
-    iconSize: [20, 20], iconAnchor: [10, 10]
-  }), zIndexOffset: 900}).addTo(walkMap);
-}
-flowRoutes.forEach((r, i) => addEndDot(r.coords[r.coords.length - 1], r.color, (i * 0.3) % 2));
-drawRoutes.forEach((r, i) => addEndDot(r.coords[r.coords.length - 1], r.color, (i * 0.5) % 2));
+// 자동 시작
+setTimeout(startAll, 800);
 
 // ⑦ 카드 데이터 + 최장 연속일 계산
 function calcStreak() {
