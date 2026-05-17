@@ -900,8 +900,8 @@ function makeSpotIcon(spot, isVisited, isSelected) {
       : `box-shadow:0 0 7px ${col}70;`;
     inner = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col};opacity:0.82;border:2.5px solid ${col};${glow};transition:all .2s"></div>`;
   } else {
-    const glow = isSelected ? `box-shadow:0 0 12px ${col}60;transform:scale(1.25);` : '';
-    inner = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#1a2540;opacity:${isSelected?0.65:0.38};border:1.5px dashed #3a4f70;${glow};transition:all .2s"></div>`;
+    const glow = isSelected ? `box-shadow:0 0 12px ${col}80;transform:scale(1.25);` : `box-shadow:0 0 4px ${col}50;`;
+    inner = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col}28;border:2px solid ${col}CC;${glow};transition:all .2s"></div>`;
   }
   return L.divIcon({ html:inner, className:'', iconSize:[size,size], iconAnchor:[size/2,size/2] });
 }
