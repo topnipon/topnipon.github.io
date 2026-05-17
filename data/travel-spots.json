@@ -352,15 +352,15 @@
     {"id": "haeparang-38", "name": "해파랑길 38코스", "region": "강원", "lat": 37.8100, "lng": 128.8600, "radius": 5000, "category": "hiking", "description": "18.5km. 경포해변→경포대→허균·허난설헌기념공원. 강릉 대표 해변과 조선 문인의 흔적"},
     {"id": "haeparang-39", "name": "해파랑길 39코스", "region": "강원", "lat": 37.8700, "lng": 128.8400, "radius": 4500, "category": "hiking", "description": "16.1km. 솔바람다리→순긋해변→사천진리해변. 강릉 북부 소나무 해안림과 조용한 해변"},
     {"id": "haeparang-40", "name": "해파랑길 40코스", "region": "강원", "lat": 37.9200, "lng": 128.8100, "radius": 3500, "category": "hiking", "description": "12.4km. 사천진리해변→향호→주문진항. 향호 철새도래지와 주문진 어시장"},
-    {"id": "haeparang-41", "name": "해파랑길 41코스", "region": "강원", "lat": 37.9900, "lng": 128.8100, "radius": 3500, "category": "hiking", "description": "12.2km. 주문진해변→강릉·양양 경계→남애항→죽도정. 강릉에서 양양으로 넘어가는 경계 구간"},
-    {"id": "haeparang-42", "name": "해파랑길 42코스", "region": "강원", "lat": 38.0600, "lng": 128.8200, "radius": 2500, "category": "hiking", "description": "9.6km. 죽도정→광진해변→하조대(관동팔경). 관동팔경 하조대와 소나무 절벽의 절경"},
-    {"id": "haeparang-43", "name": "해파랑길 43코스", "region": "강원", "lat": 38.1200, "lng": 128.7900, "radius": 2500, "category": "hiking", "description": "9.4km. 하조대해변→동산항→물치항→수산항. 양양 북부 소담한 포구를 잇는 한적한 코스"},
+    {"id": "haeparang-41", "name": "해파랑길 41코스", "region": "강원", "lat": 37.9900, "lng": 128.7000, "radius": 3500, "category": "hiking", "description": "12.2km. 주문진해변→강릉·양양 경계→남애항→죽도정. 강릉에서 양양으로 넘어가는 경계 구간"},
+    {"id": "haeparang-42", "name": "해파랑길 42코스", "region": "강원", "lat": 38.0600, "lng": 128.7000, "radius": 2500, "category": "hiking", "description": "9.6km. 죽도정→광진해변→하조대(관동팔경). 관동팔경 하조대와 소나무 절벽의 절경"},
+    {"id": "haeparang-43", "name": "해파랑길 43코스", "region": "강원", "lat": 38.1200, "lng": 128.7200, "radius": 2500, "category": "hiking", "description": "9.4km. 하조대해변→동산항→물치항→수산항. 양양 북부 소담한 포구를 잇는 한적한 코스"},
     {"id": "haeparang-44", "name": "해파랑길 44코스", "region": "강원", "lat": 38.1800, "lng": 128.5700, "radius": 3500, "category": "hiking", "description": "12.5km. 수산항→속초해변→설악해변→속초해맞이공원. 설악산 조망과 속초 해변"},
     {"id": "haeparang-45", "name": "해파랑길 45코스", "region": "강원", "lat": 38.2600, "lng": 128.5900, "radius": 4500, "category": "hiking", "description": "16.9km. 속초해맞이공원→아바이마을→청초호→외옹치→장사항. 속초 아바이마을과 청초호 낭만"},
     {"id": "haeparang-46", "name": "해파랑길 46코스", "region": "강원", "lat": 38.3400, "lng": 128.5500, "radius": 4000, "category": "hiking", "description": "15.0km. 장사항→고성 DMZ박물관→화진포(관동팔경). 화진포 석호와 역사 안보의 공존"},
     {"id": "haeparang-47", "name": "해파랑길 47코스", "region": "강원", "lat": 38.4100, "lng": 128.5200, "radius": 2500, "category": "hiking", "description": "9.7km. 삼포해변→반암해변→가진항. 고성 해안의 조용하고 깨끗한 명품 해변들"},
-    {"id": "haeparang-48", "name": "해파랑길 48코스", "region": "강원", "lat": 38.4800, "lng": 128.5000, "radius": 4500, "category": "hiking", "description": "16.4km. 가진항→공현진해변→거진해변→거진항. 고성 북부 청정 해안, DMZ 인근 마지막 자유 해변"},
-    {"id": "haeparang-49", "name": "해파랑길 49코스", "region": "강원", "lat": 38.5400, "lng": 128.4800, "radius": 3500, "category": "hiking", "description": "11.8km. 거진항→대진항→마차진해변→통일안보공원. DMZ 접경 해안, 분단의 현실을 실감하는 코스"},
-    {"id": "haeparang-50", "name": "해파랑길 50코스", "region": "강원", "lat": 38.5900, "lng": 128.4500, "radius": 3500, "category": "hiking", "description": "11.7km. 통일안보공원→명파해변→통일전망대. 해파랑길 종착점. DMZ 통일전망대에서 금강산을 바라보다"}
+    {"id": "haeparang-48", "name": "해파랑길 48코스", "region": "강원", "lat": 38.4800, "lng": 128.3800, "radius": 4500, "category": "hiking", "description": "16.4km. 가진항→공현진해변→거진해변→거진항. 고성 북부 청정 해안, DMZ 인근 마지막 자유 해변"},
+    {"id": "haeparang-49", "name": "해파랑길 49코스", "region": "강원", "lat": 38.5400, "lng": 128.3700, "radius": 3500, "category": "hiking", "description": "11.8km. 거진항→대진항→마차진해변→통일안보공원. DMZ 접경 해안, 분단의 현실을 실감하는 코스"},
+    {"id": "haeparang-50", "name": "해파랑길 50코스", "region": "강원", "lat": 38.5900, "lng": 128.3800, "radius": 3500, "category": "hiking", "description": "11.7km. 통일안보공원→명파해변→통일전망대. 해파랑길 종착점. DMZ 통일전망대에서 금강산을 바라보다"}
   ]
 }
