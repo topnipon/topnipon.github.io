@@ -193,6 +193,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   border-radius:8px;color:var(--text2);cursor:pointer;font-size:0.82rem;
 }
 #settings-note{font-size:0.7rem;color:var(--text2);margin-top:12px;line-height:1.5}
+#sync-all-btn{
+  width:100%;margin-top:10px;padding:9px;background:transparent;
+  border:1px solid var(--accent);border-radius:8px;color:var(--accent);
+  cursor:pointer;font-size:0.78rem;font-weight:600;
+}
+#sync-all-btn:hover{background:rgba(246,173,85,0.1)}
+#sync-status{font-size:0.7rem;margin-top:8px;line-height:1.5;min-height:1em}
 
 /* 툴팁 */
 .spot-tip{
@@ -317,6 +324,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <button id="settings-save">저장</button>
       <button id="settings-cancel">취소</button>
     </div>
+    <button id="sync-all-btn">☁ 전체 방문 기록 GitHub에 동기화</button>
+    <div id="sync-status"></div>
   </div>
 </div>
 
@@ -857,20 +866,44 @@ async function toggleVisited() {
 }
 
 async function syncGitHub(spotId, visited, token) {
+  // 개별 토글 시: 전체 목록을 Contents API로 즉시 업로드
   try {
-    await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
-      method:'POST',
-      headers:{
-        'Authorization':'token '+token,
-        'Accept':'application/vnd.github.v3+json',
-        'Content-Type':'application/json'
-      },
-      body: JSON.stringify({
-        event_type:'update-visited',
-        client_payload:{spotId, visited:visited.toString()}
-      })
-    });
+    await pushVisitedToGitHub(token);
   } catch(e) { console.warn('GitHub sync 실패:', e); }
+}
+
+async function pushVisitedToGitHub(token, statusEl) {
+  const FILE = 'data/visited-spots.json';
+  const BASE = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+  const headers = {
+    'Authorization': 'token ' + token,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+
+  // 현재 파일 SHA 가져오기
+  const getRes = await fetch(BASE, { headers });
+  if (!getRes.ok) throw new Error('파일 조회 실패: ' + getRes.status);
+  const { sha } = await getRes.json();
+
+  // 새 내용 생성
+  const today = new Date().toISOString().slice(0, 10);
+  const content = JSON.stringify({ visited: [...visitedSet], lastUpdated: today }, null, 2);
+  const encoded = btoa(unescape(encodeURIComponent(content)));
+
+  // 파일 업데이트
+  const putRes = await fetch(BASE, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({
+      message: `방문 기록 동기화 (${[...visitedSet].length}개)`,
+      content: encoded,
+      sha
+    })
+  });
+  if (!putRes.ok) throw new Error('업로드 실패: ' + putRes.status);
+  if (statusEl) statusEl.textContent = `✓ ${[...visitedSet].length}개 방문 기록이 GitHub에 저장되었습니다.`;
+  if (statusEl) statusEl.style.color = 'var(--accent)';
 }
 
 function bindEvents() {
@@ -909,6 +942,28 @@ function bindEvents() {
   document.getElementById('settings-overlay').addEventListener('click', e => {
     if(e.target.id==='settings-overlay')
       document.getElementById('settings-overlay').classList.remove('open');
+  });
+
+  document.getElementById('sync-all-btn').addEventListener('click', async () => {
+    const token = localStorage.getItem('gh-token');
+    const statusEl = document.getElementById('sync-status');
+    if (!token) {
+      statusEl.textContent = '⚠ 먼저 GitHub 토큰을 저장해주세요.';
+      statusEl.style.color = '#f472b6';
+      return;
+    }
+    const btn = document.getElementById('sync-all-btn');
+    btn.disabled = true;
+    btn.textContent = '동기화 중...';
+    statusEl.textContent = '';
+    try {
+      await pushVisitedToGitHub(token, statusEl);
+    } catch(e) {
+      statusEl.textContent = '✗ 동기화 실패: ' + e.message;
+      statusEl.style.color = '#f472b6';
+    }
+    btn.disabled = false;
+    btn.textContent = '☁ 전체 방문 기록 GitHub에 동기화';
   });
 }
 
