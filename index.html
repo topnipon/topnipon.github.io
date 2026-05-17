@@ -428,7 +428,21 @@ const SPOTS_INLINE = [
 ];
 
 let spotsData = [], visitedSet = new Set();
-let activeFilter = 'all', circles = {}, selectedSpot = null, map;
+let activeFilter = 'all', circles = {}, selectedSpot = null, map, regionLayer;
+
+// 지역별 색상 (시도 코드 → 지역명 매핑)
+const CODE_TO_REGION = {
+  '11':'서울','21':'부산','22':'대구','23':'인천','24':'광주',
+  '25':'대전','26':'울산','29':'세종','31':'경기','32':'강원',
+  '33':'충북','34':'충남','35':'전북','36':'전남','37':'경북',
+  '38':'경남','39':'제주'
+};
+const REGION_COLOR = {
+  '서울':'#FF6B6B','경기':'#FFAA00','인천':'#FECA57','강원':'#48DBFB',
+  '충북':'#FF9FF3','충남':'#54A0FF','대전':'#A29BFE','전북':'#00D2D3',
+  '전남':'#1DD1A1','광주':'#26de81','경북':'#F368E0','경남':'#EE5A24',
+  '대구':'#fd9644','부산':'#0652DD','울산':'#9980FA','제주':'#6C5CE7','세종':'#636e72'
+};
 
 async function init() {
   const KR_BOUNDS = L.latLngBounds([33.0, 124.5], [38.65, 132.2]);
@@ -462,6 +476,23 @@ async function init() {
   renderSpots();
   updateStats();
   bindEvents();
+
+  // 지역 GeoJSON 오버레이 (서버에서만)
+  if (location.protocol !== 'file:') {
+    fetch('data/korea-regions.json')
+      .then(r => r.json())
+      .then(geo => {
+        regionLayer = L.geoJSON(geo, {
+          style: f => regionStyle(f),
+          onEachFeature: (f, layer) => {
+            layer.on('click', e => { L.DomEvent.stopPropagation(e); });
+          }
+        });
+        regionLayer.addTo(map);
+        regionLayer.bringToBack();
+      })
+      .catch(() => {});
+  }
 }
 
 function spotRadius(spot) {
@@ -499,6 +530,28 @@ function renderSpots() {
   });
 }
 
+function regionStyle(f) {
+  const code = (f.properties.code || '').substring(0, 2);
+  const region = CODE_TO_REGION[code];
+  const color = REGION_COLOR[region] || '#636e72';
+  const regionMap = {};
+  spotsData.forEach(s => {
+    if (!regionMap[s.region]) regionMap[s.region] = {total:0, visited:0};
+    regionMap[s.region].total++;
+    if (visitedSet.has(s.id)) regionMap[s.region].visited++;
+  });
+  const d = region ? (regionMap[region] || {total:0, visited:0}) : {total:0, visited:0};
+  const pct = d.total ? d.visited / d.total : 0;
+  const fillOpacity = 0.04 + pct * 0.46;
+  return {
+    fillColor: color,
+    fillOpacity,
+    color: color,
+    weight: 0.6,
+    opacity: 0.25
+  };
+}
+
 function updateStats() {
   const total = spotsData.length;
   const n = visitedSet.size;
@@ -508,6 +561,7 @@ function updateStats() {
   document.getElementById('prog-pct').textContent = pct+'%';
   document.getElementById('prog-fill').style.width = pct+'%';
   updateRegionStats();
+  if (regionLayer) regionLayer.setStyle(f => regionStyle(f));
 }
 
 function updateRegionStats() {
@@ -525,12 +579,16 @@ function updateRegionStats() {
     })
     .map(([name, d]) => {
       const pct = d.total ? Math.round(d.visited/d.total*100) : 0;
+      const color = REGION_COLOR[name] || '#888';
       return `<div class="rg-row">
         <div class="rg-hdr">
-          <span class="rg-name">${name}</span>
+          <span style="display:flex;align-items:center;gap:5px">
+            <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
+            <span class="rg-name">${name}</span>
+          </span>
           <span class="rg-pct">${d.visited}/${d.total} · ${pct}%</span>
         </div>
-        <div class="rg-bar"><div class="rg-fill" style="width:${pct}%"></div></div>
+        <div class="rg-bar"><div class="rg-fill" style="width:${pct}%;background:${color}"></div></div>
       </div>`;
     }).join('');
 }
