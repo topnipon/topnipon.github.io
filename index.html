@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>대한민국 여행 지도 · 땡굴이의 발자국</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -140,23 +144,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #panel-name{font-size:1.35rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:4px}
 #panel-region{font-size:0.73rem;color:var(--text2);margin-bottom:14px}
 #panel-desc{font-size:0.8rem;color:var(--text2);line-height:1.65;margin-bottom:14px}
-#panel-map-wrap{position:relative;margin-bottom:20px}
-#panel-map{
-  width:100%;height:180px;border-radius:10px;
-  overflow:hidden;background:var(--surface2);
-}
-#panel-map .leaflet-control-zoom,
-#panel-map .leaflet-control-attribution{display:none!important}
-#panel-map .leaflet-tile{filter:brightness(1.6) saturate(1.1)!important}
-#panel-map-open{
-  position:absolute;bottom:8px;right:8px;z-index:1000;
-  display:flex;align-items:center;gap:5px;
-  padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
-  background:rgba(10,13,20,0.82);backdrop-filter:blur(6px);
-  color:#fff;font-size:0.68rem;font-weight:600;
-  text-decoration:none;transition:background .2s;
-}
-#panel-map-open:hover{background:rgba(66,133,244,0.85)}
 #panel-stamp{
   width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:2.2rem;margin:0 auto 20px;border:3px solid var(--border2);background:var(--surface2);
@@ -232,8 +219,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 @media(max-width:640px){
   #filters{
     top:auto;bottom:70px;left:10px;right:10px;transform:none;
-    overflow-x:auto;border-radius:14px;justify-content:flex-start;
+    border-radius:14px;flex-direction:column;gap:4px;
   }
+  #fl1{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  #fl2{overflow-x:auto;-webkit-overflow-scrolling:touch}
   #panel{
     width:100%;top:auto;height:72vh;bottom:0;left:0;right:0;
     border-left:none;border-top:1px solid var(--border);
@@ -242,7 +231,114 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   }
   #panel.open{transform:translateY(0)}
   #legend{display:none}
+  #hd-prog{gap:6px}
+  #prog-label{font-size:0.78rem}
+  #prog-count{font-size:0.62rem}
 }
+
+/* ─── 헤더 진행률 (간결 버전) ─── */
+#hd-prog{display:flex;align-items:center;gap:10px;width:100%}
+#prog-label{font-size:0.85rem;font-weight:800;color:var(--accent);white-space:nowrap}
+#prog-count{font-size:0.68rem;color:var(--text2);white-space:nowrap}
+#prog-bar{flex:1;height:4px;background:var(--border2);border-radius:2px;overflow:hidden;min-width:60px}
+#prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f6d55f);border-radius:2px;transition:width .6s ease;width:0%}
+
+/* ─── 2단계 필터 ─── */
+#filters{
+  position:fixed;top:69px;left:50%;transform:translateX(-50%);z-index:900;
+  display:flex;flex-direction:column;gap:5px;padding:8px 12px;
+  background:rgba(10,13,20,0.92);backdrop-filter:blur(12px);
+  border:1px solid var(--border);border-radius:16px;
+}
+#fl1{display:flex;gap:5px;align-items:center}
+#fl2{display:none;gap:5px;flex-wrap:wrap}
+#fl2.show{display:flex}
+.fl1-btn{
+  font-size:0.7rem;padding:5px 13px;border-radius:20px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.fl1-btn:hover{color:var(--text);border-color:var(--text2)}
+.fl1-btn.active{background:rgba(246,173,85,0.15);border-color:var(--accent);color:var(--accent);font-weight:700}
+.fl2-btn{
+  font-size:0.65rem;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.fl2-btn:hover{color:var(--text);border-color:var(--text2)}
+.fl2-btn.active{font-weight:700}
+#search-toggle{padding:5px 10px;font-size:0.82rem}
+#search-toggle.active{border-color:var(--accent);color:var(--accent)}
+
+/* 검색 박스 */
+#search-wrap{padding:4px 0 2px;display:none}
+#search-wrap.show{display:block}
+#search-inp{
+  width:100%;padding:7px 12px;background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;color:var(--text);font-size:0.8rem;outline:none;min-width:200px;
+}
+#search-inp:focus{border-color:var(--accent)}
+#search-res{
+  position:absolute;top:100%;left:0;right:0;margin-top:4px;
+  background:rgba(10,13,20,0.97);border:1px solid var(--border2);border-radius:10px;
+  max-height:240px;overflow-y:auto;z-index:910;
+}
+.sr-item{
+  padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);transition:background .15s;
+}
+.sr-item:last-child{border-bottom:none}
+.sr-item:hover{background:rgba(246,173,85,0.08)}
+.sr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sr-name{font-size:0.8rem;color:var(--text);font-weight:600}
+.sr-meta{font-size:0.65rem;color:var(--text2);margin-top:1px}
+
+/* ─── MarkerCluster 커스텀 ─── */
+.custom-cluster{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:var(--accent);
+  background:rgba(10,13,20,0.88);border:2px solid rgba(246,173,85,0.55);
+  backdrop-filter:blur(8px);
+  box-shadow:0 0 16px rgba(246,173,85,0.25);
+  transition:all .2s;
+}
+.custom-cluster:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(246,173,85,0.45)}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:none!important}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{display:none!important}
+
+/* ─── 근처 스팟 ─── */
+#nearby-section{margin-bottom:18px}
+.nearby-title{font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;font-weight:700}
+.nearby-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;
+  background:var(--surface2);margin-bottom:5px;cursor:pointer;transition:background .15s;
+}
+.nearby-item:hover{background:var(--border)}
+.nearby-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.nearby-name{font-size:0.78rem;color:var(--text);font-weight:600;flex:1}
+.nearby-dist{font-size:0.65rem;color:var(--text2)}
+
+/* ─── Google Maps 버튼 (패널 내) ─── */
+#panel-map-open{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:9px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);font-size:0.75rem;font-weight:600;
+  text-decoration:none;cursor:pointer;transition:all .2s;margin-bottom:18px;
+}
+#panel-map-open:hover{border-color:#4285F4;color:#4285F4;background:rgba(66,133,244,0.08)}
+
+/* ─── 업적 토스트 ─── */
+#ach-toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.ach-toast{
+  background:rgba(15,20,32,0.95);border:1px solid var(--accent);border-radius:12px;
+  padding:10px 14px;display:flex;align-items:center;gap:10px;pointer-events:none;
+  backdrop-filter:blur(12px);box-shadow:0 4px 24px rgba(0,0,0,.5);
+  animation:ach-in .35s ease, ach-out .4s ease 3.2s forwards;
+  min-width:200px;
+}
+.ach-emoji{font-size:1.4rem}
+.ach-text b{display:block;font-size:0.8rem;color:var(--accent)}
+.ach-text small{font-size:0.68rem;color:var(--text2)}
+@keyframes ach-in{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes ach-out{to{transform:translateX(120%);opacity:0}}
 </style>
 </head>
 <body>
@@ -256,31 +352,26 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
   <div id="nav-right">
     <div id="hd-prog">
-      <div id="prog-nums">
-        <span><span id="prog-visited">0</span> <span style="color:var(--text2)">/ <span id="prog-total">0</span> 방문</span></span>
-        <span id="prog-pct">0%</span>
-      </div>
+      <span id="prog-label">🏁 <span id="prog-pct">0%</span></span>
+      <span id="prog-count"><span id="prog-visited">0</span><span style="color:var(--border2)">/</span><span id="prog-total">0</span></span>
       <div id="prog-bar"><div id="prog-fill"></div></div>
     </div>
   </div>
 </nav>
 
-<!-- 필터 -->
+<!-- 필터 (2단계) -->
 <div id="filters">
-  <button class="f-btn active" data-cat="all">전체</button>
-  <button class="f-btn" data-cat="mountain">산/자연</button>
-  <button class="f-btn" data-cat="beach">해변</button>
-  <button class="f-btn" data-cat="history">역사/문화</button>
-  <button class="f-btn" data-cat="city">도시</button>
-  <button class="f-btn" data-cat="island">섬</button>
-  <button class="f-btn" data-cat="nature">자연</button>
-  <button class="f-btn" data-cat="unique">특별</button>
-  <button class="f-btn" data-cat="hiking">트래킹</button>
-  <button class="f-btn" data-cat="theme">놀이동산</button>
-  <button class="f-btn" data-cat="resort">리조트</button>
-  <button class="f-btn" data-cat="park">공원</button>
-  <button class="f-btn" data-cat="temple">사찰</button>
-  <button class="f-btn" data-cat="museum">박물관</button>
+  <div id="fl1">
+    <button class="fl1-btn active" data-mode="all">전체</button>
+    <button class="fl1-btn" data-mode="region">지역</button>
+    <button class="fl1-btn" data-mode="theme">테마</button>
+    <button class="fl1-btn" id="search-toggle">🔍</button>
+  </div>
+  <div id="fl2"></div>
+  <div id="search-wrap" style="position:relative">
+    <input id="search-inp" type="text" placeholder="장소 이름 검색..."/>
+    <div id="search-res"></div>
+  </div>
 </div>
 
 <!-- 지도 -->
@@ -318,17 +409,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div id="panel-name"></div>
     <div id="panel-region"></div>
     <div id="panel-desc"></div>
-    <div id="panel-map-wrap">
-      <div id="panel-map"></div>
-      <a id="panel-map-open" target="_blank" rel="noopener">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-        구글 지도에서 보기
-      </a>
+    <a id="panel-map-open" target="_blank" rel="noopener">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      구글 지도에서 보기
+    </a>
+    <div id="nearby-section">
+      <div class="nearby-title">근처 스팟</div>
+      <div id="nearby-list"></div>
     </div>
     <div id="panel-stamp">📍</div>
     <button id="panel-btn" class="unvisited">여기 다녀왔어요!</button>
   </div>
 </div>
+
+<!-- 업적 토스트 컨테이너 -->
+<div id="ach-toast-wrap"></div>
 
 <!-- 설정 버튼 -->
 <button id="settings-btn" title="설정">⚙</button>
@@ -681,7 +776,9 @@ const SPOTS_INLINE = [
 ];
 
 let spotsData = [], visitedSet = new Set();
-let activeFilter = 'all', circles = {}, selectedSpot = null, map, regionLayer, panelMap, panelMarker;
+let activeTheme = 'all', activeRegion = null;
+let markerMap = {}, selectedSpot = null, lastSelectedId = null;
+let map, regionLayer, clusterGroup, fuseSearch;
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -711,10 +808,26 @@ async function init() {
     {subdomains:'abcd', maxZoom:19}).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
 
-  // 스팟 데이터는 인라인 — 항상 동작
-  spotsData = SPOTS_INLINE;
+  // MarkerCluster 초기화
+  clusterGroup = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 48,
+    spiderfyOnMaxZoom: true,
+    iconCreateFunction: cluster => {
+      const n = cluster.getChildCount();
+      const size = n < 10 ? 36 : n < 50 ? 44 : 54;
+      const fs = n < 10 ? '0.75rem' : n < 50 ? '0.8rem' : '0.88rem';
+      return L.divIcon({
+        html: `<div class="custom-cluster" style="width:${size}px;height:${size}px;font-size:${fs}">${n}</div>`,
+        className: '', iconSize:[size,size], iconAnchor:[size/2,size/2]
+      });
+    }
+  });
+  clusterGroup.addTo(map);
 
-  // 방문 기록: 서버/GitHub Pages에서만 fetch 시도, 실패하면 localStorage만 사용
+  spotsData = SPOTS_INLINE;
+  fuseSearch = new Fuse(spotsData, { keys:['name','region'], threshold:0.35, includeScore:true });
+
   try {
     if (location.protocol !== 'file:') {
       const vr = await fetch('data/visited-spots.json?v='+Date.now());
@@ -722,7 +835,6 @@ async function init() {
       (vd.visited || []).forEach(id => visitedSet.add(id));
     }
   } catch(e) {}
-
   const local = JSON.parse(localStorage.getItem('visited-spots')||'[]');
   local.forEach(id => visitedSet.add(id));
 
@@ -738,7 +850,27 @@ async function init() {
         regionLayer = L.geoJSON(geo, {
           style: f => regionStyle(f),
           onEachFeature: (f, layer) => {
-            layer.on('click', e => { L.DomEvent.stopPropagation(e); });
+            const regionName = CODE_TO_REGION[(f.properties.code||'').substring(0,2)];
+            layer.on('click', e => {
+              L.DomEvent.stopPropagation(e);
+              if (!regionName) return;
+              // 지역 클릭 → 해당 지역 필터
+              activeRegion = activeRegion === regionName ? null : regionName;
+              activeTheme = 'all';
+              // fl1 버튼 상태 업데이트
+              document.querySelectorAll('.fl1-btn[data-mode]').forEach(b=>b.classList.remove('active'));
+              const regionBtn = document.querySelector('.fl1-btn[data-mode="region"]');
+              if (regionBtn) regionBtn.classList.toggle('active', !!activeRegion);
+              if (!activeRegion) document.querySelector('.fl1-btn[data-mode="all"]').classList.add('active');
+              buildFL2('region');
+              closePanel(); renderSpots();
+            });
+            layer.on('mouseover', function(e) {
+              if (regionName) layer.setStyle({ weight:2, opacity:0.9 });
+            });
+            layer.on('mouseout', function(e) {
+              regionLayer.resetStyle(layer);
+            });
           }
         });
         regionLayer.addTo(map);
@@ -749,7 +881,6 @@ async function init() {
 }
 
 function spotRadius(spot) {
-  // 중요도/크기에 따라 픽셀 반지름 차등
   if (spot.radius >= 12000) return 22;
   if (spot.radius >= 8000)  return 18;
   if (spot.radius >= 5000)  return 15;
@@ -758,28 +889,39 @@ function spotRadius(spot) {
   return 8;
 }
 
+function makeSpotIcon(spot, isVisited, isSelected) {
+  const col = CAT_COLOR[spot.category] || '#888';
+  const r = spotRadius(spot);
+  const size = r * 2;
+  let inner;
+  if (isVisited) {
+    const glow = isSelected
+      ? `box-shadow:0 0 0 3px ${col}40,0 0 18px ${col};transform:scale(1.4);`
+      : `box-shadow:0 0 7px ${col}70;`;
+    inner = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${col};opacity:0.82;border:2.5px solid ${col};${glow};transition:all .2s"></div>`;
+  } else {
+    const glow = isSelected ? `box-shadow:0 0 12px ${col}60;transform:scale(1.25);` : '';
+    inner = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#1a2540;opacity:${isSelected?0.65:0.38};border:1.5px dashed #3a4f70;${glow};transition:all .2s"></div>`;
+  }
+  return L.divIcon({ html:inner, className:'', iconSize:[size,size], iconAnchor:[size/2,size/2] });
+}
+
 function renderSpots() {
-  Object.values(circles).forEach(c => map.removeLayer(c));
-  circles = {};
+  clusterGroup.clearLayers();
+  markerMap = {};
   spotsData.forEach(spot => {
-    if (activeFilter !== 'all' && spot.category !== activeFilter) return;
+    if (activeTheme !== 'all' && spot.category !== activeTheme) return;
+    if (activeRegion && spot.region !== activeRegion) return;
     const v = visitedSet.has(spot.id);
-    const col = CAT_COLOR[spot.category]||'#888';
-    const r = spotRadius(spot);
-    const c = L.circleMarker([spot.lat, spot.lng], {
-      radius: r,
-      fillColor: v ? col : '#1a2540',
-      fillOpacity: v ? 0.75 : 0.35,
-      color: v ? col : '#3a4f70',
-      weight: v ? 2.5 : 1.5,
-      dashArray: v ? null : '4 3'
-    }).addTo(map);
-    c.bindTooltip(
+    const sel = spot.id === lastSelectedId;
+    const m = L.marker([spot.lat, spot.lng], { icon: makeSpotIcon(spot, v, sel) });
+    m.bindTooltip(
       `<b>${spot.name}</b><small>${CAT_LABEL[spot.category]} · ${spot.region}</small>`,
-      {direction:'top', sticky:true, className:'spot-tip', offset:[0,-4]}
+      { direction:'top', sticky:true, className:'spot-tip', offset:[0,-6] }
     );
-    c.on('click', e => { L.DomEvent.stopPropagation(e); openPanel(spot); });
-    circles[spot.id] = c;
+    m.on('click', e => { L.DomEvent.stopPropagation(e); openPanel(spot); });
+    clusterGroup.addLayer(m);
+    markerMap[spot.id] = m;
   });
 }
 
@@ -803,6 +945,54 @@ function regionStyle(f) {
     weight: 0.8,
     opacity: 0.45
   };
+}
+
+// ─── 헬퍼: 거리 계산 ───
+function haversine(a, b) {
+  const R=6371, d2r=Math.PI/180;
+  const dLat=(b.lat-a.lat)*d2r, dLng=(b.lng-a.lng)*d2r;
+  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*d2r)*Math.cos(b.lat*d2r)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function getNearbySpots(spot, n=3) {
+  return spotsData
+    .filter(s => s.id !== spot.id)
+    .map(s => ({...s, dist:haversine(spot, s)}))
+    .sort((a,b) => a.dist-b.dist)
+    .slice(0, n);
+}
+
+// ─── 업적 시스템 ───
+const ACHIEVEMENTS = [
+  {id:'first',   emoji:'👣', label:'첫 발자국',   desc:'첫 방문 기록',          test:v=>v.size>=1},
+  {id:'mtn10',   emoji:'⛰️', label:'등반가',       desc:'산 10곳 방문',          test:v=>spotsData.filter(s=>s.category==='mountain'&&v.has(s.id)).length>=10},
+  {id:'beach5',  emoji:'🏖️', label:'해변 러버',    desc:'해변 5곳 방문',         test:v=>spotsData.filter(s=>s.category==='beach'&&v.has(s.id)).length>=5},
+  {id:'hist10',  emoji:'🏯', label:'역사가',       desc:'역사 유적 10곳 방문',   test:v=>spotsData.filter(s=>s.category==='history'&&v.has(s.id)).length>=10},
+  {id:'jeju',    emoji:'🌋', label:'제주 탐험가',  desc:'제주 스팟 전부 방문',   test:v=>spotsData.filter(s=>s.region==='제주').every(s=>v.has(s.id))},
+  {id:'half',    emoji:'🏁', label:'절반의 여정',  desc:'전체의 50% 달성',       test:v=>v.size>=Math.floor(spotsData.length/2)},
+  {id:'100',     emoji:'🗺️', label:'여행 달인',    desc:'100곳 이상 방문',       test:v=>v.size>=100},
+  {id:'hiking5', emoji:'🥾', label:'트레킹 러버',  desc:'트래킹 5코스 완주',     test:v=>spotsData.filter(s=>s.category==='hiking'&&v.has(s.id)).length>=5},
+];
+let earnedAchs = new Set(JSON.parse(localStorage.getItem('achievements')||'[]'));
+
+function checkAchievements() {
+  ACHIEVEMENTS.forEach(a => {
+    if (!earnedAchs.has(a.id) && a.test(visitedSet)) {
+      earnedAchs.add(a.id);
+      localStorage.setItem('achievements', JSON.stringify([...earnedAchs]));
+      showAchToast(a);
+    }
+  });
+}
+
+function showAchToast(a) {
+  const wrap = document.getElementById('ach-toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'ach-toast';
+  el.innerHTML = `<span class="ach-emoji">${a.emoji}</span><div class="ach-text"><b>업적 달성! ${a.label}</b><small>${a.desc}</small></div>`;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
 }
 
 function updateStats() {
@@ -859,6 +1049,14 @@ document.querySelectorAll('.leg-tab').forEach(btn => {
 });
 
 function openPanel(spot) {
+  // 이전 선택 마커 복원
+  if (lastSelectedId && lastSelectedId !== spot.id && markerMap[lastSelectedId]) {
+    const prev = spotsData.find(x => x.id === lastSelectedId);
+    if (prev) markerMap[lastSelectedId].setIcon(makeSpotIcon(prev, visitedSet.has(prev.id), false));
+  }
+  lastSelectedId = spot.id;
+  if (markerMap[spot.id]) markerMap[spot.id].setIcon(makeSpotIcon(spot, visitedSet.has(spot.id), true));
+
   selectedSpot = spot;
   const v = visitedSet.has(spot.id);
   const col = CAT_COLOR[spot.category]||'#888';
@@ -870,26 +1068,25 @@ function openPanel(spot) {
   document.getElementById('panel-name').textContent = spot.name;
   document.getElementById('panel-region').textContent = '📌 '+spot.region;
   document.getElementById('panel-desc').textContent = spot.description;
-  // 미니 Leaflet 지도 초기화 or 이동
-  if (!panelMap) {
-    panelMap = L.map('panel-map', {
-      zoomControl:false, attributionControl:false,
-      dragging:false, scrollWheelZoom:false, doubleClickZoom:false,
-      touchZoom:false, keyboard:false
-    }).setView([spot.lat, spot.lng], 14);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      {subdomains:'abcd', maxZoom:19}).addTo(panelMap);
-    panelMarker = L.circleMarker([spot.lat, spot.lng], {
-      radius:8, color:col, fillColor:col, fillOpacity:0.9, weight:2
-    }).addTo(panelMap);
-  } else {
-    panelMap.setView([spot.lat, spot.lng], 14);
-    panelMarker.setLatLng([spot.lat, spot.lng])
-               .setStyle({color:col, fillColor:col});
-  }
-  document.getElementById('panel-map-open').href =
-    `https://www.google.com/maps?q=${spot.lat},${spot.lng}`;
-  setTimeout(() => panelMap.invalidateSize(), 50);
+  document.getElementById('panel-map-open').href = `https://www.google.com/maps?q=${spot.lat},${spot.lng}`;
+
+  // 근처 스팟 (가장 가까운 3개)
+  const nearby = getNearbySpots(spot, 3);
+  document.getElementById('nearby-list').innerHTML = nearby.map(n => {
+    const nc = CAT_COLOR[n.category]||'#888';
+    const nv = visitedSet.has(n.id) ? '✓ ' : '';
+    return `<div class="nearby-item" data-id="${n.id}">
+      <div class="nearby-dot" style="background:${nc}"></div>
+      <span class="nearby-name">${nv}${n.name}</span>
+      <span class="nearby-dist">${n.dist < 1 ? Math.round(n.dist*1000)+'m' : n.dist.toFixed(1)+'km'}</span>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.nearby-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const s = spotsData.find(x => x.id === el.dataset.id);
+      if (s) { map.setView([s.lat, s.lng], Math.max(map.getZoom(), 11)); openPanel(s); }
+    });
+  });
 
   const stamp = document.getElementById('panel-stamp');
   stamp.textContent = CAT_EMOJI[spot.category]||'📍';
@@ -911,6 +1108,11 @@ function openPanel(spot) {
 }
 
 function closePanel() {
+  if (lastSelectedId && markerMap[lastSelectedId]) {
+    const prev = spotsData.find(x => x.id === lastSelectedId);
+    if (prev) markerMap[lastSelectedId].setIcon(makeSpotIcon(prev, visitedSet.has(prev.id), false));
+  }
+  lastSelectedId = null;
   document.getElementById('panel').classList.remove('open');
   selectedSpot = null;
 }
@@ -927,6 +1129,7 @@ async function toggleVisited() {
 
   renderSpots();
   updateStats();
+  checkAchievements();
   closePanel();
 }
 
@@ -971,15 +1174,103 @@ async function pushVisitedToGitHub(token, statusEl) {
   if (statusEl) statusEl.style.color = 'var(--accent)';
 }
 
+// ─── 2단계 필터 데이터 ───
+const THEME_BTNS = [
+  {cat:'mountain',label:'⛰ 산/자연'},{cat:'beach',label:'🏖 해변'},
+  {cat:'history',label:'🏯 역사/문화'},{cat:'city',label:'🏙 도시'},
+  {cat:'island',label:'🏝 섬'},{cat:'nature',label:'🌿 자연'},
+  {cat:'unique',label:'✨ 특별'},{cat:'hiking',label:'🥾 트래킹'},
+  {cat:'theme',label:'🎢 놀이동산'},{cat:'resort',label:'🏨 리조트'},
+  {cat:'park',label:'🌳 공원'},{cat:'temple',label:'🛕 사찰'},
+  {cat:'museum',label:'🏛 박물관'}
+];
+
+function buildFL2(mode) {
+  const fl2 = document.getElementById('fl2');
+  if (mode === 'theme') {
+    fl2.innerHTML = THEME_BTNS.map(t => {
+      const col = CAT_COLOR[t.cat];
+      return `<button class="fl2-btn${activeTheme===t.cat?' active':''}" data-cat="${t.cat}"
+        style="${activeTheme===t.cat?`border-color:${col};color:${col};background:${col}18`:''}">${t.label}</button>`;
+    }).join('');
+    fl2.querySelectorAll('.fl2-btn').forEach(b => b.addEventListener('click', () => {
+      activeTheme = b.dataset.cat;
+      buildFL2('theme');
+      closePanel(); renderSpots();
+    }));
+  } else if (mode === 'region') {
+    const regions = [...new Set(spotsData.map(s => s.region))].sort((a,b) => a.localeCompare(b,'ko'));
+    fl2.innerHTML = regions.map(r => {
+      const col = REGION_COLOR[r]||'#888';
+      return `<button class="fl2-btn${activeRegion===r?' active':''}" data-region="${r}"
+        style="${activeRegion===r?`border-color:${col};color:${col};background:${col}18`:''}">${r}</button>`;
+    }).join('');
+    fl2.querySelectorAll('.fl2-btn').forEach(b => b.addEventListener('click', () => {
+      activeRegion = activeRegion === b.dataset.region ? null : b.dataset.region;
+      buildFL2('region');
+      closePanel(); renderSpots();
+    }));
+  }
+  fl2.classList.toggle('show', mode==='theme'||mode==='region');
+}
+
 function bindEvents() {
-  document.querySelectorAll('.f-btn').forEach(btn => {
+  // 1단계 필터
+  document.querySelectorAll('.fl1-btn[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.fl1-btn[data-mode]').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      activeFilter = btn.dataset.cat;
-      closePanel();
-      renderSpots();
+      const mode = btn.dataset.mode;
+      if (mode === 'all') { activeTheme='all'; activeRegion=null; document.getElementById('fl2').classList.remove('show'); closePanel(); renderSpots(); }
+      else buildFL2(mode);
     });
+  });
+
+  // 검색 토글
+  const searchToggle = document.getElementById('search-toggle');
+  const searchWrap = document.getElementById('search-wrap');
+  searchToggle.addEventListener('click', () => {
+    const open = searchWrap.classList.toggle('show');
+    searchToggle.classList.toggle('active', open);
+    if (open) { document.getElementById('fl2').classList.remove('show'); setTimeout(()=>document.getElementById('search-inp').focus(),50); }
+  });
+
+  // 검색 입력
+  document.getElementById('search-inp').addEventListener('input', e => {
+    const q = e.target.value.trim();
+    const res = document.getElementById('search-res');
+    if (!q) { res.innerHTML=''; return; }
+    const results = fuseSearch.search(q).slice(0,8);
+    if (!results.length) { res.innerHTML=`<div class="sr-item" style="color:var(--text2);cursor:default">검색 결과 없음</div>`; return; }
+    res.innerHTML = results.map(r => {
+      const s = r.item;
+      const col = CAT_COLOR[s.category]||'#888';
+      const v = visitedSet.has(s.id) ? ' ✓' : '';
+      return `<div class="sr-item" data-id="${s.id}">
+        <div class="sr-dot" style="background:${col}"></div>
+        <div><div class="sr-name">${s.name}${v}</div><div class="sr-meta">${CAT_LABEL[s.category]} · ${s.region}</div></div>
+      </div>`;
+    }).join('');
+    res.querySelectorAll('.sr-item[data-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        const s = spotsData.find(x=>x.id===el.dataset.id);
+        if (!s) return;
+        res.innerHTML=''; e.target.value='';
+        searchWrap.classList.remove('show'); searchToggle.classList.remove('active');
+        if (markerMap[s.id]) {
+          clusterGroup.zoomToShowLayer(markerMap[s.id], () => openPanel(s));
+        } else {
+          map.setView([s.lat, s.lng], 12); openPanel(s);
+        }
+      });
+    });
+  });
+
+  // 검색창 외부 클릭 닫기
+  document.addEventListener('click', e => {
+    if (!document.getElementById('filters').contains(e.target)) {
+      document.getElementById('search-res').innerHTML='';
+    }
   });
 
   document.getElementById('panel-close').addEventListener('click', closePanel);
