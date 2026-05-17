@@ -298,6 +298,7 @@
     {"id": "bridge-andong", "name": "안동 낙동강 출렁다리", "region": "경북", "lat": 36.5682, "lng": 128.7235, "radius": 1500, "category": "unique", "description": "안동 월영교 인근 낙동강 출렁다리. 월영교 야경과 함께 안동의 밤을 수놓음"},
     {"id": "bridge-uljin", "name": "울진 구산해변 출렁다리", "region": "경북", "lat": 36.9960, "lng": 129.4200, "radius": 1500, "category": "unique", "description": "동해 절벽 위 해상 출렁다리. 동해 바다 위를 걷는 스릴과 에메랄드 바다"},
     {"id": "bridge-geoje", "name": "거제 신선대 출렁다리", "region": "경남", "lat": 34.9000, "lng": 128.6880, "radius": 1500, "category": "unique", "description": "거제 신선대 해안 절벽 위 출렁다리. 한려수도 다도해 절경 조망"},
-    {"id": "bridge-hapcheon", "name": "합천 황강 출렁다리", "region": "경남", "lat": 35.5700, "lng": 128.0820, "radius": 1500, "category": "unique", "description": "합천 황강 위 출렁다리. 황매산과 가야산을 배경으로 한 경남 대표 명소"}
+    {"id": "bridge-hapcheon", "name": "합천 황강 출렁다리", "region": "경남", "lat": 35.5700, "lng": 128.0820, "radius": 1500, "category": "unique", "description": "합천 황강 위 출렁다리. 황매산과 가야산을 배경으로 한 경남 대표 명소"},
+    {"id": "jb-gogs-island-trail", "name": "고군산 섬잇길", "region": "전북", "lat": 35.845, "lng": 126.598, "radius": 5000, "category": "hiking", "description": "말도~보농도~명도~광대도~방축도 5개 섬을 해상 인도교 4개(총 1356m)로 연결한 7.2km 트레일. 서해 위를 두 발로 걷는 국내 유일 해상 트레킹. 말도 등대(1909년)·천연기념물 501호 습곡구조 포함"}
   ]
 }
