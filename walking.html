@@ -43,6 +43,9 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #title{font-size:1.1rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
 #subtitle{font-size:2rem;font-weight:700;color:#fff;margin-bottom:28px}
 #lottie-character{width:160px;height:160px;flex-shrink:0;filter:drop-shadow(0 0 20px rgba(246,173,85,.25))}
+#walk-story{margin-bottom:20px;padding:16px 20px;background:rgba(22,27,34,0.6);border-left:3px solid rgba(246,173,85,0.4);border-radius:0 8px 8px 0}
+#walk-story-text{font-size:0.85rem;color:#8b949e;line-height:1.9}
+.walk-em{color:#f6ad55;font-weight:700}
 @media(max-width:640px){#lottie-character{width:100px;height:100px}}
 
 /* 스탯 카드 */
@@ -198,6 +201,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     <div id="header-text">
       <div id="title">My Walking Record · 2025.04 – 2026.05</div>
       <div id="subtitle">땡굴이의 걷기 기록</div>
+      <div id="walk-story"><div id="walk-story-text">기록 불러오는 중…</div></div>
     </div>
     <lottie-player id="lottie-character" src="./cool-man.json" background="transparent" speed="1" loop autoplay></lottie-player>
   </div>
@@ -973,6 +977,26 @@ function calcStreak() {
 }
 const STREAK = calcStreak();
 const bestMonth = MONTHS.reduce((a, b) => b[1] > a[1] ? b : a);
+
+// 스토리텔링 텍스트
+(function buildStory() {
+  const [bmy, bmm] = bestMonth[0].split('-');
+  const firstYM = DAYS[0].date.slice(0,7);
+  const [fy, fm] = firstYM.split('-');
+  const thisYear = new Date().getFullYear();
+  const yearDays = DAYS.filter(d => d.date.startsWith(thisYear+''));
+  const yearKm = Math.round(yearDays.reduce((s,d)=>s+d.km, 0));
+  const storyEl = document.getElementById('walk-story-text');
+  if (!storyEl) return;
+  let story = `<span class="walk-em">${fy}년 ${fm}월</span>부터 지금까지, 조용히 쌓여온 발자국들.<br>`;
+  story += `총 <span class="walk-em">${Math.round(TOTAL).toLocaleString('ko-KR')}km</span>를 걸었고 — `;
+  story += `가장 많이 걷던 달은 <span class="walk-em">${bmy}년 ${bmm}월</span> (${Math.round(bestMonth[1])}km), `;
+  story += `하루 최장은 <span class="walk-em">${MAX.km.toFixed(1)}km</span> (${MAX.date}).`;
+  if (yearKm > 0 && thisYear > parseInt(fy)) {
+    story += `<br>${thisYear}년 누적: <span class="walk-em">${yearKm.toLocaleString('ko-KR')}km</span>`;
+  }
+  storyEl.innerHTML = story;
+})();
 const [bmy, bmm] = bestMonth[0].split('-');
 document.getElementById('mc-total').textContent = Math.round(TOTAL).toLocaleString('ko-KR') + ' km';
 document.getElementById('mc-equiv').textContent = `서울↔부산 ${(TOTAL/400).toFixed(1)}회 왕복`;
