@@ -2,8 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>대한민국 여행 지도 · 땡굴이의 발자국</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>땡굴이의 발자국 · 대한민국 여행 아카이브</title>
+<meta name="description" content="대한민국 302곳의 여행지를 기록하는 개인 아카이브. 방문한 곳을 지도 위에 발자국으로 남깁니다.">
+<meta name="theme-color" content="#0d1117">
+<meta property="og:title" content="땡굴이의 발자국">
+<meta property="og:description" content="대한민국 302곳의 여행지를 기록하는 개인 여행 아카이브">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👣</text></svg>">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
@@ -35,6 +41,14 @@
   --c-park:#52b788;
   --c-temple:#e76f51;
   --c-museum:#457b9d;
+  /* ── 디자인 시스템 토큰 ── */
+  --sp-xs:6px;  --sp-sm:10px; --sp-md:16px; --sp-lg:24px; --sp-xl:32px;
+  --r-sm:8px;   --r-md:12px;  --r-lg:16px;  --r-full:9999px;
+  --t-fast:0.15s ease; --t-normal:0.2s ease; --t-slow:0.35s ease;
+  --sh-sm:0 2px 8px rgba(0,0,0,.3);
+  --sh-md:0 4px 16px rgba(0,0,0,.4);
+  --sh-lg:0 8px 32px rgba(0,0,0,.5);
+  --z-map:0; --z-overlay:800; --z-ui:900; --z-panel:950; --z-nav:1000; --z-modal:2000; --z-toast:3000;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif}
 
@@ -61,11 +75,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   color:var(--accent);font-weight:700;
 }
 #nav-right{display:flex;align-items:center;gap:16px;margin-left:auto;flex:1;max-width:420px}
-#hd-prog{width:100%}
-#prog-nums{display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:5px}
-#prog-visited{color:var(--accent);font-weight:700}
-#prog-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
-#prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f6d55f);border-radius:2px;transition:width .6s ease;width:0%}
 @media(max-width:640px){#hd-prog{display:none}#nav-brand{font-size:0.82rem;margin-right:12px}}
 
 /* 지도 */
@@ -78,8 +87,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #filters{
   position:fixed;top:69px;left:50%;transform:translateX(-50%);z-index:900;
   display:flex;gap:6px;padding:8px 14px;
-  background:rgba(10,13,20,0.9);backdrop-filter:blur(10px);
-  border:1px solid var(--border);border-radius:30px;
+  background:rgba(13,17,23,0.94);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:var(--r-full);
 }
 .f-btn{
   font-size:0.68rem;padding:4px 12px;border-radius:20px;border:1px solid var(--border2);
@@ -104,8 +113,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 /* 범례 */
 #legend{
   position:fixed;bottom:24px;left:20px;z-index:900;
-  background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);
-  border:1px solid var(--border);border-radius:12px;padding:10px 12px;
+  background:rgba(13,17,23,0.92);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;
   min-width:150px;max-width:190px;
 }
 #legend-tabs{display:flex;gap:4px;margin-bottom:8px}
@@ -283,7 +292,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #search-inp:focus{border-color:var(--accent)}
 #search-res{
   position:absolute;top:100%;left:0;right:0;margin-top:4px;
-  background:rgba(10,13,20,0.97);border:1px solid var(--border2);border-radius:10px;
+  background:rgba(13,17,23,0.97);border:1px solid var(--border2);border-radius:var(--r-sm);
   max-height:240px;overflow-y:auto;z-index:910;
 }
 .sr-item{
@@ -356,13 +365,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .spot-icon:hover>div{filter:brightness(1.4)!important}
 
 /* ─── 패널 히어로 스트라이프 ─── */
-#panel-hero{
-  height:5px;flex-shrink:0;
-  background:var(--accent);
-  transition:background .25s;
-}
-#panel-name{font-size:1.45rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:5px}
-#panel-region{font-size:0.73rem;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;gap:5px}
+#panel-hero{height:5px;flex-shrink:0;background:var(--accent);transition:background var(--t-normal)}
 
 /* ─── 범례 컴팩트 (2열) ─── */
 #legend{min-width:140px;max-width:175px}
@@ -378,8 +381,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 
 /* ─── 스탬프 방문 애니메이션 ─── */
-@keyframes stampPop{0%{transform:scale(1)}40%{transform:scale(1.35)}70%{transform:scale(0.92)}100%{transform:scale(1)}}
-#panel-stamp.pop{animation:stampPop .45s ease}
+@keyframes stampPop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+#panel-stamp.pop{animation:stampPop .4s ease}
 
 /* ─── 검색 키보드 포커스 ─── */
 .sr-item.focused{background:rgba(246,173,85,0.12)}
@@ -412,6 +415,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #search-wrap.has-text #search-clear{display:block}
 #search-wrap.has-text #search-inp{padding-right:28px}
 
+/* ─── 선택 색상 + 포커스 접근성 ─── */
+::selection{background:rgba(246,173,85,0.22);color:var(--text)}
+*:focus-visible{outline:2px solid rgba(246,173,85,0.6);outline-offset:2px;border-radius:3px}
+
 /* ─── 모바일 안전 영역 ─── */
 @media(max-width:640px){
   #panel{padding-bottom:env(safe-area-inset-bottom)}
@@ -431,7 +438,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
   <div id="nav-right">
     <div id="hd-prog">
-      <span id="prog-label">🏁 <span id="prog-pct">0%</span></span>
+      <span id="prog-label">👣 <span id="prog-pct">0%</span></span>
       <span id="prog-count"><span id="prog-visited">0</span><span style="color:var(--border2)">/</span><span id="prog-total">0</span></span>
       <div id="prog-bar"><div id="prog-fill"></div></div>
     </div>
@@ -506,7 +513,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div id="nearby-list"></div>
     </div>
     <div id="panel-stamp">📍</div>
-    <button id="panel-btn" class="unvisited">여기 다녀왔어요!</button>
+    <button id="panel-btn" class="unvisited">이곳에 발자국 남기기</button>
   </div>
 </div>
 
@@ -1213,7 +1220,7 @@ function openPanel(spot) {
     btn.className = 'done';
     btn.style.background = col;
   } else {
-    btn.textContent = '여기 다녀왔어요!';
+    btn.textContent = '이곳에 발자국 남기기';
     btn.className = 'unvisited';
     btn.style.background = '';
   }
