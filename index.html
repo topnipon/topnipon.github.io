@@ -27,23 +27,35 @@
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif}
 
-/* 헤더 */
-#hd{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:rgba(10,13,20,0.92);backdrop-filter:blur(12px);
+/* 공통 상단 네비게이션 */
+#topnav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;height:57px;
+  background:rgba(10,13,20,0.94);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:16px;padding:10px 20px;height:57px;
+  display:flex;align-items:center;padding:0 20px;gap:0;
 }
-#hd-title{font-size:1rem;font-weight:700;color:var(--text);white-space:nowrap}
-#hd-sub{font-size:0.68rem;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-#hd-prog{flex:1;max-width:280px;margin-left:auto}
+#nav-brand{
+  font-size:0.92rem;font-weight:800;color:var(--accent);
+  white-space:nowrap;letter-spacing:.5px;margin-right:20px;flex-shrink:0;
+}
+#nav-tabs{display:flex;gap:4px;align-items:center}
+.nav-tab{
+  font-size:0.75rem;padding:6px 16px;border-radius:20px;
+  text-decoration:none;color:var(--text2);border:1px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-tab:hover{color:var(--text);border-color:var(--border2)}
+.nav-tab.active{
+  background:rgba(246,173,85,0.12);border-color:var(--accent);
+  color:var(--accent);font-weight:700;
+}
+#nav-right{display:flex;align-items:center;gap:16px;margin-left:auto;flex:1;max-width:420px}
+#hd-prog{width:100%}
 #prog-nums{display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:5px}
 #prog-visited{color:var(--accent);font-weight:700}
 #prog-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
 #prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f6d55f);border-radius:2px;transition:width .6s ease;width:0%}
-#hd-nav{display:flex;gap:8px;margin-left:12px}
-#hd-nav a{font-size:0.68rem;color:var(--text2);text-decoration:none;padding:4px 10px;border:1px solid var(--border2);border-radius:20px;transition:all .2s}
-#hd-nav a:hover{color:var(--text);border-color:var(--accent)}
+@media(max-width:640px){#hd-prog{display:none}#nav-brand{font-size:0.82rem;margin-right:12px}}
 
 /* 지도 */
 #map{position:fixed;top:57px;left:0;right:0;bottom:0}
@@ -182,28 +194,28 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   }
   #panel.open{transform:translateY(0)}
   #legend{display:none}
-  #hd-prog{display:none}
-  #hd-nav{margin-left:auto}
 }
 </style>
 </head>
 <body>
 
-<!-- 헤더 -->
-<div id="hd">
-  <div>
-    <div id="hd-title">대한민국 여행 지도</div>
-    <div id="hd-sub">가본 곳을 색으로 채워나가세요</div>
+<!-- 공통 네비게이션 -->
+<nav id="topnav">
+  <div id="nav-brand">땡굴이의 발자국</div>
+  <div id="nav-tabs">
+    <a href="index.html" class="nav-tab active">🗺 여행 지도</a>
+    <a href="index_1.html" class="nav-tab">🚶 걷기 기록</a>
   </div>
-  <div id="hd-prog">
-    <div id="prog-nums">
-      <span><span id="prog-visited" style="color:var(--accent);font-weight:700">0</span> <span style="color:var(--text2)">/ <span id="prog-total">0</span> 방문</span></span>
-      <span id="prog-pct" style="color:var(--accent);font-weight:700">0%</span>
+  <div id="nav-right">
+    <div id="hd-prog">
+      <div id="prog-nums">
+        <span><span id="prog-visited">0</span> <span style="color:var(--text2)">/ <span id="prog-total">0</span> 방문</span></span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div id="prog-bar"><div id="prog-fill"></div></div>
     </div>
-    <div id="prog-bar"><div id="prog-fill"></div></div>
   </div>
-  <div id="hd-nav"><a href="index_1.html">걷기 기록</a></div>
-</div>
+</nav>
 
 <!-- 필터 -->
 <div id="filters">
