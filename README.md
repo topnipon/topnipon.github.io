@@ -1,30 +1,64 @@
-# My Walking Record · 땡굴이의 걷기 기록
+# 땡굴이의 발자국
 
-**2025.04 – 2026.05** 1년간의 걷기 데이터를 시각화한 개인 대시보드입니다.  
-GitHub Pages로 배포되며, Pacer 앱 데이터를 기반으로 합니다.
+개인 활동 기록을 시각화한 GitHub Pages 대시보드입니다.
 
 🔗 **https://topnipon.github.io**
 
 ---
 
-## 주요 기능
+## 페이지 구성
+
+### 🗺 대한민국 여행 지도 (`index.html`)
+
+전국 120개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
+
+- 방문한 곳은 컬러/발광 표시, 미방문은 어둡게 표시
+- 카테고리 필터 (산/자연, 해변, 역사/문화, 도시, 섬, 자연, 특별)
+- 방문율 게이지바 표시
+- GitHub Actions 연동으로 방문 기록 온라인 저장
+- ⚙ 설정 버튼에서 GitHub Token 입력 후 동기화 가능
+
+### 🚶 걷기 기록 (`walking.html`)
+
+**2025.04 – 현재**까지의 일별 걷기 데이터를 시각화한 대시보드입니다.
 
 - **캘린더 히트맵** — 날짜별 걷기 거리를 색상으로 표시
 - **누적 거리 라인 차트** — 기간 누적 km 추이
 - **월별 통계** — 월별 km / 걸음 수 전환 차트
 - **요일별 평균** — 요일 패턴 분석
-- **지도 오버레이** — 총 거리, 활동 일수, 최고 기록 등 요약 카드
+- **지도 오버레이** — 총 거리, 활동 일수, 최고 기록 요약 카드
 - **실시간 날씨** — 성남 현재 날씨 패널 (Open-Meteo API)
 
 ---
 
 ## 데이터 구조
 
+```
+data/
+├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
+├── travel-spots.json     # 여행지 목록 120개 (위치, 카테고리 등)
+└── visited-spots.json    # 방문한 여행지 ID 목록
+```
+
 ```json
-// data/walking-data.json
+// walking-data.json
 {
   "2025-04-07": { "km": 4.271, "steps": 6054 },
   "2025-04-08": { "km": 4.038, "steps": 5733 }
+}
+
+// travel-spots.json
+{
+  "spots": [
+    { "id": "hallasan", "name": "한라산", "region": "제주", "lat": 33.362, "lng": 126.533,
+      "radius": 20, "category": "mountain", "description": "..." }
+  ]
+}
+
+// visited-spots.json
+{
+  "visited": ["hallasan", "bukhansan"],
+  "lastUpdated": "2026-05-17"
 }
 ```
 
@@ -32,15 +66,27 @@ GitHub Pages로 배포되며, Pacer 앱 데이터를 기반으로 합니다.
 
 ## 자동 업데이트
 
-GitHub Actions 워크플로우(`.github/workflows/update-walking.yml`)를 통해  
-`repository_dispatch` 이벤트로 날짜별 km/걸음 수를 자동으로 커밋합니다.
+### 걷기 기록
+
+GitHub Actions(`.github/workflows/update-walking.yml`)를 통해 `repository_dispatch`로 자동 커밋됩니다.
 
 ```bash
-# 예시: 외부에서 데이터 업데이트 트리거
 curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches \
   -H "Authorization: token <TOKEN>" \
-  -d '{"event_type":"update-walking","client_payload":{"date":"2026-05-10","km":7.5,"steps":9500}}'
+  -d '{"event_type":"update-walking","client_payload":{"date":"2026-05-17","km":7.5,"steps":9500}}'
 ```
+
+### 여행지 방문 기록
+
+GitHub Actions(`.github/workflows/update-visited.yml`)를 통해 `repository_dispatch`로 자동 커밋됩니다.
+
+```bash
+curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches \
+  -H "Authorization: token <TOKEN>" \
+  -d '{"event_type":"update-visited","client_payload":{"spotId":"hallasan","visited":"true"}}'
+```
+
+사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 입력하면 방문 버튼 클릭 시 자동으로 호출됩니다.
 
 ---
 
@@ -48,6 +94,8 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 
 - Vanilla JS / HTML / CSS
 - [Chart.js](https://www.chartjs.org/) — 차트
-- [Leaflet.js](https://leafletjs.com/) — 지도
+- [Leaflet.js](https://leafletjs.com/) — 인터랙티브 지도
 - [Lottie](https://lottiefiles.com/) — 캐릭터 애니메이션
 - [Open-Meteo](https://open-meteo.com/) — 날씨 API
+- GitHub Actions — 데이터 자동 업데이트
+- GitHub Pages — 정적 호스팅
