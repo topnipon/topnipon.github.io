@@ -300,6 +300,7 @@
     {"id": "bridge-geoje", "name": "거제 신선대 출렁다리", "region": "경남", "lat": 34.9000, "lng": 128.6880, "radius": 1500, "category": "unique", "description": "거제 신선대 해안 절벽 위 출렁다리. 한려수도 다도해 절경 조망"},
     {"id": "bridge-hapcheon", "name": "합천 황강 출렁다리", "region": "경남", "lat": 35.5700, "lng": 128.0820, "radius": 1500, "category": "unique", "description": "합천 황강 위 출렁다리. 황매산과 가야산을 배경으로 한 경남 대표 명소"},
     {"id": "jb-gogs-island-trail", "name": "고군산 섬잇길", "region": "전북", "lat": 35.845, "lng": 126.598, "radius": 5000, "category": "hiking", "description": "말도~보농도~명도~광대도~방축도 5개 섬을 해상 인도교 4개(총 1356m)로 연결한 7.2km 트레일. 서해 위를 두 발로 걷는 국내 유일 해상 트레킹. 말도 등대(1909년)·천연기념물 501호 습곡구조 포함"},
-    {"id": "cb-nongdari", "name": "진천 농다리", "region": "충북", "lat": 36.8556, "lng": 127.4832, "radius": 2000, "category": "hiking", "description": "고려시대 축조 추정, 충청북도 유형문화재. 붉은 돌을 물고기 비늘처럼 쌓은 길이 93.6m 돌다리. 주변 초평호 둘레길(8~11km)·미르309 출렁다리(국내 최장 무주탑 현수교)와 함께 진천 대표 트레킹 코스"}
+    {"id": "cb-nongdari", "name": "진천 농다리", "region": "충북", "lat": 36.8556, "lng": 127.4832, "radius": 2000, "category": "hiking", "description": "고려시대 축조 추정, 충청북도 유형문화재. 붉은 돌을 물고기 비늘처럼 쌓은 길이 93.6m 돌다리. 주변 초평호 둘레길(8~11km)·미르309 출렁다리(국내 최장 무주탑 현수교)와 함께 진천 대표 트레킹 코스"},
+    {"id": "cb-wolryubong", "name": "월류봉 둘레길", "region": "충북", "lat": 36.1556, "lng": 127.8760, "radius": 3000, "category": "hiking", "description": "영동 황간면 초강천을 휘감은 407m 절벽 봉우리. 8.4km 3개 구간(여울소리길·산새소리길·풍경소리길), 무장애 데크길. 우암 송시열 한천정사·반야사 보물 삼층석탑·한천팔경 제1경. 달이 머물다 간다는 뜻의 월류(月留)"}
   ]
 }
