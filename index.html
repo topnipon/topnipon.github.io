@@ -348,9 +348,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 /* ─── 패널 히어로 스트라이프 ─── */
 #panel-hero{height:5px;flex-shrink:0;background:var(--accent);transition:background var(--t-normal)}
 
-/* ─── 범례 컴팩트 (2열) ─── */
+/* ─── 범례 컴팩트 ─── */
 #legend{min-width:140px;max-width:175px}
-#legend-cat-panel{display:grid;grid-template-columns:1fr 1fr;gap:4px 6px}
+#legend-cat-panel{display:flex;flex-direction:column;gap:4px}
 .leg-row{font-size:0.64rem;gap:5px}
 .leg-count{margin-left:auto;font-size:0.58rem;color:var(--accent);font-weight:700}
 
@@ -1208,6 +1208,10 @@ function updateLegendCounts() {
     const el = document.getElementById('lc-'+cat);
     if (el) el.textContent = cnt;
   });
+  const panel = document.getElementById('legend-cat-panel');
+  Array.from(panel.querySelectorAll('.leg-row'))
+    .sort((a, b) => parseInt(b.querySelector('.leg-count')?.textContent||0) - parseInt(a.querySelector('.leg-count')?.textContent||0))
+    .forEach(r => panel.appendChild(r));
 }
 
 function updateRegionStats() {
