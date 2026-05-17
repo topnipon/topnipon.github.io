@@ -384,6 +384,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #map-empty-msg{font-size:0.88rem;color:var(--text2);font-weight:600;margin-bottom:5px}
 #map-empty-sub{font-size:0.72rem;color:var(--border2)}
 
+/* ─── 오너 인증 모달 ─── */
+#owner-modal{
+  position:fixed;inset:0;z-index:var(--z-modal);
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+#owner-modal.open{opacity:1;pointer-events:all}
+#owner-box{
+  background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);
+  padding:28px 24px;width:260px;text-align:center;box-shadow:var(--sh-lg);
+}
+#owner-box h4{font-size:0.9rem;color:var(--text);margin-bottom:16px;font-weight:700}
+#owner-pw{
+  width:100%;padding:10px 12px;border-radius:var(--r-sm);
+  border:1px solid var(--border2);background:var(--surface2);
+  color:var(--text);font-size:1rem;text-align:center;letter-spacing:6px;
+  outline:none;margin-bottom:8px;box-sizing:border-box;
+}
+#owner-pw:focus{border-color:var(--accent)}
+#owner-err{font-size:0.72rem;color:#f87171;min-height:1em;margin-bottom:10px}
+#owner-confirm{
+  width:100%;padding:10px;border-radius:var(--r-sm);border:none;
+  background:var(--accent);color:var(--bg);font-weight:700;font-size:0.85rem;cursor:pointer;
+  transition:opacity .15s;
+}
+#owner-confirm:hover{opacity:0.85}
+
 /* ─── 검색 클리어 버튼 ─── */
 #search-clear{
   position:absolute;right:9px;top:50%;transform:translateY(-50%);
@@ -453,6 +481,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div id="map-empty-icon">🗺</div>
   <div id="map-empty-msg">아직 이 테마의 발자국은 없습니다</div>
   <div id="map-empty-sub">다른 여행지를 탐험해보세요</div>
+</div>
+
+<div id="owner-modal">
+  <div id="owner-box">
+    <h4>🔒 소유자 확인</h4>
+    <input id="owner-pw" type="password" placeholder="••••" maxlength="20" autocomplete="off">
+    <div id="owner-err"></div>
+    <button id="owner-confirm">확인</button>
+  </div>
 </div>
 
 <!-- 범례 -->
@@ -530,6 +567,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </div>
 
 <script>
+const OWNER_HASH = '3c5d8ca315f8c36d4cd4beecbc55b34c92a2d6eb1df730908df6f23dd2aa08f7';
+
 const CAT_COLOR = {
   mountain:'#34d399', beach:'#60a5fa', history:'#fbbf24',
   city:'#a78bfa', island:'#22d3ee', nature:'#86efac', unique:'#f472b6', hiking:'#a3cb38',
@@ -1224,6 +1263,34 @@ function closePanel() {
   selectedSpot = null;
 }
 
+async function verifyOwner(callback) {
+  const modal = document.getElementById('owner-modal');
+  const pw = document.getElementById('owner-pw');
+  const err = document.getElementById('owner-err');
+  pw.value = ''; err.textContent = '';
+  modal.classList.add('open');
+  setTimeout(() => pw.focus(), 50);
+
+  async function check() {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw.value));
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    if (hash === OWNER_HASH) {
+      modal.classList.remove('open');
+      callback();
+    } else {
+      err.textContent = '패스워드가 올바르지 않습니다';
+      pw.value = ''; pw.focus();
+    }
+  }
+
+  document.getElementById('owner-confirm').onclick = check;
+  pw.onkeydown = e => {
+    if (e.key === 'Enter') check();
+    if (e.key === 'Escape') modal.classList.remove('open');
+  };
+  modal.onclick = e => { if (e.target === modal) modal.classList.remove('open'); };
+}
+
 async function toggleVisited() {
   if (!selectedSpot) return;
   const id = selectedSpot.id;
@@ -1414,7 +1481,7 @@ function bindEvents() {
   });
 
   document.getElementById('panel-close').addEventListener('click', closePanel);
-  document.getElementById('panel-btn').addEventListener('click', toggleVisited);
+  document.getElementById('panel-btn').addEventListener('click', () => verifyOwner(toggleVisited));
   map.on('click', closePanel);
 
   document.getElementById('settings-btn').addEventListener('click', () => {
