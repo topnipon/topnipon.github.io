@@ -212,6 +212,25 @@
     {"id": "jj-jusangjeolli", "name": "중문 대포 주상절리", "region": "제주", "lat": 33.2329, "lng": 126.4241, "radius": 1000, "category": "nature", "description": "파도에 깎인 6각형 현무암 주상절리 절벽. 제주 지질의 교과서"},
     {"id": "jj-darangswi", "name": "다랑쉬오름", "region": "제주", "lat": 33.4591, "lng": 126.8679, "radius": 1500, "category": "mountain", "description": "제주 동부 최고 오름. 완벽한 원형 분화구와 360° 제주 파노라마"},
     {"id": "jj-jungseub", "name": "서귀포 이중섭 거리", "region": "제주", "lat": 33.2479, "lng": 126.5636, "radius": 1000, "category": "unique", "description": "천재 화가 이중섭이 피난 살던 거리. 이중섭미술관·문화거리"},
-    {"id": "jj-jeoji", "name": "제주 저지 예술인마을", "region": "제주", "lat": 33.3398, "lng": 126.2343, "radius": 1000, "category": "unique", "description": "제주 예술의 메카. 현대미술관·오설록 티뮤지엄이 인근"}
+    {"id": "jj-jeoji", "name": "제주 저지 예술인마을", "region": "제주", "lat": 33.3398, "lng": 126.2343, "radius": 1000, "category": "unique", "description": "제주 예술의 메카. 현대미술관·오설록 티뮤지엄이 인근"},
+    {"id": "theme-everland", "name": "에버랜드", "region": "경기", "lat": 37.2938, "lng": 127.2024, "radius": 1500, "category": "theme", "description": "국내 최대 테마파크. 롤러코스터·캐리비안 베이·사파리 월드·장미축제 등 사계절 볼거리"},
+    {"id": "theme-lotteworld", "name": "롯데월드 어드벤처", "region": "서울", "lat": 37.5114, "lng": 127.0983, "radius": 1000, "category": "theme", "description": "세계 최대 실내 테마파크. 잠실 석촌호수 옆, 매직아일랜드 야외 공원과 함께"},
+    {"id": "theme-legoland", "name": "레고랜드 코리아", "region": "강원", "lat": 37.8700, "lng": 127.7240, "radius": 1200, "category": "theme", "description": "춘천 중도에 위치한 국내 첫 레고랜드. 레고 테마 어트랙션·워터파크 복합"},
+    {"id": "theme-seoullland", "name": "서울랜드", "region": "경기", "lat": 37.4443, "lng": 126.9805, "radius": 1000, "category": "theme", "description": "과천 서울대공원 인근. 5개 테마존·퍼레이드·동물원과 함께 즐기는 가족 공원"},
+    {"id": "theme-gyeongjuworld", "name": "경주월드", "region": "경북", "lat": 35.8447, "lng": 129.1510, "radius": 1200, "category": "theme", "description": "경북 최대 테마파크. 불국사 인근, 워터파크 캘리포니아 비치 포함"},
+    {"id": "theme-tongdo", "name": "통도환타지아", "region": "경남", "lat": 35.3480, "lng": 129.0360, "radius": 1200, "category": "theme", "description": "경남 양산의 복합 테마파크. 계절별 축제와 야간 조명쇼"},
+    {"id": "theme-oworld", "name": "오월드", "region": "대전", "lat": 36.3066, "lng": 127.3845, "radius": 1000, "category": "theme", "description": "대전 테마파크·동물원·식물원 복합. 주라기 공원존·버드랜드 인기"},
+    {"id": "theme-eworld", "name": "이월드", "region": "대구", "lat": 35.8226, "lng": 128.5496, "radius": 1000, "category": "theme", "description": "대구 앞산 자락 테마파크. 83타워 전망대·서머워터 워터파크 포함"},
+    {"id": "theme-lotteworld-busan", "name": "롯데월드 어드벤처 부산", "region": "부산", "lat": 35.1798, "lng": 129.0890, "radius": 1200, "category": "theme", "description": "기장 동부산관광단지 내 대규모 테마파크. 해운대 바다를 조망하며 즐기는 어트랙션"},
+    {"id": "resort-hione", "name": "하이원리조트", "region": "강원", "lat": 37.1982, "lng": 128.8946, "radius": 3000, "category": "resort", "description": "정선 백운산 해발 1340m. 스키·골프·카지노·폭포 트레킹 사계절 리조트"},
+    {"id": "resort-vivaldi", "name": "비발디파크", "region": "강원", "lat": 37.6869, "lng": 128.2005, "radius": 2000, "category": "resort", "description": "홍천 대명리조트. 오션월드 워터파크로 유명한 여름·겨울 복합 리조트"},
+    {"id": "resort-phoenix", "name": "휘닉스파크", "region": "강원", "lat": 37.5648, "lng": 128.4766, "radius": 2000, "category": "resort", "description": "평창 봉평. 스키장·클럽메드 빌리지·오션700 워터파크 포함 올시즌 리조트"},
+    {"id": "resort-alpensia", "name": "알펜시아리조트", "region": "강원", "lat": 37.6554, "lng": 128.6717, "radius": 2000, "category": "resort", "description": "평창 2018 동계올림픽 메인 베이스. 스키점프대·바이애슬론 경기장 관람 가능"},
+    {"id": "resort-yongpyong", "name": "용평리조트", "region": "강원", "lat": 37.6701, "lng": 128.6895, "radius": 3000, "category": "resort", "description": "국내 최초 스키장 (1975년 개장). 드래곤플라자·발왕산 케이블카, 겨울연가 촬영지"},
+    {"id": "resort-oakvalley", "name": "오크밸리", "region": "강원", "lat": 37.3678, "lng": 127.7230, "radius": 2000, "category": "resort", "description": "원주 치악산 자락 골프·스키·스파 복합 리조트. 아트밸리 문화예술 프로그램"},
+    {"id": "resort-wellihilli", "name": "웰리힐리파크", "region": "강원", "lat": 37.4510, "lng": 128.5564, "radius": 2000, "category": "resort", "description": "횡성 덕고산 스키 리조트. 완만한 슬로프로 가족·입문자에게 인기"},
+    {"id": "resort-jisan", "name": "지산포레스트리조트", "region": "경기", "lat": 37.2316, "lng": 127.5050, "radius": 1500, "category": "resort", "description": "이천 산악 지형 스키·골프 리조트. 수도권 당일치기 스키 명소"},
+    {"id": "resort-shinhwa", "name": "제주 신화월드", "region": "제주", "lat": 33.3910, "lng": 126.2250, "radius": 2000, "category": "resort", "description": "제주 서쪽 대규모 복합 리조트. 워터파크·테마파크·카지노·호텔 통합 엔터테인먼트"},
+    {"id": "resort-paradise", "name": "파라다이스시티", "region": "인천", "lat": 37.4693, "lng": 126.6520, "radius": 1500, "category": "resort", "description": "영종도 인천공항 인근. 카지노·아트테인먼트·클럽·스파 복합 럭셔리 리조트"}
   ]
 }
