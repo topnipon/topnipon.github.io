@@ -1,0 +1,39 @@
+name: Update Visited Spots
+
+on:
+  repository_dispatch:
+    types: [update-visited]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update visited-spots.json
+        run: |
+          SPOT_ID="${{ github.event.client_payload.spotId }}"
+          VISITED="${{ github.event.client_payload.visited }}"
+          TODAY=$(date +%Y-%m-%d)
+
+          if [ "$VISITED" = "true" ]; then
+            jq --arg id "$SPOT_ID" --arg d "$TODAY" \
+               'if (.visited | index($id)) == null then .visited += [$id] else . end | .lastUpdated = $d' \
+               data/visited-spots.json > tmp.json
+          else
+            jq --arg id "$SPOT_ID" --arg d "$TODAY" \
+               '.visited = (.visited | map(select(. != $id))) | .lastUpdated = $d' \
+               data/visited-spots.json > tmp.json
+          fi
+          mv tmp.json data/visited-spots.json
+
+      - name: Commit and push
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add data/visited-spots.json
+          git diff --staged --quiet || git commit -m "여행지 업데이트: ${{ github.event.client_payload.spotId }} (${{ github.event.client_payload.visited == 'true' && '방문' || '방문취소' }})"
+          git push

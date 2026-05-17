@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>땡굴이의 걷기 기록</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@2.0.8/dist/lottie-player.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-height:100vh}
+
+/* 헤더 */
+#header{padding:32px 20px 0}
+#header-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+#header-text{flex:1}
+#title{font-size:1.1rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+#subtitle{font-size:2rem;font-weight:700;color:#fff;margin-bottom:28px}
+#lottie-character{width:160px;height:160px;flex-shrink:0;filter:drop-shadow(0 0 20px rgba(246,173,85,.25))}
+@media(max-width:640px){#lottie-character{width:100px;height:100px}}
+
+/* 스탯 카드 */
+#stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+.sc{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px 24px;flex:1;min-width:140px}
+.sc-val{font-size:2rem;font-weight:800;color:#f6ad55}
+.sc-lbl{font-size:0.72rem;color:#8b949e;margin-top:4px;letter-spacing:2px;text-transform:uppercase}
+
+/* 컨텐츠 */
+#content{padding:0 20px 60px;display:flex;flex-direction:column;gap:24px}
+.section-label{font-size:0.72rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+
+/* 2열 그리드 - 동일 높이 */
+#grid-bottom{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+#grid-bottom>div{display:flex;flex-direction:column;min-height:560px}
+#grid-bottom .chart-wrap{flex:1}
+@media(max-width:640px){
+  #grid-bottom{grid-template-columns:1fr}
+  #content{padding:0 16px 40px}
+  #header{padding:24px 16px 0}
+  #footer{padding:28px 16px}
+  #footer-inner{grid-template-columns:1fr;gap:20px}
+  #weather-panel{padding:8px 10px;min-width:0;max-width:calc(100% - 28px)}
+  #wx-hdr,#wx-upd,#wx-grid{display:none}
+  #wx-main{margin-bottom:0;gap:6px}
+  #wx-icon{font-size:1.5rem}
+  #wx-temp{font-size:1.15rem}
+  #wx-cond{font-size:10px}
+}
+
+/* 지도 섹션 */
+#map-wrap{position:relative}
+#map-section{position:relative;border-radius:12px;overflow:hidden;height:480px;border:1px solid #30363d}
+#walk-map{width:100%;height:100%}
+.leaflet-tile{filter:brightness(3.5) saturate(1.2) contrast(0.85)}
+.leaflet-control-zoom,.leaflet-control-attribution{display:none}
+#map-overlay{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.map-card{background:rgba(13,17,23,0.82);border:1px solid rgba(246,173,85,0.3);border-radius:12px;padding:14px 18px;backdrop-filter:blur(10px);flex:1;min-width:120px}
+.map-card-val{font-size:1.4rem;font-weight:800;color:#f6ad55;line-height:1}
+.map-card-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.map-card-sub{font-size:0.72rem;color:#c9d1d9;margin-top:4px}
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.15}}
+#tl-hud{position:absolute;top:14px;right:14px;z-index:1000;display:flex;flex-direction:column;align-items:flex-end;gap:5px;pointer-events:none}
+#tl-tooltip{position:absolute;z-index:1002;pointer-events:none;display:none;background:rgba(13,17,23,.92);border:1px solid rgba(246,160,0,.35);border-radius:9px;padding:8px 12px;font-size:12px;line-height:1.7;white-space:nowrap;backdrop-filter:blur(8px);color:#c9d1d9}
+#tl-info{display:flex;align-items:baseline;gap:8px;background:rgba(13,17,23,.78);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px 12px;backdrop-filter:blur(8px)}
+#tl-date{font-size:12px;font-weight:700;color:#c4b5fd;letter-spacing:.5px}
+#tl-km{font-size:11px;color:#a78bfa;font-weight:600}
+#tl-cum{font-size:11px;color:rgba(255,255,255,.4);margin-left:6px}
+#tl-bar{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+#tl-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#c084fc);border-radius:2px;transition:width .12s linear}
+#map-live{position:absolute;top:14px;right:14px;z-index:1000;display:flex;align-items:center;gap:6px;background:rgba(13,17,23,.78);border:1px solid rgba(104,211,145,.4);border-radius:20px;padding:5px 12px;font-size:11px;color:#68d391;letter-spacing:2px;text-transform:uppercase;backdrop-filter:blur(8px)}
+@keyframes wxIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes windRock{0%,100%{rotate:var(--wd)}40%{rotate:calc(var(--wd) + 14deg)}70%{rotate:calc(var(--wd) - 9deg)}}
+#weather-panel{position:absolute;top:14px;left:14px;z-index:1000;background:rgba(13,17,23,.84);border:1px solid rgba(99,179,237,.28);border-radius:14px;padding:14px 16px;backdrop-filter:blur(12px);min-width:175px;animation:wxIn .6s .4s ease both;color:#c9d1d9;font-size:12px}
+#wx-hdr{font-size:10px;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+#wx-main{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#wx-icon{font-size:2rem;line-height:1}
+#wx-temp{font-size:1.75rem;font-weight:800;color:#fff;line-height:1}
+#wx-cond{font-size:11px;color:#8b949e;margin-top:3px}
+#wx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.wx-row{}
+.wx-v{font-size:13px;font-weight:600;color:#f6ad55;line-height:1.3}
+.wx-l{font-size:10px;color:#6e7681;letter-spacing:1px;margin-top:1px}
+#wx-arrow{display:inline-block;font-size:14px}
+#wx-upd{font-size:10px;color:#484f58;margin-top:10px;padding-top:8px;border-top:1px solid #21262d}
+#map-live-dot{width:6px;height:6px;border-radius:50%;background:#68d391;animation:liveBlink 1.4s ease-in-out infinite}
+
+/* 푸터 */
+#footer{background:#161b22;border-top:1px solid #30363d;padding:40px 20px;margin-top:8px}
+#footer-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
+.ft-block{}
+.ft-label{font-size:0.68rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.ft-val{font-size:1.1rem;color:#f6ad55;font-weight:700;margin-bottom:4px}
+.ft-desc{font-size:0.8rem;color:#8b949e;line-height:1.6}
+#footer-copy{text-align:center;margin-top:32px;font-size:0.72rem;color:#484f58;border-top:1px solid #21262d;padding-top:20px}
+
+/* 히트맵 */
+#heatmap-wrap{overflow-x:hidden;padding-bottom:12px;width:100%}
+#heatmap-svg{display:block;width:100%;height:auto}
+.hm-month{font-size:11px;fill:#8b949e}
+.hm-day{font-size:10px;fill:#8b949e}
+.hm-cell{rx:3;ry:3;cursor:pointer;transition:opacity .15s}
+.hm-cell:hover{opacity:0.75}
+#hm-legend{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:11px;color:#8b949e}
+.leg-cell{width:13px;height:13px;border-radius:3px;display:inline-block}
+
+/* 툴팁 */
+#tooltip{position:fixed;background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:8px 12px;font-size:12px;color:#c9d1d9;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
+#tt-date{font-weight:600;margin-bottom:2px}
+#tt-km{color:#f6ad55}
+
+/* 차트 래퍼 */
+.chart-wrap{position:relative;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px}
+.chart-title{font-size:0.75rem;color:#8b949e;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+
+/* 마일스톤 배지 */
+#milestones{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.ms{background:#161b22;border:1px solid #30363d;border-radius:20px;padding:6px 14px;font-size:0.75rem;color:#8b949e}
+.ms.reached{border-color:#f6ad55;color:#f6ad55}
+
+/* 요일 그리드 */
+#wd-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-top:8px}
+.wd-bar-wrap{text-align:center}
+.wd-label{font-size:0.72rem;color:#8b949e;margin-bottom:6px}
+.wd-bar-bg{background:#21262d;border-radius:6px;flex:1;display:flex;align-items:flex-end;overflow:hidden}
+#chart-monthly-wrap{flex:1;position:relative;min-height:0}
+#wd-grid-wrap{flex:1;display:flex;flex-direction:column;min-height:0}
+#wd-grid{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-top:8px}
+.wd-bar-wrap{display:flex;flex-direction:column}
+#grid-bottom .chart-wrap{display:flex;flex-direction:column}
+.wd-bar-fill{width:100%;border-radius:6px 6px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1)}
+.wd-val{font-size:0.78rem;color:#f6ad55;margin-top:6px;font-weight:600}
+
+/* ── 인터랙션 ───────────────────────────────────────────────────── */
+#progress-bar{position:fixed;top:0;left:0;height:2px;z-index:10000;width:0%;background:linear-gradient(90deg,#c46200,#f6ad55,#ffd060,#f6ad55);box-shadow:0 0 8px rgba(246,173,85,.6);transition:width .08s linear}
+.cursor-trail{position:fixed;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,rgba(246,173,85,.9),transparent 70%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);animation:trailFade .65s ease forwards}
+@keyframes trailFade{from{opacity:.9;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(3.5)}}
+.sc{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;cursor:default}
+.sc:hover{transform:translateY(-5px);border-color:rgba(246,173,85,.5);box-shadow:0 12px 30px rgba(246,173,85,.14)}
+.sc-val{transition:color .2s ease}
+.sc:hover .sc-val{color:#ffd060}
+.sc.steps{border-color:rgba(104,211,145,0.3)}
+.sc.steps .sc-val{color:#68d391;word-break:break-all}
+.sc.steps:hover{border-color:rgba(104,211,145,0.5);box-shadow:0 12px 30px rgba(104,211,145,0.14)}
+.sc.steps:hover .sc-val{color:#9ae6b4}
+#chart-toggle{display:flex;gap:8px;margin-bottom:16px}
+.toggle-btn{background:#21262d;border:1px solid #30363d;border-radius:20px;padding:5px 14px;font-size:0.72rem;color:#8b949e;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.toggle-btn.active{background:rgba(246,173,85,0.15);border-color:#f6ad55;color:#f6ad55}
+.toggle-btn.active.steps{background:rgba(104,211,145,0.15);border-color:#68d391;color:#68d391}
+#tt-steps{color:#68d391;font-size:11px}
+@keyframes cardRipple{0%{box-shadow:0 0 0 0 rgba(246,173,85,.5)}100%{box-shadow:0 0 0 24px rgba(246,173,85,0)}}
+.sc.rippling{animation:cardRipple .55s ease}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<div id="tooltip"><div id="tt-date"></div><div id="tt-km"></div><div id="tt-steps"></div></div>
+
+<div id="header">
+  <div id="header-top">
+    <div id="header-text">
+      <div id="title">My Walking Record · 2025.04 – 2026.05</div>
+      <div id="subtitle">땡굴이의 걷기 기록</div>
+    </div>
+    <lottie-player id="lottie-character" src="./cool-man.json" background="transparent" speed="1" loop autoplay></lottie-player>
+  </div>
+  <div id="stats">
+    <div class="sc"><div class="sc-val" id="s-total">0</div><div class="sc-lbl">Total km</div></div>
+    <div class="sc"><div class="sc-val" id="s-days">0</div><div class="sc-lbl">기록된 날</div></div>
+    <div class="sc"><div class="sc-val" id="s-avg">0</div><div class="sc-lbl">일평균 km</div></div>
+    <div class="sc"><div class="sc-val" id="s-max">0</div><div class="sc-lbl">최장 하루</div></div>
+    <div class="sc steps"><div class="sc-val" id="s-total-steps">0</div><div class="sc-lbl">Total 걸음</div></div>
+    <div class="sc steps"><div class="sc-val" id="s-avg-steps">0</div><div class="sc-lbl">일평균 걸음</div></div>
+  </div>
+</div>
+
+<div id="content">
+
+  <!-- 지도 -->
+  <div>
+    <div class="section-label">🗺 나의 걷기 지역</div>
+    <div id="map-wrap">
+      <div id="map-section">
+        <div id="walk-map"></div>
+        <canvas id="tl-canvas" style="position:absolute;inset:0;pointer-events:all;z-index:491;border-radius:12px"></canvas>
+        <div id="tl-tooltip"></div>
+        <canvas id="wx-canvas" style="position:absolute;inset:0;pointer-events:none;z-index:490;border-radius:12px;width:100%;height:100%"></canvas>
+        <div id="map-live"><div id="map-live-dot"></div>LIVE</div>
+        <div id="weather-panel">
+          <div id="wx-hdr">🌡 현재 날씨 · 성남</div>
+          <div id="wx-main">
+            <span id="wx-icon">⋯</span>
+            <div><div id="wx-temp">—</div><div id="wx-cond">불러오는 중…</div></div>
+          </div>
+          <div id="wx-grid">
+            <div class="wx-row"><div class="wx-v" id="wx-feels">—</div><div class="wx-l">체감온도</div></div>
+            <div class="wx-row"><div class="wx-v" id="wx-humid">—</div><div class="wx-l">습도</div></div>
+            <div class="wx-row"><div class="wx-v" id="wx-wind">—</div><div class="wx-l">풍속</div></div>
+            <div class="wx-row"><div class="wx-v"><span id="wx-arrow">↑</span> <span id="wx-wdir">—</span></div><div class="wx-l">풍향</div></div>
+            <div class="wx-row" style="grid-column:1/-1"><div class="wx-v" id="wx-precip">—</div><div class="wx-l">강수량</div></div>
+          </div>
+          <div id="wx-upd">—</div>
+        </div><!-- /weather-panel -->
+        <div id="tl-hud">
+          <div id="tl-info">
+            <div id="tl-date">—</div>
+            <div id="tl-km">—</div>
+            <div id="tl-cum">—</div>
+          </div>
+          <div id="tl-bar"><div id="tl-bar-fill"></div></div>
+        </div>
+      </div><!-- /map-section -->
+      <div id="map-overlay">
+        <div class="map-card">
+          <div class="map-card-val" id="mc-total">—</div>
+          <div class="map-card-lbl">Total Distance</div>
+          <div class="map-card-sub" id="mc-equiv">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-days">—</div>
+          <div class="map-card-lbl">Active Days</div>
+          <div class="map-card-sub" id="mc-period">2025.04 – 2026.05</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-best-month">—</div>
+          <div class="map-card-lbl">Best Month</div>
+          <div class="map-card-sub" id="mc-best-month-km">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-best-day">—</div>
+          <div class="map-card-lbl">Best Single Day</div>
+          <div class="map-card-sub" id="mc-best-day-date">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-avg">—</div>
+          <div class="map-card-lbl">Daily Average</div>
+          <div class="map-card-sub" id="mc-avg-sub">—</div>
+        </div>
+        <div class="map-card">
+          <div class="map-card-val" id="mc-streak">—</div>
+          <div class="map-card-lbl">Best Streak</div>
+          <div class="map-card-sub" id="mc-streak-sub">연속 걷기 최장</div>
+        </div>
+        <div class="map-card" style="border-color:rgba(104,211,145,0.3)">
+          <div class="map-card-val" id="mc-total-steps" style="color:#68d391">—</div>
+          <div class="map-card-lbl">Total Steps</div>
+          <div class="map-card-sub" id="mc-steps-sub">—</div>
+        </div>
+        <div class="map-card" style="border-color:rgba(104,211,145,0.3)">
+          <div class="map-card-val" id="mc-avg-steps" style="color:#68d391">—</div>
+          <div class="map-card-lbl">Daily Avg Steps</div>
+          <div class="map-card-sub" id="mc-steps-per-km">—</div>
+        </div>
+      </div>
+    </div><!-- /map-wrap -->
+  </div>
+
+  <!-- 히트맵 (전체 너비) -->
+  <div>
+    <div class="section-label">🗓 캘린더 히트맵</div>
+    <div class="chart-wrap">
+      <div id="heatmap-wrap"><svg id="heatmap-svg"></svg></div>
+      <div id="hm-legend">
+        <span>적음</span>
+        <span class="leg-cell" style="background:#161b22;border:1px solid #30363d"></span>
+        <span class="leg-cell" style="background:#3d1f00"></span>
+        <span class="leg-cell" style="background:#7a3b00"></span>
+        <span class="leg-cell" style="background:#c46200"></span>
+        <span class="leg-cell" style="background:#f6a000"></span>
+        <span class="leg-cell" style="background:#ffd060"></span>
+        <span>많음</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 누적 라인 (전체 너비) -->
+  <div>
+    <div class="section-label">📈 누적 거리</div>
+    <div class="chart-wrap">
+      <canvas id="chart-journey" height="120"></canvas>
+    </div>
+    <div id="milestones"></div>
+  </div>
+
+  <!-- 월별 + 요일 (2열) -->
+  <div id="grid-bottom">
+    <div>
+      <div class="section-label">📊 월별 통계</div>
+      <div class="chart-wrap">
+        <div id="chart-toggle">
+          <button class="toggle-btn active" id="btn-km" onclick="switchMonthly('km')">거리 km</button>
+          <button class="toggle-btn steps" id="btn-steps" onclick="switchMonthly('steps')">걸음 수</button>
+        </div>
+        <div id="chart-monthly-wrap"><canvas id="chart-monthly"></canvas></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">📅 요일별 평균</div>
+      <div class="chart-wrap">
+        <div id="wd-grid-wrap"><div id="wd-grid"></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer">
+  <div id="footer-inner">
+    <div class="ft-block">
+      <div class="ft-label">기록 기간</div>
+      <div class="ft-val">2025.04 – 2026.05</div>
+      <div class="ft-desc">1년간의 걷기 데이터를 기반으로 작성되었습니다.</div>
+    </div>
+    <div class="ft-block">
+      <div class="ft-label">등가 거리</div>
+      <div class="ft-val" id="ft-equiv">—</div>
+      <div class="ft-desc" id="ft-equiv-desc">—</div>
+    </div>
+    <div class="ft-block">
+      <div class="ft-label">Best Record</div>
+      <div class="ft-val" id="ft-best">—</div>
+      <div class="ft-desc" id="ft-best-desc">—</div>
+    </div>
+  </div>
+  <div id="footer-copy" id="ft-copy">—</div>
+  <div id="footer-data-date" style="text-align:center;margin-top:8px;font-size:0.68rem;color:#484f58;letter-spacing:2px;">—</div>
+</footer>
+
+<script>
+// ── 데이터 (walking-data.json에서 동적 로드) ─────────────────────────
+fetch('./data/walking-data.json?v=' + Date.now())
+  .then(r => r.json())
+  .then(RAW => {
+
+// ── 데이터 가공 ─────────────────────────────────────────────────────
+const entries = Object.entries(RAW).sort(([a],[b])=>a<b?-1:1);
+let cum = 0;
+const DAYS = entries.map(([date,val])=>{
+  const km = typeof val === 'object' ? val.km : val;
+  const steps = typeof val === 'object' ? val.steps : 0;
+  cum += km;
+  const d = new Date(date+'T00:00:00');
+  return { date, km, steps, cumKm:cum, ym:date.slice(0,7), wd:d.getDay() };
+});
+const TOTAL = Math.round(DAYS[DAYS.length-1].cumKm);
+const MAX = DAYS.reduce((a,b)=>b.km>a.km?b:a);
+const AVG = (DAYS.reduce((s,d)=>s+d.km,0)/DAYS.length).toFixed(1);
+const TOTAL_STEPS = DAYS.reduce((s,d)=>s+d.steps, 0);
+const AVG_STEPS = Math.round(TOTAL_STEPS / DAYS.length);
+const MAX_STEPS = DAYS.reduce((a,b)=>b.steps>a.steps?b:a);
+
+// 카운터 애니메이션 — 바 차트와 동일한 ANIM_DUR 사용
+const ANIM_DUR = 20000; // ms — 카운터·바 차트 공통 완료 시간 (20초)
+let animGen = 0; // 루프 세대 — 구세대 rAF 자동 취소용
+function animateCounter(el, target, decimals, suffix, gen) {
+  let begin = null;
+  function step(ts) {
+    if (gen !== animGen) return; // 새 루프 시작 시 이전 세대 중단
+    if(!begin) begin = ts;
+    const p = Math.min((ts-begin)/ANIM_DUR, 1);
+    // easeInOutCubic: 부드럽게 시작·종료, p=1 에서 정확히 완료
+    const ease = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2, 3)/2;
+    el.textContent = Number((target*ease).toFixed(decimals)).toLocaleString('ko-KR') + (suffix||'');
+    if(p < 1) requestAnimationFrame(step);
+    else el.textContent = Number(target.toFixed(decimals)).toLocaleString('ko-KR') + (suffix||'');
+  }
+  requestAnimationFrame(step);
+}
+
+// ── 월별 데이터 ──────────────────────────────────────────────────────
+const monthlyMap = {};
+DAYS.forEach(({ym,km})=>{ monthlyMap[ym]=(monthlyMap[ym]||0)+km; });
+const MONTHS = Object.entries(monthlyMap).sort(([a],[b])=>a<b?-1:1);
+const MONTH_LABELS = MONTHS.map(([ym])=>{
+  const [y,m]=ym.split('-');
+  return `${y}.${m}`;
+});
+const MONTH_VALS = MONTHS.map(([,v])=>Math.round(v));
+const monthlyStepsMap = {};
+DAYS.forEach(({ym,steps})=>{ monthlyStepsMap[ym]=(monthlyStepsMap[ym]||0)+steps; });
+const MONTH_STEPS = MONTHS.map(([ym])=>Math.round((monthlyStepsMap[ym]||0)/1000)*1000);
+
+// ── 요일별 데이터 ────────────────────────────────────────────────────
+const wdSum=[0,0,0,0,0,0,0], wdCnt=[0,0,0,0,0,0,0];
+DAYS.forEach(({wd,km})=>{ wdSum[wd]+=km; wdCnt[wd]++; });
+const WD_LABELS=['일','월','화','수','목','금','토'];
+const WD_AVG=wdSum.map((s,i)=>wdCnt[i]?(s/wdCnt[i]).toFixed(1):0);
+const WD_COLORS=['#e879f9','#60a5fa','#34d399','#fbbf24','#f87171','#a78bfa','#fb923c'];
+const wdStepsSum=[0,0,0,0,0,0,0], wdStepsCnt=[0,0,0,0,0,0,0];
+DAYS.forEach(({wd,steps})=>{ if(steps>0){wdStepsSum[wd]+=steps;wdStepsCnt[wd]++;} });
+const WD_STEPS_AVG=wdStepsSum.map((s,i)=>wdStepsCnt[i]?Math.round(s/wdStepsCnt[i]):0);
+
+// ── 히트맵 ──────────────────────────────────────────────────────────
+function kmColor(km) {
+  if(!km||km<0.1) return '#1c2128';
+  if(km<3)  return '#3d1f00';
+  if(km<8)  return '#7a3b00';
+  if(km<15) return '#c46200';
+  if(km<25) return '#f6a000';
+  return '#ffd060';
+}
+
+function buildHeatmap() {
+  const CELL=14, GAP=3, STEP=CELL+GAP;
+  const svg = document.getElementById('heatmap-svg');
+  const tooltip = document.getElementById('tooltip');
+
+  // 날짜 맵
+  const dayMap = {};
+  DAYS.forEach(d=>{ dayMap[d.date]=d.km; });
+
+  // 시작 = 2025-04-01 주의 월요일
+  const start = new Date('2025-04-01T00:00:00');
+  const dow = start.getDay(); // 0=Sun
+  const mondayOffset = dow===0?-6:1-dow;
+  start.setDate(start.getDate()+mondayOffset);
+
+  const end = new Date('2026-05-06T00:00:00');
+  const weeks = [];
+  let cur = new Date(start);
+  while(cur<=end) {
+    const week=[];
+    for(let d=0;d<7;d++) {
+      const iso = cur.toISOString().slice(0,10);
+      week.push({ date:iso, km:dayMap[iso]||0, d:new Date(cur) });
+      cur.setDate(cur.getDate()+1);
+    }
+    weeks.push(week);
+  }
+
+  const W = weeks.length*STEP+60;
+  const H = 7*STEP+50;
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio', 'xMinYMid meet');
+
+  // 요일 레이블 (월~일)
+  ['월','화','수','목','금','토','일'].forEach((lbl,i)=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',8);
+    t.setAttribute('y',38+i*STEP+CELL*0.75);
+    t.setAttribute('class','hm-day');
+    t.textContent=i%2===0?lbl:'';
+    svg.appendChild(t);
+  });
+
+  // 월 레이블 + 셀
+  let lastMonth = '';
+  weeks.forEach((week,wi)=>{
+    const firstDate = week.find(d=>d.km>0||true);
+    const month = week[0].d.toLocaleDateString('ko-KR',{month:'short'});
+    const curMonth = week[0].d.toISOString().slice(0,7);
+    if(curMonth!==lastMonth) {
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', 30+wi*STEP);
+      t.setAttribute('y', 22);
+      t.setAttribute('class','hm-month');
+      t.textContent = month;
+      svg.appendChild(t);
+      lastMonth=curMonth;
+    }
+    week.forEach((day,di)=>{
+      const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', 30+wi*STEP);
+      rect.setAttribute('y', 30+di*STEP);
+      rect.setAttribute('width', CELL);
+      rect.setAttribute('height', CELL);
+      rect.setAttribute('rx', 3);
+      rect.setAttribute('fill', kmColor(day.km));
+      rect.setAttribute('class','hm-cell');
+
+      rect.addEventListener('mousemove', e=>{
+        tooltip.style.opacity=1;
+        tooltip.style.left=(e.clientX+12)+'px';
+        tooltip.style.top=(e.clientY-36)+'px';
+        document.getElementById('tt-date').textContent=day.date;
+        document.getElementById('tt-km').textContent=day.km>0?day.km.toFixed(1)+' km':'기록 없음';
+        document.getElementById('tt-steps').textContent=day.steps>0?day.steps.toLocaleString()+'보':'';
+      });
+      rect.addEventListener('mouseleave',()=>{ tooltip.style.opacity=0; });
+      svg.appendChild(rect);
+    });
+  });
+}
+
+// ── 차트 (월별 바) ──────────────────────────────────────────────────
+let chartMonthly=null, chartJourney=null;
+let monthlyMode = 'km';
+
+function switchMonthly(mode) {
+  monthlyMode = mode;
+  document.getElementById('btn-km').className = 'toggle-btn' + (mode==='km'?' active':'');
+  document.getElementById('btn-steps').className = 'toggle-btn steps' + (mode==='steps'?' active':'');
+  if(chartMonthly) { chartMonthly.destroy(); chartMonthly=null; }
+  buildMonthly();
+}
+
+function buildMonthly() {
+  if(chartMonthly) return;
+  const ctx=document.getElementById('chart-monthly').getContext('2d');
+  const isSteps = monthlyMode === 'steps';
+  const vals = isSteps ? MONTH_STEPS : MONTH_VALS;
+  const color = isSteps ? '104,211,145' : '246,173,85';
+  chartMonthly=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:MONTH_LABELS,
+      datasets:[{
+        data:vals,
+        backgroundColor: vals.map(v=>{
+          const max=Math.max(...vals);
+          const ratio=v/max;
+          return `rgba(${color},${0.5+ratio*0.5})`;
+        }),
+        borderColor:`rgba(${color},0.3)`,
+        borderWidth:1,
+        borderRadius:6,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      maintainAspectRatio:false,
+      animation:{duration:800,easing:'easeOutQuart'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{label:ctx=>isSteps?`  ${ctx.raw.toLocaleString()}보`:`  ${ctx.raw} km`},
+          backgroundColor:'#1c2128',
+          borderColor:'#30363d',
+          borderWidth:1,
+          titleColor:'#c9d1d9',
+          bodyColor:isSteps?'#68d391':'#f6ad55',
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(255,255,255,0.05)'},
+          ticks:{color:'#8b949e',callback:v=>isSteps?v.toLocaleString():v+' km'},
+        },
+        y:{
+          grid:{display:false},
+          ticks:{color:'#c9d1d9',font:{size:11}},
+        }
+      }
+    }
+  });
+}
+
+// ── 차트 (누적 라인) ─────────────────────────────────────────────────
+const mountainPlugin = {
+  id: 'mountainBg',
+  beforeDraw(chart) {
+    const {ctx, chartArea:{left, bottom, width, height}} = chart;
+    const PEAKS = [
+      {ko:'후지산',     h:3776, lw:.38},
+      {ko:'몽블랑',     h:4808, lw:.48},
+      {ko:'킬리만자로', h:5895, lw:.50},
+      {ko:'마칼루',     h:8485, lw:.45},
+      {ko:'칸첸중가',   h:8586, lw:.60},
+      {ko:'K2',         h:8611, lw:.42},
+      {ko:'에베레스트', h:8849, lw:.55},
+    ];
+    const N = PEAKS.length, maxH = PEAKS[0].h, maxPx = height * .82, slotW = width / N;
+    ctx.save();
+    PEAKS.forEach((pk, i) => {
+      const cx = left + (i + .5) * slotW;
+      const pxH = (pk.h / maxH) * maxPx;
+      const peakY = bottom - pxH;
+      const bw = slotW * .72;
+      const lw = bw * pk.lw, rw = bw * (1 - pk.lw);
+      const snowH = pxH * .13;
+      // 산 실루엣
+      ctx.beginPath();
+      ctx.moveTo(cx - lw, bottom);
+      ctx.lineTo(cx, peakY);
+      ctx.lineTo(cx + rw, bottom);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(110,140,170,.07)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(180,210,240,.13)';
+      ctx.lineWidth = .8;
+      ctx.stroke();
+      // 설산 하이라이트
+      ctx.beginPath();
+      ctx.moveTo(cx - lw*(snowH/pxH), peakY + snowH);
+      ctx.lineTo(cx, peakY);
+      ctx.lineTo(cx + rw*(snowH/pxH), peakY + snowH);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,.09)';
+      ctx.fill();
+      // 정상 점
+      ctx.beginPath();
+      ctx.arc(cx, peakY, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(246,173,85,.7)';
+      ctx.fill();
+      // 높이
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(246,173,85,.55)';
+      ctx.font = '9px monospace';
+      ctx.fillText(pk.h.toLocaleString()+'m', cx, peakY - 17);
+      // 산 이름
+      ctx.fillStyle = 'rgba(180,200,220,.45)';
+      ctx.font = '10px sans-serif';
+      ctx.fillText(pk.ko, cx, peakY - 5);
+    });
+    ctx.restore();
+  }
+};
+
+function buildJourney() {
+  if(chartJourney) return;
+  const ctx=document.getElementById('chart-journey').getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,0,350);
+  grad.addColorStop(0,'rgba(246,173,85,0.4)');
+  grad.addColorStop(1,'rgba(246,173,85,0)');
+
+  const labels=DAYS.map(d=>d.date);
+  const vals=DAYS.map(d=>Math.round(d.cumKm));
+
+  chartJourney=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        data:vals,
+        borderColor:'#f6ad55',
+        borderWidth:2,
+        backgroundColor:grad,
+        fill:true,
+        pointRadius:0,
+        pointHoverRadius:5,
+        pointHoverBackgroundColor:'#f6ad55',
+        tension:0.3,
+      }]
+    },
+    options:{
+      animation:{duration:1000,easing:'easeOutQuart'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          mode:'index',intersect:false,
+          callbacks:{
+            title:ctx=>ctx[0].label,
+            label:ctx=>`  누적 ${ctx.raw.toLocaleString()} km`
+          },
+          backgroundColor:'#1c2128',
+          borderColor:'#30363d',
+          borderWidth:1,
+          titleColor:'#c9d1d9',
+          bodyColor:'#f6ad55',
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(255,255,255,0.04)'},
+          ticks:{
+            color:'#8b949e',font:{size:10},
+            maxTicksLimit:13,
+            maxRotation:0,
+          }
+        },
+        y:{
+          grid:{color:'rgba(255,255,255,0.04)'},
+          ticks:{color:'#8b949e',callback:v=>v.toLocaleString()+'km'}
+        }
+      }
+    },
+    plugins:[mountainPlugin]
+  });
+
+  // 마일스톤
+  const total=Math.round(TOTAL);
+  const ms=document.getElementById('milestones');
+  [500,1000,1500,2000,2500,3000,3500,4000].forEach(m=>{
+    const el=document.createElement('div');
+    el.className='ms'+(total>=m?' reached':'');
+    const day=DAYS.find(d=>Math.round(d.cumKm)>=m);
+    el.textContent=total>=m?`✓ ${m.toLocaleString()}km · ${day?day.date:''}`:`${m.toLocaleString()}km`;
+    ms.appendChild(el);
+  });
+}
+
+// ── 요일 바 차트 (커스텀) ────────────────────────────────────────────
+function buildWeekday() {
+  const grid=document.getElementById('wd-grid');
+  if(grid.children.length>0) return;
+  const maxAvg=Math.max(...WD_AVG);
+  const maxSteps=Math.max(...WD_STEPS_AVG);
+  WD_LABELS.forEach((lbl,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='wd-bar-wrap';
+    const pct=maxAvg>0?(WD_AVG[i]/maxAvg*100):0;
+    const stepsPct=maxSteps>0?(WD_STEPS_AVG[i]/maxSteps*100):0;
+    const stepsK = WD_STEPS_AVG[i]>0?(WD_STEPS_AVG[i]/1000).toFixed(1)+'k':'—';
+    wrap.innerHTML=`
+      <div class="wd-label">${lbl}</div>
+      <div class="wd-bar-bg">
+        <div class="wd-bar-fill" style="height:0%;background:${WD_COLORS[i]}" data-pct="${pct}"></div>
+      </div>
+      <div class="wd-val">${WD_AVG[i]}km</div>
+      <div style="font-size:0.65rem;color:#68d391;margin-top:2px">${stepsK}</div>`;
+    grid.appendChild(wrap);
+  });
+  setTimeout(()=>{
+    grid.querySelectorAll('.wd-bar-fill').forEach(el=>{
+      el.style.height=el.dataset.pct+'%';
+    });
+  },50);
+}
+
+// ── 지도 ────────────────────────────────────────────────────────────
+const CENTER = [37.335, 127.085]; // 용인 수지구 중심 — 수원 광교·성남 판교 포함
+const walkMap = L.map('walk-map', {
+  zoomControl:false, attributionControl:false,
+  dragging:false, scrollWheelZoom:false
+}).setView(CENTER, 12);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(walkMap);
+
+// ── 수평 파형 Bar Chart ──────────────────────────────────────────────
+const tlCanvas = document.getElementById('tl-canvas');
+const tlCtx = tlCanvas.getContext('2d');
+
+function resizeTlCanvas() {
+  const r = document.getElementById('map-section').getBoundingClientRect();
+  tlCanvas.width = r.width;
+  tlCanvas.height = r.height;
+}
+resizeTlCanvas();
+window.addEventListener('resize', () => { resizeTlCanvas(); redrawAll(); });
+
+const TL_DAYS = DAYS.filter(d => d.km > 0);
+const N = TL_DAYS.length;
+const MAX_KM = Math.max(...TL_DAYS.map(d => d.km));
+const MIN_KM = Math.min(...TL_DAYS.map(d => d.km));
+
+const LABEL_H  = 34;   // 월 레이블 영역
+const TOP_PAD  = 24;   // 상단 여백
+const DONE_H   = 28;   // 완료 텍스트 영역
+
+function dims() {
+  const W = tlCanvas.width, H = tlCanvas.height;
+  const barW  = W / N;
+  const baseY = H - LABEL_H;
+  const BAR_H = H - LABEL_H - TOP_PAD;   // 전체 높이 활용
+  return { W, H, barW, baseY, BAR_H };
+}
+
+function barColor(km) {
+  if (km < 3)  return '#3d1f00';
+  if (km < 8)  return '#7a3b00';
+  if (km < 15) return '#c46200';
+  if (km < 25) return '#f6a000';
+  return '#ffd060';
+}
+
+const monthBounds = (() => {
+  const out = []; let last = '';
+  TL_DAYS.forEach((d, i) => {
+    if (d.ym !== last) { out.push({ i, label: d.ym.slice(5) + '월' }); last = d.ym; }
+  });
+  return out;
+})();
+
+function drawGrid() {
+  const { W, H, barW, baseY, BAR_H } = dims();
+  // 월 레이블 영역 블랙바
+  tlCtx.fillStyle = 'rgba(0,0,0,0.72)';
+  tlCtx.fillRect(0, baseY, W, LABEL_H);
+  [10, 20, 30, 40].forEach(km => {
+    if (km > MAX_KM) return;
+    const y = baseY - (km / MAX_KM) * BAR_H;
+    tlCtx.beginPath();
+    tlCtx.moveTo(0, y); tlCtx.lineTo(W, y);
+    tlCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+    tlCtx.lineWidth = 1;
+    tlCtx.stroke();
+    tlCtx.fillStyle = 'rgba(255,255,255,0.18)';
+    tlCtx.font = '9px sans-serif';
+    tlCtx.textAlign = 'left';
+    tlCtx.textBaseline = 'bottom';
+    tlCtx.fillText(km + 'km', 4, y - 2);
+  });
+  monthBounds.forEach(({ i, label }) => {
+    const x = i * barW;
+    tlCtx.beginPath();
+    tlCtx.moveTo(x, TOP_PAD); tlCtx.lineTo(x, baseY);
+    tlCtx.strokeStyle = 'rgba(255,255,255,0.13)';
+    tlCtx.lineWidth = 1;
+    tlCtx.setLineDash([2, 4]);
+    tlCtx.stroke();
+    tlCtx.setLineDash([]);
+    tlCtx.fillStyle = 'rgba(255,255,255,0.4)';
+    tlCtx.font = 'bold 10px sans-serif';
+    tlCtx.textAlign = 'left';
+    tlCtx.textBaseline = 'middle';
+    tlCtx.fillText(label, x + 3, baseY + LABEL_H / 2);
+  });
+}
+
+function drawSingleBar(i, progress) {
+  const { barW, baseY, BAR_H } = dims();
+  const day = TL_DAYS[i];
+  const norm = (day.km - MIN_KM) / (MAX_KM - MIN_KM);
+  const fullH = BAR_H * (0.28 + norm * 0.72);
+  const h = fullH * progress;
+  if (h < 0.5) return;
+  const color = barColor(day.km);
+  const x = i * barW;
+  if (day.km >= 15) { tlCtx.shadowColor = color; tlCtx.shadowBlur = day.km >= 25 ? 5 : 2; }
+  tlCtx.globalAlpha = 0.85;
+  tlCtx.fillStyle = color;
+  tlCtx.fillRect(x, baseY - h, Math.max(1, barW - 0.4), h);
+  tlCtx.shadowBlur = 0;
+  tlCtx.globalAlpha = 1;
+}
+
+function easeOut(t) {
+  // 부드러운 단일 오버슈트 (back-out) — 목표 높이를 8% 초과 후 안착
+  const c1 = 1.5, c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+const GROW_DUR  = 680;  // 개별 바 성장 시간 (ms)
+const STAGGER   = (ANIM_DUR - GROW_DUR) / (N - 1); // 마지막 바가 정확히 ANIM_DUR 에 완료
+const TOTAL_DUR = ANIM_DUR;
+
+let tlRaf = null, tlTimer = null, tlStartTs = null;
+
+function fmtDate(s) { const [y, m, d] = s.split('-'); return `${y}.${m}.${d}`; }
+
+function animate(ts) {
+  if (!tlStartTs) tlStartTs = ts;
+  const elapsed = ts - tlStartTs;
+
+  tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+  drawGrid();
+
+  let lastIdx = -1;
+  TL_DAYS.forEach((day, i) => {
+    const t = elapsed - i * STAGGER;
+    if (t <= 0) return;
+    drawSingleBar(i, easeOut(Math.min(t / GROW_DUR, 1)));
+    lastIdx = i;
+  });
+
+  // HUD
+  if (lastIdx >= 0) {
+    const day = TL_DAYS[lastIdx];
+    let cum = 0; for (let i = 0; i <= lastIdx; i++) cum += TL_DAYS[i].km;
+    document.getElementById('tl-date').textContent = fmtDate(day.date);
+    document.getElementById('tl-km').textContent = day.km.toFixed(1) + ' km · ' + (day.steps || 0).toLocaleString('ko-KR') + '보';
+    document.getElementById('tl-cum').textContent = '누적 ' + Math.round(cum).toLocaleString('ko-KR') + ' km';
+    document.getElementById('tl-bar-fill').style.width = ((lastIdx + 1) / N * 100).toFixed(1) + '%';
+  }
+
+  if (elapsed < TOTAL_DUR) {
+    tlRaf = requestAnimationFrame(animate);
+  } else {
+    tlTimer = setTimeout(startAll, 10000);
+  }
+}
+
+function startAll() {
+  // 카운터 초기화 + 재시작
+  animGen++;
+  const g = animGen;
+  document.getElementById('s-total').textContent = '0 km';
+  document.getElementById('s-days').textContent = '0 일';
+  document.getElementById('s-avg').textContent = '0.0 km';
+  document.getElementById('s-max').textContent = '0.0 km';
+  document.getElementById('s-total-steps').textContent = '0';
+  document.getElementById('s-avg-steps').textContent = '0';
+  animateCounter(document.getElementById('s-total'), TOTAL, 0, ' km', g);
+  animateCounter(document.getElementById('s-days'), DAYS.length, 0, ' 일', g);
+  animateCounter(document.getElementById('s-avg'), parseFloat(AVG), 1, ' km', g);
+  animateCounter(document.getElementById('s-max'), MAX.km, 1, ' km', g);
+  animateCounter(document.getElementById('s-total-steps'), TOTAL_STEPS, 0, '', g);
+  animateCounter(document.getElementById('s-avg-steps'), AVG_STEPS, 0, '', g);
+  // 바 차트 초기화 + 재시작
+  if (tlRaf) cancelAnimationFrame(tlRaf);
+  clearTimeout(tlTimer);
+  tlStartTs = null;
+  tlCtx.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+  document.getElementById('tl-bar-fill').style.width = '0%';
+  tlRaf = requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => { resizeTlCanvas(); startAll(); });
+
+// ── 바 툴팁 ──────────────────────────────────────────────────────────
+const tlTooltip = document.getElementById('tl-tooltip');
+const mapSection = document.getElementById('map-section');
+
+tlCanvas.addEventListener('mousemove', (e) => {
+  const { barW, baseY } = dims();
+  const i = Math.floor(e.offsetX / barW);
+  if (i < 0 || i >= N || e.offsetY > baseY) { tlTooltip.style.display = 'none'; return; }
+
+  // 아직 그려지지 않은 바는 툴팁 비활성
+  if (tlStartTs !== null) {
+    const elapsed = performance.now() - tlStartTs;
+    if (elapsed - i * STAGGER <= 0) { tlTooltip.style.display = 'none'; return; }
+  }
+
+  const day = TL_DAYS[i];
+  tlTooltip.innerHTML =
+    `<span style="color:#f6ad55;font-weight:700">${fmtDate(day.date)}</span><br>` +
+    `${day.km.toFixed(1)} km<br>` +
+    `${(day.steps || 0).toLocaleString('ko-KR')} 보`;
+
+  // 위치: 바 위에, 화면 경계 고려
+  const msr = mapSection.getBoundingClientRect();
+  let tx = e.clientX - msr.left + 14;
+  let ty = e.clientY - msr.top - 90;
+  if (ty < 8) ty = e.clientY - msr.top + 14;
+  if (tx + 130 > msr.width) tx = e.clientX - msr.left - 140;
+  tlTooltip.style.left = tx + 'px';
+  tlTooltip.style.top  = ty + 'px';
+  tlTooltip.style.display = 'block';
+});
+
+tlCanvas.addEventListener('mouseleave', () => { tlTooltip.style.display = 'none'; });
+
+// 자동 시작
+setTimeout(startAll, 800);
+
+// ⑦ 카드 데이터 + 최장 연속일 계산
+function calcStreak() {
+  const dts = Object.keys(RAW).filter(d => { const v=RAW[d]; return typeof v==='object'?v.km>0:v>0; }).sort();
+  let max = 1, cur = 1;
+  for (let i = 1; i < dts.length; i++) {
+    const diff = (new Date(dts[i]) - new Date(dts[i-1])) / 86400000;
+    if (diff === 1) { cur++; max = Math.max(max, cur); } else cur = 1;
+  }
+  return max;
+}
+const STREAK = calcStreak();
+const bestMonth = MONTHS.reduce((a, b) => b[1] > a[1] ? b : a);
+const [bmy, bmm] = bestMonth[0].split('-');
+document.getElementById('mc-total').textContent = Math.round(TOTAL).toLocaleString('ko-KR') + ' km';
+document.getElementById('mc-equiv').textContent = `서울↔부산 ${(TOTAL/400).toFixed(1)}회 왕복`;
+document.getElementById('mc-days').textContent = DAYS.length + ' 일';
+document.getElementById('mc-best-month').textContent = `${bmy}.${bmm}`;
+document.getElementById('mc-best-month-km').textContent = `${Math.round(bestMonth[1]).toLocaleString('ko-KR')} km 기록`;
+document.getElementById('mc-best-day').textContent = MAX.km.toFixed(1) + ' km';
+document.getElementById('mc-best-day-date').textContent = MAX.date;
+document.getElementById('mc-avg').textContent = AVG + ' km';
+document.getElementById('mc-avg-sub').textContent = `총 ${DAYS.length}일 기준`;
+document.getElementById('mc-streak').textContent = STREAK + ' 일';
+document.getElementById('mc-streak-sub').textContent = '연속 걷기 최장 기록';
+const totalStepsM = (TOTAL_STEPS/100000000).toFixed(2);
+document.getElementById('mc-total-steps').textContent = (TOTAL_STEPS/10000).toFixed(1) + '만 보';
+document.getElementById('mc-steps-sub').textContent = `총 ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음`;
+document.getElementById('mc-avg-steps').textContent = AVG_STEPS.toLocaleString('ko-KR') + ' 보';
+const avgStepsPerKm = TOTAL_STEPS > 0 && TOTAL > 0 ? Math.round(TOTAL_STEPS/TOTAL) : 0;
+document.getElementById('mc-steps-per-km').textContent = `km당 ${avgStepsPerKm.toLocaleString()}보`;
+
+// switchMonthly를 전역에서 호출 가능하도록 등록
+window.switchMonthly = switchMonthly;
+
+// 전체 즉시 렌더링
+buildHeatmap();
+buildMonthly();
+buildJourney();
+buildWeekday();
+
+// ── 푸터 ────────────────────────────────────────────────────────────
+(function buildFooter() {
+  const totalKm = Math.round(TOTAL);
+  const sbRound = (totalKm / 400).toFixed(1);
+  const earthPct = (totalKm / 40075 * 100).toFixed(1);
+
+  // 등가 거리
+  document.getElementById('ft-equiv').textContent = `서울↔부산 ${sbRound}회`;
+  document.getElementById('ft-equiv-desc').textContent =
+    `총 ${totalKm.toLocaleString('ko-KR')}km — 지구 한 바퀴의 ${earthPct}%에 해당하는 거리입니다.`;
+
+  // 베스트 기록
+  const bestMonth = MONTHS.reduce((a,b)=>b[1]>a[1]?b:a);
+  const [bmy, bmm] = bestMonth[0].split('-');
+  const maxAvg = Math.max(...WD_AVG.map(Number));
+  const bestWdIdx = WD_AVG.findIndex(v => Number(v) === maxAvg);
+  document.getElementById('ft-best').textContent =
+    `${bmy}.${bmm} · ${Math.round(bestMonth[1]).toLocaleString('ko-KR')}km`;
+  document.getElementById('ft-best-desc').textContent =
+    `가장 많이 걸은 달입니다. 요일 기준으로는 ${WD_LABELS[bestWdIdx]}요일 평균 ${WD_AVG[bestWdIdx]}km로 가장 활발했습니다.`;
+
+  // 카피라이트
+  document.getElementById('footer-copy').textContent =
+    `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음 · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
+
+  // 데이터 기준일
+  const lastDate = DAYS[DAYS.length - 1].date;
+  const [ly, lm, ld] = lastDate.split('-');
+  document.getElementById('footer-data-date').textContent =
+    `데이터 기준 · ${ly}.${lm}.${ld}`;
+})();
+
+// ── 날씨 + 날씨 효과 애니메이션 ─────────────────────────────────────
+const WX_ICON = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'🌥️',45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'🌨️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+const WX_DESC = {
+  0:'맑음',1:'대체로 맑음',2:'구름 조금',3:'흐림',
+  45:'안개',48:'짙은 안개',51:'이슬비',53:'이슬비',55:'강한 이슬비',
+  61:'비',63:'비',65:'강한 비',71:'눈',73:'눈',75:'강한 눈',
+  80:'소나기',81:'소나기',82:'강한 소나기',95:'뇌우',96:'뇌우(우박)',99:'강한 뇌우'
+};
+const DIRS = ['N','NE','E','SE','S','SW','W','NW'];
+
+// ── 날씨 효과 캔버스 ─────────────────────────────────────────────────
+const wxCanvas = document.getElementById('wx-canvas');
+const wxCtx = wxCanvas.getContext('2d');
+let wxRaf = null;
+
+function resizeWxCanvas() {
+  wxCanvas.width  = wxCanvas.offsetWidth;
+  wxCanvas.height = wxCanvas.offsetHeight;
+}
+resizeWxCanvas();
+window.addEventListener('resize', resizeWxCanvas);
+
+function stopWxEffect() {
+  if (wxRaf) { cancelAnimationFrame(wxRaf); wxRaf = null; }
+  wxCtx.clearRect(0, 0, wxCanvas.width, wxCanvas.height);
+}
+
+function fxRain(count, heavy) {
+  stopWxEffect();
+  const pts = Array.from({length: count}, () => ({
+    x: Math.random() * wxCanvas.width,
+    y: Math.random() * wxCanvas.height,
+    len: heavy ? 18 + Math.random()*10 : 9 + Math.random()*8,
+    spd: heavy ? 13 + Math.random()*6  : 6 + Math.random()*5,
+    op:  0.2 + Math.random() * 0.45,
+  }));
+  (function draw() {
+    const {width:w, height:h} = wxCanvas;
+    wxCtx.clearRect(0, 0, w, h);
+    pts.forEach(p => {
+      p.y += p.spd; p.x += p.spd * 0.18;
+      if (p.y > h + 20 || p.x > w + 20) { p.x = Math.random()*w; p.y = -15; }
+      wxCtx.strokeStyle = `rgba(174,214,241,${p.op})`;
+      wxCtx.lineWidth = heavy ? 1.5 : 0.9;
+      wxCtx.beginPath();
+      wxCtx.moveTo(p.x, p.y);
+      wxCtx.lineTo(p.x - p.len*0.18, p.y - p.len);
+      wxCtx.stroke();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxSnow(count) {
+  stopWxEffect();
+  const t0 = performance.now();
+  const pts = Array.from({length: count}, () => ({
+    x: Math.random() * wxCanvas.width, y: Math.random() * wxCanvas.height,
+    r: 1.5 + Math.random()*2.5, spd: 0.7 + Math.random()*1.4,
+    drift: (Math.random()-.5)*.3, phase: Math.random()*Math.PI*2,
+    op: 0.5 + Math.random()*.5,
+  }));
+  (function draw(ts) {
+    const {width:w, height:h} = wxCanvas;
+    const t = (ts - t0) / 1000;
+    wxCtx.clearRect(0, 0, w, h);
+    pts.forEach(p => {
+      p.y += p.spd; p.x += p.drift + Math.sin(t + p.phase) * 0.4;
+      if (p.y > h+10) { p.y = -10; p.x = Math.random()*w; }
+      wxCtx.fillStyle = `rgba(255,255,255,${p.op})`;
+      wxCtx.beginPath(); wxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })(performance.now());
+}
+
+function fxFog() {
+  stopWxEffect();
+  const {width:w, height:h} = wxCanvas;
+  const blobs = Array.from({length: 7}, (_, i) => ({
+    x: (i/6)*w*1.3 - w*.15, y: h*(.1 + Math.random()*.7),
+    rw: w*(.4+Math.random()*.5), rh: h*(.1+Math.random()*.1),
+    spd: (Math.random()-.5)*.4, op: .03 + Math.random()*.05,
+  }));
+  (function draw() {
+    const {width:W, height:H} = wxCanvas;
+    wxCtx.clearRect(0, 0, W, H);
+    blobs.forEach(b => {
+      b.x += b.spd;
+      if (b.x - b.rw > W) b.x = -b.rw;
+      if (b.x + b.rw < 0) b.x = W + b.rw;
+      const g = wxCtx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.rw);
+      g.addColorStop(0, `rgba(200,212,224,${b.op})`);
+      g.addColorStop(1, 'rgba(200,212,224,0)');
+      wxCtx.fillStyle = g;
+      wxCtx.beginPath(); wxCtx.ellipse(b.x, b.y, b.rw, b.rh, 0, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxSun() {
+  stopWxEffect();
+  const t0 = performance.now();
+  const sparks = Array.from({length: 30}, () => ({
+    x: Math.random()*wxCanvas.width, y: Math.random()*wxCanvas.height,
+    r: 1+Math.random()*2, spd: .4+Math.random()*.8, phase: Math.random()*Math.PI*2,
+  }));
+  (function draw(ts) {
+    const {width:w, height:h} = wxCanvas;
+    const t = (ts - t0)/1000;
+    wxCtx.clearRect(0, 0, w, h);
+    const g = wxCtx.createLinearGradient(0,0,0,h*.6);
+    g.addColorStop(0,'rgba(255,200,60,0.07)'); g.addColorStop(1,'rgba(255,200,60,0)');
+    wxCtx.fillStyle = g; wxCtx.fillRect(0,0,w,h);
+    sparks.forEach(p => {
+      const a = (Math.sin(t*p.spd+p.phase)+1)/2 * 0.7;
+      wxCtx.fillStyle = `rgba(255,220,80,${a})`;
+      wxCtx.beginPath(); wxCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })(performance.now());
+}
+
+function fxCloud() {
+  stopWxEffect();
+  const {width:w, height:h} = wxCanvas;
+  const clouds = Array.from({length: 5}, (_, i) => ({
+    x: (i/4)*w*1.2 - w*.1, y: h*(.08+Math.random()*.25),
+    r: 45+Math.random()*45, spd: .25+Math.random()*.3, op: .04+Math.random()*.05,
+  }));
+  (function draw() {
+    const {width:W, height:H} = wxCanvas;
+    wxCtx.clearRect(0, 0, W, H);
+    clouds.forEach(c => {
+      c.x += c.spd; if (c.x - c.r > W) c.x = -c.r;
+      wxCtx.fillStyle = `rgba(180,192,205,${c.op})`;
+      wxCtx.beginPath();
+      wxCtx.arc(c.x, c.y, c.r, 0, Math.PI*2);
+      wxCtx.arc(c.x+c.r*.65, c.y-c.r*.22, c.r*.65, 0, Math.PI*2);
+      wxCtx.arc(c.x-c.r*.5,  c.y-c.r*.12, c.r*.55, 0, Math.PI*2);
+      wxCtx.fill();
+    });
+    wxRaf = requestAnimationFrame(draw);
+  })();
+}
+
+function fxThunder() {
+  fxRain(90, true);
+  function flash() {
+    const {width:w, height:h} = wxCanvas;
+    wxCtx.fillStyle = 'rgba(220,230,255,0.18)';
+    wxCtx.fillRect(0,0,w,h);
+    setTimeout(()=>{ wxCtx.clearRect(0,0,w,h); }, 80);
+    setTimeout(()=>{ wxCtx.fillStyle='rgba(220,230,255,0.10)'; wxCtx.fillRect(0,0,w,h); }, 130);
+    setTimeout(()=>{ wxCtx.clearRect(0,0,w,h); }, 200);
+    setTimeout(flash, 3500 + Math.random()*5000);
+  }
+  setTimeout(flash, 1200);
+}
+
+function applyWxEffect(code) {
+  if      (code === 0)                          fxSun();
+  else if ([1,2,3].includes(code))              fxCloud();
+  else if ([45,48].includes(code))              fxFog();
+  else if ([51,53,55].includes(code))           fxRain(35, false);
+  else if ([61,63,80,81].includes(code))        fxRain(70, false);
+  else if ([65,82].includes(code))              fxRain(110, true);
+  else if ([71,73,75].includes(code))           fxSnow(55);
+  else if ([95,96,99].includes(code))           fxThunder();
+}
+
+// ── 날씨 데이터 로드 (Geolocation → Open-Meteo) ──────────────────────
+async function loadWeather(lat, lng, locationLabel) {
+  document.getElementById('wx-hdr').textContent = `🌡 현재 날씨 · ${locationLabel}`;
+  try {
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,wind_speed_10m,wind_direction_10m,weather_code&timezone=Asia%2FSeoul`);
+    const json = await res.json();
+    const c = json.current, code = c.weather_code, wd = c.wind_direction_10m;
+
+    document.getElementById('wx-icon').textContent   = WX_ICON[code]  ?? '🌡️';
+    document.getElementById('wx-temp').textContent   = Math.round(c.temperature_2m) + '°C';
+    document.getElementById('wx-cond').textContent   = WX_DESC[code]  ?? '—';
+    document.getElementById('wx-feels').textContent  = Math.round(c.apparent_temperature) + '°C';
+    document.getElementById('wx-humid').textContent  = c.relative_humidity_2m + '%';
+    document.getElementById('wx-wind').textContent   = c.wind_speed_10m.toFixed(1) + ' m/s';
+    document.getElementById('wx-wdir').textContent   = DIRS[Math.round(wd/45) % 8];
+    document.getElementById('wx-precip').textContent = c.precipitation.toFixed(1) + ' mm';
+
+    const arrow = document.getElementById('wx-arrow');
+    arrow.style.rotate = wd + 'deg';
+    let r0 = null;
+    (function rockArrow(ts) {
+      if (!r0) r0 = ts;
+      arrow.style.rotate = (wd + Math.sin((ts-r0)/1200*Math.PI)*11) + 'deg';
+      requestAnimationFrame(rockArrow);
+    })(performance.now());
+
+    const t = new Date(c.time);
+    document.getElementById('wx-upd').textContent =
+      `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')} 기준`;
+
+    applyWxEffect(code);
+  } catch(e) {
+    document.getElementById('wx-cond').textContent = '날씨 정보 없음';
+  }
+}
+
+// ── 인터랙션 시스템 ──────────────────────────────────────────────────
+
+// ① 스크롤 진행 바
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / Math.max(document.body.scrollHeight - window.innerHeight, 1) * 100;
+  document.getElementById('progress-bar').style.width = Math.min(pct, 100) + '%';
+}, {passive: true});
+
+// ② 커서 발광 트레일 (마우스 디바이스만)
+if (window.matchMedia('(pointer:fine)').matches) {
+  let lastT = 0;
+  document.addEventListener('mousemove', e => {
+    const now = Date.now();
+    if (now - lastT < 30) return;
+    lastT = now;
+    const d = document.createElement('div');
+    d.className = 'cursor-trail';
+    d.style.cssText = `left:${e.clientX}px;top:${e.clientY}px`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 650);
+  }, {passive: true});
+}
+
+// ③ 스탯 카드 클릭 리플
+document.querySelectorAll('.sc').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.remove('rippling');
+    void card.offsetWidth;
+    card.classList.add('rippling');
+    card.addEventListener('animationend', () => card.classList.remove('rippling'), {once: true});
+  });
+});
+
+// ④ 섹션 스크롤 reveal (IntersectionObserver)
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
+  });
+}, {threshold: 0.07, rootMargin: '0px 0px -40px 0px'});
+document.querySelectorAll('#content > div').forEach((el, i) => {
+  el.classList.add('reveal');
+  el.style.transitionDelay = (i * 0.1) + 's';
+  revObs.observe(el);
+});
+
+// ⑤ 히트맵 이웃 셀 파급 효과
+(function addHeatmapRipple() {
+  const svg = document.getElementById('heatmap-svg');
+  const cells = [...svg.querySelectorAll('.hm-cell')];
+  const STEP = 17;
+  cells.forEach(rect => {
+    const cx = parseFloat(rect.getAttribute('x'));
+    const cy = parseFloat(rect.getAttribute('y'));
+    rect.addEventListener('mouseenter', () => {
+      cells.forEach(r => {
+        const dx = (parseFloat(r.getAttribute('x')) - cx) / STEP;
+        const dy = (parseFloat(r.getAttribute('y')) - cy) / STEP;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist === 0) {
+          r.style.filter = 'brightness(1.6)'; r.style.opacity = '1';
+        } else if (dist < 3.5) {
+          r.style.opacity = String(Math.max(0.15, 1 - dist * 0.28));
+          r.style.filter = dist < 1.5 ? 'brightness(1.2)' : '';
+        } else {
+          r.style.opacity = '0.1'; r.style.filter = '';
+        }
+      });
+    });
+    rect.addEventListener('mouseleave', () => {
+      cells.forEach(r => { r.style.opacity = ''; r.style.filter = ''; });
+    });
+  });
+})();
+
+// 현재 위치 감지 → fallback 성남
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => loadWeather(pos.coords.latitude, pos.coords.longitude, '현재 위치'),
+    ()  => loadWeather(37.145, 127.422, '성남'),
+    {timeout: 6000}
+  );
+} else {
+  loadWeather(37.145, 127.422, '성남');
+}
+
+}); // fetch .then(RAW => { ... }) 끝
+</script>
+</body>
+</html>
