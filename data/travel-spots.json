@@ -47,6 +47,7 @@
     {"id": "cn-anmyeon", "name": "태안 안면도", "region": "충남", "lat": 36.4524, "lng": 126.3814, "radius": 6000, "category": "beach", "description": "천리포수목원·꽃박람회로 유명한 서해 최대 섬 아닌 반도"},
     {"id": "dj-expo", "name": "엑스포과학공원", "region": "대전", "lat": 36.3745, "lng": 127.3883, "radius": 2000, "category": "city", "description": "93 대전 엑스포 개최지. 한빛탑과 다양한 과학 체험시설"},
     {"id": "dj-gyejoksan", "name": "계족산 황톳길", "region": "대전", "lat": 36.4253, "lng": 127.4615, "radius": 3000, "category": "mountain", "description": "14.5km 맨발 황톳길 산책로. 도심 속 힐링 명소"},
+    {"id": "dj-jangtaesan", "name": "장태산자연휴양림", "region": "대전", "lat": 36.2635, "lng": 127.2887, "radius": 2500, "category": "nature", "description": "대전 서구 편백나무 숲·메타세쿼이아 길이 어우러진 도심 속 자연휴양림. 출렁다리와 산책로가 있어 사계절 가족 나들이 명소"},
     {"id": "jb-jeonju-hanok", "name": "전주한옥마을", "region": "전북", "lat": 35.8151, "lng": 127.1497, "radius": 2000, "category": "history", "description": "700여 채 한옥이 밀집. 비빔밥·막걸리·전통문화 체험의 메카"},
     {"id": "jb-naejangsan", "name": "내장산", "region": "전북", "lat": 35.4850, "lng": 126.8897, "radius": 8000, "category": "mountain", "description": "전국 최고의 단풍 명산. 내장사와 단풍 터널이 환상적"},
     {"id": "jb-byeonsan", "name": "변산반도", "region": "전북", "lat": 35.6165, "lng": 126.6005, "radius": 8000, "category": "nature", "description": "내변산·외변산·채석강을 아우르는 국립공원. 서해 절경"},
