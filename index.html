@@ -795,13 +795,13 @@ function regionStyle(f) {
   });
   const d = region ? (regionMap[region] || {total:0, visited:0}) : {total:0, visited:0};
   const pct = d.total ? d.visited / d.total : 0;
-  const fillOpacity = 0.04 + pct * 0.46;
+  const fillOpacity = 0.10 + pct * 0.40;
   return {
     fillColor: color,
     fillOpacity,
     color: color,
-    weight: 0.6,
-    opacity: 0.25
+    weight: 0.8,
+    opacity: 0.45
   };
 }
 
