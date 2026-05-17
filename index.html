@@ -88,12 +88,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #legend{
   position:fixed;bottom:24px;left:20px;z-index:900;
   background:rgba(10,13,20,0.88);backdrop-filter:blur(10px);
-  border:1px solid var(--border);border-radius:12px;padding:12px 14px;
-  display:flex;flex-direction:column;gap:5px;min-width:110px;
+  border:1px solid var(--border);border-radius:12px;padding:10px 12px;
+  min-width:150px;max-width:190px;
 }
-#legend-title{font-size:0.62rem;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+#legend-tabs{display:flex;gap:4px;margin-bottom:8px}
+.leg-tab{flex:1;font-size:0.62rem;padding:3px 0;border-radius:10px;border:1px solid transparent;
+  background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;letter-spacing:.3px}
+.leg-tab.active{background:rgba(246,173,85,0.12);border-color:var(--accent);color:var(--accent);font-weight:700}
+#legend-cat-panel{display:flex;flex-direction:column;gap:5px}
+#legend-region-panel{display:none;flex-direction:column;gap:6px;max-height:270px;overflow-y:auto}
+#legend-region-panel.show{display:flex}
 .leg-row{display:flex;align-items:center;gap:7px;font-size:0.7rem;color:var(--text2)}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rg-row{display:flex;flex-direction:column;gap:3px}
+.rg-hdr{display:flex;justify-content:space-between;align-items:baseline}
+.rg-name{font-size:0.68rem;color:var(--text2)}
+.rg-pct{font-size:0.6rem;color:var(--accent);font-weight:700;white-space:nowrap;margin-left:6px}
+.rg-bar{height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.rg-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f6d55f);border-radius:2px;transition:width .5s ease;width:0%}
 
 /* 스팟 상세 패널 */
 #panel{
@@ -234,14 +246,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <!-- 범례 -->
 <div id="legend">
-  <div id="legend-title">카테고리</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-mountain)"></div>산/자연</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-beach)"></div>해변</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-history)"></div>역사/문화</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-city)"></div>도시</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-island)"></div>섬</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-nature)"></div>자연</div>
-  <div class="leg-row"><div class="leg-dot" style="background:var(--c-unique)"></div>특별</div>
+  <div id="legend-tabs">
+    <button class="leg-tab active" data-tab="cat">카테고리</button>
+    <button class="leg-tab" data-tab="region">지역별</button>
+  </div>
+  <div id="legend-cat-panel">
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-mountain)"></div>산/자연</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-beach)"></div>해변</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-history)"></div>역사/문화</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-city)"></div>도시</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-island)"></div>섬</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-nature)"></div>자연</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--c-unique)"></div>특별</div>
+  </div>
+  <div id="legend-region-panel"></div>
 </div>
 
 <!-- 스팟 패널 -->
@@ -489,7 +507,45 @@ function updateStats() {
   document.getElementById('prog-total').textContent = total;
   document.getElementById('prog-pct').textContent = pct+'%';
   document.getElementById('prog-fill').style.width = pct+'%';
+  updateRegionStats();
 }
+
+function updateRegionStats() {
+  const regionMap = {};
+  spotsData.forEach(s => {
+    if (!regionMap[s.region]) regionMap[s.region] = {total:0, visited:0};
+    regionMap[s.region].total++;
+    if (visitedSet.has(s.id)) regionMap[s.region].visited++;
+  });
+  const panel = document.getElementById('legend-region-panel');
+  panel.innerHTML = Object.entries(regionMap)
+    .sort((a,b) => {
+      const pa = a[1].visited/a[1].total, pb = b[1].visited/b[1].total;
+      return pb !== pa ? pb - pa : a[0].localeCompare(b[0], 'ko');
+    })
+    .map(([name, d]) => {
+      const pct = d.total ? Math.round(d.visited/d.total*100) : 0;
+      return `<div class="rg-row">
+        <div class="rg-hdr">
+          <span class="rg-name">${name}</span>
+          <span class="rg-pct">${d.visited}/${d.total} · ${pct}%</span>
+        </div>
+        <div class="rg-bar"><div class="rg-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+}
+
+// 범례 탭 전환
+document.querySelectorAll('.leg-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.leg-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('legend-cat-panel').style.display = tab==='cat' ? 'flex' : 'none';
+    const rp = document.getElementById('legend-region-panel');
+    rp.classList.toggle('show', tab==='region');
+  });
+});
 
 function openPanel(spot) {
   selectedSpot = spot;
