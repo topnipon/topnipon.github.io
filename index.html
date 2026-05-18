@@ -561,8 +561,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <button id="settings-save">저장</button>
       <button id="settings-cancel">취소</button>
     </div>
-    <button id="sync-all-btn">☁ 전체 방문 기록 GitHub에 동기화</button>
-    <div id="sync-status"></div>
   </div>
 </div>
 
@@ -1017,9 +1015,6 @@ async function init() {
       (vd.visited || []).forEach(id => visitedSet.add(id));
     }
   } catch(e) {}
-  const local = JSON.parse(localStorage.getItem('visited-spots')||'[]');
-  local.forEach(id => visitedSet.add(id));
-
   renderSpots();
   updateStats();
   bindEvents();
@@ -1306,7 +1301,9 @@ function openPanel(spot) {
   if (v) { stamp.classList.remove('pop'); void stamp.offsetWidth; stamp.classList.add('pop'); }
 
   const btn = document.getElementById('panel-btn');
-  if (v) {
+  if (btn.disabled) {
+    // localhost: 버튼 상태 고정
+  } else if (v) {
     btn.textContent = '✓ 방문 완료 (기록 취소)';
     btn.className = 'done';
     btn.style.background = col;
@@ -1362,7 +1359,6 @@ async function toggleVisited() {
   const id = selectedSpot.id;
   const wasV = visitedSet.has(id);
   wasV ? visitedSet.delete(id) : visitedSet.add(id);
-  localStorage.setItem('visited-spots', JSON.stringify([...visitedSet]));
 
   const token = localStorage.getItem('gh-token');
   if (token) syncGitHub(id, !wasV, token);
@@ -1547,7 +1543,16 @@ function bindEvents() {
   });
 
   document.getElementById('panel-close').addEventListener('click', closePanel);
-  document.getElementById('panel-btn').addEventListener('click', () => verifyOwner(toggleVisited));
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isLocal) {
+    const panelBtn = document.getElementById('panel-btn');
+    panelBtn.disabled = true;
+    panelBtn.textContent = '로컬에서는 사용 불가';
+    panelBtn.style.opacity = '0.4';
+    document.getElementById('settings-btn').style.display = 'none';
+  } else {
+    document.getElementById('panel-btn').addEventListener('click', () => verifyOwner(toggleVisited));
+  }
   map.on('click', closePanel);
 
   document.getElementById('settings-btn').addEventListener('click', () => {
@@ -1573,27 +1578,6 @@ function bindEvents() {
       document.getElementById('settings-overlay').classList.remove('open');
   });
 
-  document.getElementById('sync-all-btn').addEventListener('click', async () => {
-    const token = localStorage.getItem('gh-token');
-    const statusEl = document.getElementById('sync-status');
-    if (!token) {
-      statusEl.textContent = '⚠ 먼저 GitHub 토큰을 저장해주세요.';
-      statusEl.style.color = '#f472b6';
-      return;
-    }
-    const btn = document.getElementById('sync-all-btn');
-    btn.disabled = true;
-    btn.textContent = '동기화 중...';
-    statusEl.textContent = '';
-    try {
-      await pushVisitedToGitHub(token, statusEl);
-    } catch(e) {
-      statusEl.textContent = '✗ 동기화 실패: ' + e.message;
-      statusEl.style.color = '#f472b6';
-    }
-    btn.disabled = false;
-    btn.textContent = '☁ 전체 방문 기록 GitHub에 동기화';
-  });
 }
 
 init();
