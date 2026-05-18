@@ -10,15 +10,15 @@
 
 ### 🗺 대한민국 여행 지도 (`index.html`)
 
-전국 367개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
+전국 364개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
 
 - 방문한 곳은 컬러/발광 표시, 미방문은 어둡게 표시
 - 13개 카테고리 필터 (산/자연, 해변, 역사/문화, 도시, 섬, 자연, 특별, 트래킹, 놀이동산, 리조트, 공원, 사찰, 박물관)
 - 카테고리 범례 — 스팟 수 내림차순 정렬
 - 시도별 색상 오버레이 + 방문율 통계 (세종 포함 17개 시도)
 - 스팟 클릭 시 상세 패널 — Leaflet 미니맵 + 구글 지도 연동 버튼
-- 발자국 남기기 / 방문 완료 버튼 — 소유자 인증 후 사용 가능
-- ⚙ 설정에서 GitHub Token 입력 후 전체 방문 기록을 GitHub에 즉시 동기화 가능
+- 발자국 남기기 / 방문 완료 — 소유자 인증 후 온라인에서만 사용 가능 (localhost 비활성화)
+- ⚙ 설정에서 GitHub Token 입력 시 발자국 클릭과 동시에 GitHub에 자동 저장
 
 ### 🚶 걷기 기록 (`walking.html`)
 
@@ -38,7 +38,7 @@
 ```
 data/
 ├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
-├── travel-spots.json     # 여행지 목록 367개 (위치, 카테고리 등)
+├── travel-spots.json     # 여행지 목록 364개 (위치, 카테고리 등)
 ├── visited-spots.json    # 방문한 여행지 ID 목록
 └── korea-regions.json    # 시도별 GeoJSON 경계 (색상 오버레이용)
 ```
@@ -80,9 +80,11 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 
 ### 여행지 방문 기록
 
-사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 입력한 뒤, **"☁ 전체 방문 기록 GitHub에 동기화"** 버튼을 누르면 현재 방문 목록 전체를 GitHub Contents API(PUT)로 한 번에 업로드합니다.
+**온라인(topnipon.github.io)에서만** 발자국 등록/삭제가 가능합니다. localhost에서는 해당 기능이 비활성화됩니다.
 
-> 개별 스팟 클릭 시 로컬(localStorage)에 먼저 저장되고, 동기화 버튼으로 GitHub에 반영합니다.
+사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 등록하면, 발자국 클릭 시 즉시 GitHub Contents API(PUT)로 `visited-spots.json`이 업데이트됩니다.
+
+> 토큰은 브라우저 localStorage에 저장되므로, 기기마다 1회 등록이 필요합니다.
 
 ---
 
