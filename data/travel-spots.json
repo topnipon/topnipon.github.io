@@ -61,16 +61,6 @@
       "description": "서울 한복판을 가로지르는 강변 공원. 자전거·피크닉의 성지"
     },
     {
-      "id": "seoul-bukhansan",
-      "name": "북한산",
-      "region": "서울",
-      "lat": 37.6597,
-      "lng": 126.977,
-      "radius": 5000,
-      "category": "mountain",
-      "description": "도심 속 국립공원. 백운대 정상에서 서울 전경 조망 가능"
-    },
-    {
       "id": "seoul-ddp",
       "name": "DDP 동대문디자인플라자",
       "region": "서울",
@@ -199,16 +189,6 @@
       "radius": 1500,
       "category": "unique",
       "description": "수도권 최대 어항. 싱싱한 해산물과 젓갈로 유명"
-    },
-    {
-      "id": "gw-seoraksan",
-      "name": "설악산",
-      "region": "강원",
-      "lat": 38.1197,
-      "lng": 128.4656,
-      "radius": 12000,
-      "category": "mountain",
-      "description": "국립공원의 정수. 공룡능선·울산바위·대청봉이 사계절 절경"
     },
     {
       "id": "gw-gyeongpodae",
@@ -491,16 +471,6 @@
       "description": "700여 채 한옥이 밀집. 비빔밥·막걸리·전통문화 체험의 메카"
     },
     {
-      "id": "jb-naejangsan",
-      "name": "내장산",
-      "region": "전북",
-      "lat": 35.485,
-      "lng": 126.8897,
-      "radius": 8000,
-      "category": "mountain",
-      "description": "전국 최고의 단풍 명산. 내장사와 단풍 터널이 환상적"
-    },
-    {
       "id": "jb-byeonsan",
       "name": "변산반도",
       "region": "전북",
@@ -691,16 +661,6 @@
       "description": "100년 역사 선교사 마을과 근대 건축이 공존하는 골목"
     },
     {
-      "id": "gj-mudeungsan",
-      "name": "무등산",
-      "region": "광주",
-      "lat": 35.1293,
-      "lng": 127.0004,
-      "radius": 8000,
-      "category": "mountain",
-      "description": "광주 시민의 진산. 주상절리 서석대·입석대가 경이롭다"
-    },
-    {
       "id": "gb-bulguksa",
       "name": "경주 불국사·석굴암",
       "region": "경북",
@@ -791,16 +751,6 @@
       "description": "퇴계 이황이 사랑한 12봉 기암 산. 낙동강 상류가 내려다보인다"
     },
     {
-      "id": "dg-palgongsan",
-      "name": "팔공산",
-      "region": "대구",
-      "lat": 35.9977,
-      "lng": 128.6956,
-      "radius": 8000,
-      "category": "mountain",
-      "description": "대구의 진산. 갓바위 부처님은 소원 하나는 꼭 이뤄준다는 믿음"
-    },
-    {
       "id": "dg-apsan",
       "name": "앞산공원",
       "region": "대구",
@@ -879,16 +829,6 @@
       "radius": 3000,
       "category": "history",
       "description": "십리 벚꽃 길과 화개장터. 지리산 자락 쌍계사의 야생 녹차"
-    },
-    {
-      "id": "gn-jirisan",
-      "name": "지리산",
-      "region": "경남",
-      "lat": 35.3378,
-      "lng": 127.7306,
-      "radius": 14000,
-      "category": "mountain",
-      "description": "남한 최고봉 천왕봉(1915m). 3개 도에 걸친 민족의 영산"
     },
     {
       "id": "gn-goseong",
@@ -1009,16 +949,6 @@
       "radius": 2000,
       "category": "history",
       "description": "세계 최초 고래잡이 기록. 7000년 전 선사인의 암벽 그림"
-    },
-    {
-      "id": "jj-hallasan",
-      "name": "한라산",
-      "region": "제주",
-      "lat": 33.3617,
-      "lng": 126.5292,
-      "radius": 12000,
-      "category": "mountain",
-      "description": "남한 최고봉(1950m). 백록담 분화구와 계절별 꽃밭이 압도적"
     },
     {
       "id": "jj-seongsan",
@@ -1149,56 +1079,6 @@
       "radius": 3000,
       "category": "mountain",
       "description": "수도권 남부 최고 인기 등산로. 매봉~옥녀봉 능선이 아름답다"
-    },
-    {
-      "id": "cb-sobaeksan",
-      "name": "소백산",
-      "region": "충북",
-      "lat": 36.9583,
-      "lng": 128.4875,
-      "radius": 7000,
-      "category": "mountain",
-      "description": "국립공원 철쭉 명산. 5월 비로봉 철쭉 군락은 전국 최고"
-    },
-    {
-      "id": "cb-woraksan",
-      "name": "월악산",
-      "region": "충북",
-      "lat": 36.8681,
-      "lng": 128.0783,
-      "radius": 5000,
-      "category": "mountain",
-      "description": "국립공원 영봉(1,097m). 충주호를 내려다보는 수직 절벽이 압도적"
-    },
-    {
-      "id": "cn-gyeryongsan",
-      "name": "계룡산",
-      "region": "충남",
-      "lat": 36.3539,
-      "lng": 127.2053,
-      "radius": 4000,
-      "category": "mountain",
-      "description": "삼남 4대 명산이자 풍수지리의 명당. 천정계곡·갑사·동학사 코스"
-    },
-    {
-      "id": "gw-taebaeksan",
-      "name": "태백산",
-      "region": "강원",
-      "lat": 37.0947,
-      "lng": 128.9166,
-      "radius": 4000,
-      "category": "mountain",
-      "description": "천제단과 주목 군락지. 눈 쌓인 겨울 주목 설경이 압도적인 명산"
-    },
-    {
-      "id": "gw-chiaksan",
-      "name": "치악산",
-      "region": "강원",
-      "lat": 37.3703,
-      "lng": 128.0581,
-      "radius": 6000,
-      "category": "mountain",
-      "description": "국립공원 비로봉(1,288m). 단풍·설경이 아름다운 강원 서부의 명산"
     },
     {
       "id": "gw-dutasan",
@@ -2321,6 +2201,156 @@
       "description": "영종도 인천공항 인근. 카지노·아트테인먼트·클럽·스파 복합 럭셔리 리조트"
     },
     {
+      "id": "resort-solbeach-yangyang",
+      "name": "솔비치 양양",
+      "region": "강원",
+      "lat": 38.0036,
+      "lng": 128.7064,
+      "radius": 800,
+      "category": "resort",
+      "description": "양양 동해 오션뷰 리조트. 지중해풍 외관과 인피니티 풀이 시그니처"
+    },
+    {
+      "id": "resort-solbeach-samcheok",
+      "name": "솔비치 삼척",
+      "region": "강원",
+      "lat": 37.4147,
+      "lng": 129.1689,
+      "radius": 800,
+      "category": "resort",
+      "description": "삼척 근덕면 동해 절경 리조트. 산토리니풍 백색 건축과 푸른 바다"
+    },
+    {
+      "id": "resort-solbeach-jindo",
+      "name": "솔비치 진도",
+      "region": "전남",
+      "lat": 34.3893,
+      "lng": 126.2483,
+      "radius": 800,
+      "category": "resort",
+      "description": "진도 의신면 다도해 조망 리조트. 일몰과 다도해상국립공원 풍광"
+    },
+    {
+      "id": "resort-lotte-sokcho",
+      "name": "롯데리조트 속초",
+      "region": "강원",
+      "lat": 38.1894,
+      "lng": 128.595,
+      "radius": 800,
+      "category": "resort",
+      "description": "속초 대포항 인근 동해 오션뷰. 설악산과 동해를 동시에 즐기는 리조트"
+    },
+    {
+      "id": "resort-lotte-buyeo",
+      "name": "롯데리조트 부여",
+      "region": "충남",
+      "lat": 36.2752,
+      "lng": 126.9163,
+      "radius": 800,
+      "category": "resort",
+      "description": "백제문화단지 옆 한옥 콘셉트 리조트. 백제 역사 테마 객실 인기"
+    },
+    {
+      "id": "resort-lotte-gimhae",
+      "name": "롯데리조트 김해",
+      "region": "경남",
+      "lat": 35.2358,
+      "lng": 128.9069,
+      "radius": 800,
+      "category": "resort",
+      "description": "김해 워터파크 통합 패밀리 리조트. 사계절 워터파크와 키즈 시설"
+    },
+    {
+      "id": "resort-lotte-jeju",
+      "name": "롯데리조트 제주 아트빌라스",
+      "region": "제주",
+      "lat": 33.2502,
+      "lng": 126.4116,
+      "radius": 800,
+      "category": "resort",
+      "description": "중문 색달 풀빌라형 럭셔리 리조트. 5명 건축가 설계 빌라"
+    },
+    {
+      "id": "resort-sonobel-byeonsan",
+      "name": "소노벨 변산",
+      "region": "전북",
+      "lat": 35.6628,
+      "lng": 126.4861,
+      "radius": 800,
+      "category": "resort",
+      "description": "변산반도국립공원 인접 서해 리조트. 옛 대명리조트 변산"
+    },
+    {
+      "id": "resort-sonobel-yangpyeong",
+      "name": "소노벨 양평",
+      "region": "경기",
+      "lat": 37.5028,
+      "lng": 127.5067,
+      "radius": 800,
+      "category": "resort",
+      "description": "남한강변 수도권 근교 리조트. 골프·온천·산책로. 옛 대명리조트 양평"
+    },
+    {
+      "id": "resort-sonobel-cheonan",
+      "name": "소노벨 천안",
+      "region": "충남",
+      "lat": 36.7672,
+      "lng": 127.3275,
+      "radius": 800,
+      "category": "resort",
+      "description": "천안 도심 근접 패밀리 리조트. 테딘 워터파크 보유. 옛 대명리조트 천안"
+    },
+    {
+      "id": "resort-sonobel-gyeongju",
+      "name": "소노벨 경주",
+      "region": "경북",
+      "lat": 35.8528,
+      "lng": 129.2483,
+      "radius": 800,
+      "category": "resort",
+      "description": "보문관광단지 보문호 옆 리조트. 한옥 객실 인기. 옛 대명리조트 경주"
+    },
+    {
+      "id": "resort-sonobel-jeju",
+      "name": "소노벨 제주",
+      "region": "제주",
+      "lat": 33.4767,
+      "lng": 126.9189,
+      "radius": 800,
+      "category": "resort",
+      "description": "제주 동쪽 표선 해변 인근 리조트. 옛 대명리조트 제주"
+    },
+    {
+      "id": "resort-sonokam-geoje",
+      "name": "소노캄 거제",
+      "region": "경남",
+      "lat": 34.7989,
+      "lng": 128.7461,
+      "radius": 800,
+      "category": "resort",
+      "description": "거제 학동 다도해 조망 리조트. 한려해상국립공원 풍광. 옛 대명리조트 거제"
+    },
+    {
+      "id": "resort-sonomoon-danyang",
+      "name": "소노문 단양",
+      "region": "충북",
+      "lat": 36.9842,
+      "lng": 128.3656,
+      "radius": 800,
+      "category": "resort",
+      "description": "남한강·소백산 조망 리조트. 단양팔경 거점. 옛 대명리조트 단양"
+    },
+    {
+      "id": "resort-sonomoon-delpino",
+      "name": "소노문 델피노",
+      "region": "강원",
+      "lat": 38.3367,
+      "lng": 128.5594,
+      "radius": 800,
+      "category": "resort",
+      "description": "고성 동해 골프·오션뷰 리조트. 설악산권. 옛 대명 델피노"
+    },
+    {
       "id": "park-olympic",
       "name": "서울 올림픽공원",
       "region": "서울",
@@ -2469,6 +2499,126 @@
       "radius": 12000,
       "category": "park",
       "description": "300km 리아스 해안 절경. 신두리 해안사구·학암포·꽃지 할미바위"
+    },
+    {
+      "id": "park-jirisan",
+      "name": "지리산국립공원",
+      "region": "경남",
+      "lat": 35.3372,
+      "lng": 127.7305,
+      "radius": 15000,
+      "category": "park",
+      "description": "1967년 지정 1호 국립공원. 천왕봉·노고단·반야봉 종주가 백미"
+    },
+    {
+      "id": "park-gyeongju",
+      "name": "경주국립공원",
+      "region": "경북",
+      "lat": 35.8438,
+      "lng": 129.2245,
+      "radius": 10000,
+      "category": "park",
+      "description": "국내 유일 사적형 국립공원. 남산·토함산·불국사·석굴암을 아우른다"
+    },
+    {
+      "id": "park-gyeryongsan",
+      "name": "계룡산국립공원",
+      "region": "충남",
+      "lat": 36.3537,
+      "lng": 127.2153,
+      "radius": 6000,
+      "category": "park",
+      "description": "천황봉·관음봉·삼불봉. 갑사·동학사가 동서로 마주한 명산"
+    },
+    {
+      "id": "park-seoraksan",
+      "name": "설악산국립공원",
+      "region": "강원",
+      "lat": 38.1196,
+      "lng": 128.4655,
+      "radius": 12000,
+      "category": "park",
+      "description": "대청봉·공룡능선·울산바위. 사계절 절경의 국립공원 대표"
+    },
+    {
+      "id": "park-songnisan",
+      "name": "속리산국립공원",
+      "region": "충북",
+      "lat": 36.5418,
+      "lng": 127.8676,
+      "radius": 8000,
+      "category": "park",
+      "description": "법주사·천왕봉·문장대. 정이품송과 신라 고찰이 어우러진 명산"
+    },
+    {
+      "id": "park-hallasan",
+      "name": "한라산국립공원",
+      "region": "제주",
+      "lat": 33.3617,
+      "lng": 126.5331,
+      "radius": 10000,
+      "category": "park",
+      "description": "백록담을 품은 남한 최고봉(1,947m). 영실·어리목·성판악 탐방로"
+    },
+    {
+      "id": "park-naejangsan",
+      "name": "내장산국립공원",
+      "region": "전북",
+      "lat": 35.4905,
+      "lng": 126.8888,
+      "radius": 7000,
+      "category": "park",
+      "description": "호남 최고 단풍 명소. 신선봉·서래봉·내장사가 어우러진 단풍의 산"
+    },
+    {
+      "id": "park-deogyusan",
+      "name": "덕유산국립공원",
+      "region": "전북",
+      "lat": 35.8606,
+      "lng": 127.7479,
+      "radius": 9000,
+      "category": "park",
+      "description": "향적봉·중봉·덕유평전. 무주 설경과 겨울 상고대가 환상적"
+    },
+    {
+      "id": "park-odaesan",
+      "name": "오대산국립공원",
+      "region": "강원",
+      "lat": 37.7942,
+      "lng": 128.5444,
+      "radius": 8000,
+      "category": "park",
+      "description": "비로봉·상왕봉·월정사·상원사. 천년 고찰과 전나무숲길"
+    },
+    {
+      "id": "park-bukhansan",
+      "name": "북한산국립공원",
+      "region": "서울",
+      "lat": 37.6586,
+      "lng": 126.9776,
+      "radius": 6000,
+      "category": "park",
+      "description": "도심 속 국립공원. 백운대·인수봉·만경대 삼각산이 우뚝"
+    },
+    {
+      "id": "park-chiaksan",
+      "name": "치악산국립공원",
+      "region": "강원",
+      "lat": 37.3633,
+      "lng": 128.0506,
+      "radius": 7000,
+      "category": "park",
+      "description": "비로봉·구룡사·세렴폭포. 가을 단풍과 보은의 꿩 전설"
+    },
+    {
+      "id": "park-taebaeksan",
+      "name": "태백산국립공원",
+      "region": "강원",
+      "lat": 37.0944,
+      "lng": 128.9156,
+      "radius": 7000,
+      "category": "park",
+      "description": "장군봉·천제단·주목군락지. 한겨울 눈꽃과 새해 해돋이 명소"
     },
     {
       "id": "park-igilae",
@@ -3639,6 +3789,636 @@
       "radius": 3500,
       "category": "hiking",
       "description": "11.7km. 통일안보공원→명파해변→통일전망대. 해파랑길 종착점. DMZ 통일전망대에서 금강산을 바라보다"
+    },
+    {
+      "id": "view-busan-diamondtower",
+      "name": "부산 다이아몬드타워",
+      "region": "부산",
+      "lat": 35.1019,
+      "lng": 129.0327,
+      "radius": 400,
+      "category": "city",
+      "description": "용두산공원 정상 120m 타워. 옛 부산타워. 영도·자갈치·북항을 한눈에"
+    },
+    {
+      "id": "view-daegu-83tower",
+      "name": "대구 83타워",
+      "region": "대구",
+      "lat": 35.8497,
+      "lng": 128.5708,
+      "radius": 400,
+      "category": "city",
+      "description": "이월드 내 202m 타워. 두류공원과 대구 시내 360° 조망"
+    },
+    {
+      "id": "view-incheon-gtower",
+      "name": "송도 G타워 전망대",
+      "region": "인천",
+      "lat": 37.3866,
+      "lng": 126.645,
+      "radius": 300,
+      "category": "city",
+      "description": "송도국제도시 33층 전망대. 센트럴파크와 인천대교를 무료 조망"
+    },
+    {
+      "id": "view-danyang-mancheonha",
+      "name": "단양 만천하스카이워크",
+      "region": "충북",
+      "lat": 36.9839,
+      "lng": 128.3825,
+      "radius": 500,
+      "category": "nature",
+      "description": "남한강 80m 절벽 위 유리바닥 전망대. 단양 시가지와 강을 발 아래로"
+    },
+    {
+      "id": "view-tongyeong-mireuksan",
+      "name": "통영 미륵산 전망대",
+      "region": "경남",
+      "lat": 34.8244,
+      "lng": 128.4131,
+      "radius": 600,
+      "category": "nature",
+      "description": "한려수도 케이블카 정상 461m. 한려해상국립공원 다도해 절경"
+    },
+    {
+      "id": "view-yeosu-dolsan",
+      "name": "여수 돌산공원 전망대",
+      "region": "전남",
+      "lat": 34.7339,
+      "lng": 127.7644,
+      "radius": 500,
+      "category": "nature",
+      "description": "돌산대교와 여수 야경 명소. 해상케이블카 환승 거점"
+    },
+    {
+      "id": "view-jeongseon-byeongbangchi",
+      "name": "정선 병방치스카이워크",
+      "region": "강원",
+      "lat": 37.3492,
+      "lng": 128.5817,
+      "radius": 400,
+      "category": "nature",
+      "description": "동강 한반도지형 583m 절벽 유리 전망대. 짚라인·집와이어 운영"
+    },
+    {
+      "id": "view-busan-oryukdo",
+      "name": "부산 오륙도 스카이워크",
+      "region": "부산",
+      "lat": 35.0944,
+      "lng": 129.1284,
+      "radius": 400,
+      "category": "nature",
+      "description": "절벽 끝 ㄷ자형 유리 전망대. 오륙도와 남해·동해 경계 조망"
+    },
+    {
+      "id": "view-busan-songdo",
+      "name": "부산 송도 스카이워크",
+      "region": "부산",
+      "lat": 35.0728,
+      "lng": 129.0233,
+      "radius": 400,
+      "category": "nature",
+      "description": "송도해수욕장 바다 위 365m 보행 다리. 해상케이블카와 함께"
+    },
+    {
+      "id": "view-busan-cheongsapo",
+      "name": "청사포 다릿돌전망대",
+      "region": "부산",
+      "lat": 35.1597,
+      "lng": 129.1903,
+      "radius": 400,
+      "category": "nature",
+      "description": "해운대 청사포 절벽 72m 해상 전망대. 일출과 바닷속 조망"
+    },
+    {
+      "id": "view-busan-hwangnyeongsan",
+      "name": "황령산 봉수대 전망대",
+      "region": "부산",
+      "lat": 35.145,
+      "lng": 129.0768,
+      "radius": 500,
+      "category": "nature",
+      "description": "해발 427m 부산 중심 야경 최고 명소. 광안대교·해운대 일대 한눈에"
+    },
+    {
+      "id": "view-gwangyang-gubongsan",
+      "name": "광양 구봉산 전망대",
+      "region": "전남",
+      "lat": 34.9519,
+      "lng": 127.7,
+      "radius": 500,
+      "category": "nature",
+      "description": "해발 473m 광양만 야경 명소. 광양제철소·이순신대교·여수 바다 조망"
+    },
+    {
+      "id": "view-yeongwol-hanbando",
+      "name": "영월 한반도지형 전망대",
+      "region": "강원",
+      "lat": 37.2256,
+      "lng": 128.5167,
+      "radius": 500,
+      "category": "nature",
+      "description": "서강 물줄기가 만든 한반도 모양 지형 전망대. 명승 75호"
+    },
+    {
+      "id": "view-geoje-baram",
+      "name": "거제 바람의 언덕",
+      "region": "경남",
+      "lat": 34.7728,
+      "lng": 128.7339,
+      "radius": 400,
+      "category": "nature",
+      "description": "도장포 마을 풍차 언덕. 다도해와 신선대 절벽 조망"
+    },
+    {
+      "id": "view-gangneung-budae",
+      "name": "정동심곡 바다부채길",
+      "region": "강원",
+      "lat": 37.6912,
+      "lng": 129.0467,
+      "radius": 500,
+      "category": "nature",
+      "description": "강릉 정동진~심곡항 2.86km 해안 단구 산책로. 2300만년 시간의 흔적"
+    },
+    {
+      "id": "view-yangyang-hajodae",
+      "name": "양양 하조대",
+      "region": "강원",
+      "lat": 38.0594,
+      "lng": 128.7372,
+      "radius": 400,
+      "category": "nature",
+      "description": "기암절벽 위 정자와 등대. 동해 일출·소나무 절경 명승지"
+    },
+    {
+      "id": "view-yanggu-peacedam",
+      "name": "양구 평화의 댐 비목공원",
+      "region": "강원",
+      "lat": 38.2306,
+      "lng": 127.9706,
+      "radius": 600,
+      "category": "nature",
+      "description": "DMZ 인접 평화 상징 전망대. 세계 평화의 종·국제 평화 아트파크"
+    },
+    {
+      "id": "mt-gajisan",
+      "name": "가지산",
+      "region": "울산",
+      "lat": 35.6386,
+      "lng": 128.9606,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "영남알프스 최고봉 1,241m. 9봉 완등 인증제의 정점"
+    },
+    {
+      "id": "mt-ganwolsan",
+      "name": "간월산",
+      "region": "울산",
+      "lat": 35.5703,
+      "lng": 129.0125,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,069m. 간월재 억새평원과 연결되는 능선"
+    },
+    {
+      "id": "mt-sinbulsan",
+      "name": "신불산",
+      "region": "울산",
+      "lat": 35.5478,
+      "lng": 129.0203,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,159m. 신불평원 광활한 억새 능선이 백미"
+    },
+    {
+      "id": "mt-yeongchuksan",
+      "name": "영축산",
+      "region": "경남",
+      "lat": 35.5275,
+      "lng": 129.0411,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,081m. 통도사 뒷산, 옛 이름 취서산"
+    },
+    {
+      "id": "mt-cheonhwangsan",
+      "name": "천황산",
+      "region": "경남",
+      "lat": 35.5728,
+      "lng": 128.975,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,189m(사자봉). 얼음골 케이블카로 접근 가능"
+    },
+    {
+      "id": "mt-jaeyaksan",
+      "name": "재약산",
+      "region": "경남",
+      "lat": 35.5631,
+      "lng": 128.9692,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,108m(수미봉). 사자평 억새와 표충사가 어우러진다"
+    },
+    {
+      "id": "mt-unmunsan",
+      "name": "운문산",
+      "region": "경북",
+      "lat": 35.6603,
+      "lng": 128.9544,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,188m. 운문사 호거대 능선과 함박꽃 군락"
+    },
+    {
+      "id": "mt-goheonsan",
+      "name": "고헌산",
+      "region": "울산",
+      "lat": 35.6831,
+      "lng": 129.1058,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,034m. 동대산 종주 거점, 부드러운 능선"
+    },
+    {
+      "id": "mt-munboksan",
+      "name": "문복산",
+      "region": "경북",
+      "lat": 35.7242,
+      "lng": 129.0772,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "영남알프스 9봉 1,015m. 가장 한적한 9봉, 드린바위 명소"
+    },
+    {
+      "id": "mt-suraksan",
+      "name": "수락산",
+      "region": "서울",
+      "lat": 37.6783,
+      "lng": 127.0719,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "서울 동북부 638m. 기암괴석과 폭포, 도심 근접 인기 등산지"
+    },
+    {
+      "id": "mt-buramsan",
+      "name": "불암산",
+      "region": "서울",
+      "lat": 37.6422,
+      "lng": 127.09,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "서울 노원 508m. 부처 모습의 큰 바위, 수락산과 종주 가능"
+    },
+    {
+      "id": "mt-inwangsan",
+      "name": "인왕산",
+      "region": "서울",
+      "lat": 37.5778,
+      "lng": 126.9583,
+      "radius": 2000,
+      "category": "mountain",
+      "description": "서울 도심 338m. 한양도성과 어우러진 짧고 임팩트 있는 코스"
+    },
+    {
+      "id": "mt-manisan",
+      "name": "마니산",
+      "region": "인천",
+      "lat": 37.6175,
+      "lng": 126.4356,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "강화도 469m. 단군 참성단이 있는 민족의 영산"
+    },
+    {
+      "id": "mt-dutasan",
+      "name": "두타산",
+      "region": "강원",
+      "lat": 37.4017,
+      "lng": 128.9131,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "동해·삼척 1,353m. 무릉계곡과 베틀바위 신선암 절경"
+    },
+    {
+      "id": "mt-jeombongsan",
+      "name": "점봉산",
+      "region": "강원",
+      "lat": 38.0394,
+      "lng": 128.4536,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "인제 1,424m. 곰배령 야생화 천국, 설악산 남쪽 자락"
+    },
+    {
+      "id": "mt-bangtaesan",
+      "name": "방태산",
+      "region": "강원",
+      "lat": 37.9933,
+      "lng": 128.3267,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "인제 1,444m. 자연휴양림과 적가리골 원시림"
+    },
+    {
+      "id": "mt-gyebangsan",
+      "name": "계방산",
+      "region": "강원",
+      "lat": 37.7522,
+      "lng": 128.4536,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "평창·홍천 1,577m. 남한 5번째 고봉, 겨울 눈산행 명소"
+    },
+    {
+      "id": "mt-hambaeksan",
+      "name": "함백산",
+      "region": "강원",
+      "lat": 37.1583,
+      "lng": 128.9156,
+      "radius": 3500,
+      "category": "mountain",
+      "description": "태백·정선 1,573m. 한강·낙동강 분수령, 만항재 야생화 천국"
+    },
+    {
+      "id": "mt-seonjaryeong",
+      "name": "선자령",
+      "region": "강원",
+      "lat": 37.7197,
+      "lng": 128.7283,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "대관령 1,157m. 풍력발전기 사이 초원 트레킹, 겨울 눈꽃 명소"
+    },
+    {
+      "id": "mt-minjujisan",
+      "name": "민주지산",
+      "region": "충북",
+      "lat": 36.0411,
+      "lng": 127.8567,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "영동·무주·김천 3도 경계 1,242m. 물한계곡과 석기봉 능선"
+    },
+    {
+      "id": "mt-gubyeongsan",
+      "name": "구병산",
+      "region": "충북",
+      "lat": 36.4886,
+      "lng": 127.9572,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "보은 877m. 속리산 남쪽 9개 봉우리 병풍 능선, 충북알프스"
+    },
+    {
+      "id": "mt-unjangsan",
+      "name": "운장산",
+      "region": "전북",
+      "lat": 35.9633,
+      "lng": 127.4378,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "진안·완주 1,126m. 호남 노령산맥 최고봉, 동·서·상봉 3봉"
+    },
+    {
+      "id": "mt-geumjeongsan",
+      "name": "금정산",
+      "region": "부산",
+      "lat": 35.2683,
+      "lng": 129.0469,
+      "radius": 3500,
+      "category": "mountain",
+      "description": "부산 최고봉 802m(고당봉). 금정산성과 범어사 둘레 종주"
+    },
+    {
+      "id": "mt-cheonseongsan",
+      "name": "천성산",
+      "region": "경남",
+      "lat": 35.4267,
+      "lng": 129.1153,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "양산 922m. 화엄벌 억새평원과 원효암 일출 명소"
+    },
+    {
+      "id": "mt-cheongnyangsan",
+      "name": "청량산",
+      "region": "경북",
+      "lat": 36.7847,
+      "lng": 128.9039,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "봉화 870m. 12봉 기암절벽과 청량사·하늘다리"
+    },
+    {
+      "id": "mt-mindungsan",
+      "name": "민둥산",
+      "region": "강원",
+      "lat": 37.3225,
+      "lng": 128.6928,
+      "radius": 2500,
+      "category": "mountain",
+      "description": "정선 1,119m. 가을 6만평 억새평원이 황금빛으로 물든다"
+    },
+    {
+      "id": "mt-myeongseongsan",
+      "name": "명성산",
+      "region": "경기",
+      "lat": 38.05,
+      "lng": 127.3206,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "포천 922m. 산정호수와 억새군락지, 궁예의 한이 서린 산"
+    },
+    {
+      "id": "mt-ganwoljae",
+      "name": "간월재",
+      "region": "울산",
+      "lat": 35.5683,
+      "lng": 129.0167,
+      "radius": 1500,
+      "category": "mountain",
+      "description": "영남알프스 억새평원 900m 고개. 간월산↔신불산 잇는 능선"
+    },
+    {
+      "id": "hike-jirisan-dulle",
+      "name": "지리산 둘레길",
+      "region": "전북",
+      "lat": 35.4083,
+      "lng": 127.6133,
+      "radius": 8000,
+      "category": "hiking",
+      "description": "22코스 295km. 남원·함양·산청·하동·구례 5개 시군 마을길 순환"
+    },
+    {
+      "id": "hike-bukhansan-dulle",
+      "name": "북한산 둘레길",
+      "region": "서울",
+      "lat": 37.665,
+      "lng": 127.0167,
+      "radius": 5000,
+      "category": "hiking",
+      "description": "21구간 71.5km. 북한산·도봉산 산자락을 두르는 저지대 순환로"
+    },
+    {
+      "id": "hike-seoul-dulle",
+      "name": "서울 둘레길",
+      "region": "서울",
+      "lat": 37.5665,
+      "lng": 127.0833,
+      "radius": 8000,
+      "category": "hiking",
+      "description": "8코스 157km. 서울 외곽 산·하천·마을을 잇는 광역 트레일"
+    },
+    {
+      "id": "hike-hanyangdoseong",
+      "name": "한양도성길",
+      "region": "서울",
+      "lat": 37.5825,
+      "lng": 126.9817,
+      "radius": 4000,
+      "category": "hiking",
+      "description": "18.6km. 백악·낙산·남산·인왕 4산 잇는 조선 한양 성곽길"
+    },
+    {
+      "id": "hike-nampa",
+      "name": "남파랑길",
+      "region": "부산",
+      "lat": 35.0944,
+      "lng": 129.1284,
+      "radius": 3000,
+      "category": "hiking",
+      "description": "90코스 1,470km. 부산 오륙도→해남 땅끝, 남해안 종주 트레일"
+    },
+    {
+      "id": "hike-seoharang",
+      "name": "서해랑길",
+      "region": "전남",
+      "lat": 34.3,
+      "lng": 126.545,
+      "radius": 3000,
+      "category": "hiking",
+      "description": "109코스 1,800km. 해남 땅끝→강화도, 서해안 종주 트레일"
+    },
+    {
+      "id": "nature-mureung",
+      "name": "무릉계곡",
+      "region": "강원",
+      "lat": 37.4156,
+      "lng": 128.9586,
+      "radius": 2000,
+      "category": "nature",
+      "description": "동해 두타산 자락 명승. 무릉반석·삼화사·쌍폭·용추폭포"
+    },
+    {
+      "id": "nature-buryeong",
+      "name": "불영사 계곡",
+      "region": "경북",
+      "lat": 36.9783,
+      "lng": 129.2858,
+      "radius": 2500,
+      "category": "nature",
+      "description": "울진 명승. 15km 협곡과 불영사, 한국의 그랜드캐년"
+    },
+    {
+      "id": "nature-geomryongso",
+      "name": "검룡소",
+      "region": "강원",
+      "lat": 37.2317,
+      "lng": 128.9836,
+      "radius": 800,
+      "category": "nature",
+      "description": "태백 한강 발원지. 514km 한강의 첫 물이 솟는 석회암 용소"
+    },
+    {
+      "id": "nature-hwangji",
+      "name": "황지연못",
+      "region": "강원",
+      "lat": 37.1644,
+      "lng": 128.9892,
+      "radius": 500,
+      "category": "nature",
+      "description": "태백 도심 한가운데 솟는 낙동강 발원지 연못"
+    },
+    {
+      "id": "nature-hamyang-sangrim",
+      "name": "함양 상림",
+      "region": "경남",
+      "lat": 35.5208,
+      "lng": 127.7211,
+      "radius": 1500,
+      "category": "nature",
+      "description": "신라 최치원이 조성한 천년 인공림. 천연기념물 154호"
+    },
+    {
+      "id": "ridge-jinburyeong",
+      "name": "진부령",
+      "region": "강원",
+      "lat": 38.3225,
+      "lng": 128.4392,
+      "radius": 1500,
+      "category": "nature",
+      "description": "고성 백두대간 마루금 북단 거점. 향로봉 군사보호구역 진입로"
+    },
+    {
+      "id": "ridge-misiryeong",
+      "name": "미시령",
+      "region": "강원",
+      "lat": 38.2333,
+      "lng": 128.4422,
+      "radius": 1500,
+      "category": "nature",
+      "description": "인제·속초 826m 백두대간 고개. 황철봉 너덜지대 구간"
+    },
+    {
+      "id": "ridge-hangyeryeong",
+      "name": "한계령",
+      "region": "강원",
+      "lat": 38.0989,
+      "lng": 128.3947,
+      "radius": 1500,
+      "category": "nature",
+      "description": "인제·양양 920m. 설악산 점봉산 종주 경계의 백두대간 고개"
+    },
+    {
+      "id": "ridge-jungnyeong",
+      "name": "죽령",
+      "region": "충북",
+      "lat": 36.9128,
+      "lng": 128.4458,
+      "radius": 1500,
+      "category": "nature",
+      "description": "단양·영주 689m. 소백산 천문대 거점, 백두대간 중부 고개"
+    },
+    {
+      "id": "ridge-chupungnyeong",
+      "name": "추풍령",
+      "region": "충북",
+      "lat": 36.2167,
+      "lng": 128.0167,
+      "radius": 1500,
+      "category": "nature",
+      "description": "영동·김천 백두대간 가장 낮은 고개 221m. 황학산 들머리"
+    },
+    {
+      "id": "ridge-yuksimnyeong",
+      "name": "육십령",
+      "region": "전북",
+      "lat": 35.67,
+      "lng": 127.7144,
+      "radius": 1500,
+      "category": "nature",
+      "description": "장수·함양 734m. 덕유산 남쪽 백두대간 거점"
+    },
+    {
+      "id": "ridge-yeowonjae",
+      "name": "여원재",
+      "region": "전북",
+      "lat": 35.45,
+      "lng": 127.45,
+      "radius": 1500,
+      "category": "nature",
+      "description": "남원 477m. 지리산 북쪽 백두대간 마지막 고개"
     }
   ]
 }
