@@ -1001,6 +1001,9 @@ const bestMonth = MONTHS.reduce((a, b) => b[1] > a[1] ? b : a);
   if (yearKm > 0 && thisYear > parseInt(fy)) {
     story += `<br>${thisYear}년 누적: <span class="walk-em">${yearKm.toLocaleString('ko-KR')}km</span>`;
   }
+  const last = DAYS[DAYS.length-1];
+  const [ly, lm, ld] = last.date.split('-');
+  story += `<br>마지막 걷기 <span class="walk-em">${ly}년 ${parseInt(lm)}월 ${parseInt(ld)}일</span> ${last.km.toFixed(1)}km ${last.steps.toLocaleString('ko-KR')}걸음.`;
   storyEl.innerHTML = story;
 })();
 const [bmy, bmm] = bestMonth[0].split('-');
