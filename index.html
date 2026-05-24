@@ -128,9 +128,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   color:var(--text2);font-size:1.1rem;cursor:pointer;padding:4px;line-height:1;
 }
 #panel-close:hover{color:var(--text)}
+#panel-mascot{
+  position:absolute;top:13px;right:48px;width:70px;height:70px;object-fit:contain;
+  pointer-events:none;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45));
+  transform:translateY(-4px);opacity:.95;
+}
 #panel-body{padding:22px 20px 24px;overflow-y:auto;flex:1}
 /* 패널 정보 계층: 장소명 → 카테고리+지역 → 설명 */
-#panel-name{font-size:1.5rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:10px}
+#panel-name{font-size:1.5rem;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:10px;padding-right:76px}
 .panel-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 #panel-cat{
   display:inline-flex;align-items:center;font-size:0.6rem;letter-spacing:1.5px;
@@ -144,7 +149,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   font-size:2.2rem;margin:0 auto 20px;border:3px solid var(--border2);background:var(--surface2);
   transition:all .4s ease;
 }
-#panel-stamp.visited{border-color:var(--stamp-color);box-shadow:0 0 28px var(--stamp-color)}
+#panel-stamp.visited{
+  width:112px;height:112px;border:none;background:transparent;box-shadow:none;margin-bottom:12px;
+}
+#panel-stamp img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
 #panel-btn{
   display:block;width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;
   font-size:0.85rem;font-weight:700;letter-spacing:.5px;transition:all .25s;
@@ -380,7 +388,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   text-align:center;pointer-events:none;opacity:0;transition:opacity .35s ease;
 }
 #map-empty.show{opacity:1}
-#map-empty-icon{font-size:2.2rem;margin-bottom:10px;opacity:0.5}
+#map-empty-mascot{width:118px;height:118px;object-fit:contain;margin:0 auto 8px;filter:drop-shadow(0 12px 28px rgba(0,0,0,.45));opacity:.88}
 #map-empty-msg{font-size:0.88rem;color:var(--text2);font-weight:600;margin-bottom:5px}
 #map-empty-sub{font-size:0.72rem;color:var(--border2)}
 
@@ -478,7 +486,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <!-- 지도 -->
 <div id="map"></div>
 <div id="map-empty">
-  <div id="map-empty-icon">🗺</div>
+  <img id="map-empty-mascot" src="assets/images/footprint-mascot.png" alt="" aria-hidden="true">
   <div id="map-empty-msg">아직 이 테마의 발자국은 없습니다</div>
   <div id="map-empty-sub">다른 여행지를 탐험해보세요</div>
 </div>
@@ -519,6 +527,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <!-- 스팟 패널 -->
 <div id="panel">
   <div id="panel-hero"></div>
+  <img id="panel-mascot" src="assets/images/footprint-mascot.png" alt="" aria-hidden="true">
   <button id="panel-close" aria-label="닫기">✕</button>
   <div id="panel-body">
     <div id="panel-name"></div>
@@ -941,7 +950,7 @@ function openPanel(spot) {
   });
 
   const stamp = document.getElementById('panel-stamp');
-  stamp.textContent = CAT_EMOJI[spot.category]||'📍';
+  stamp.innerHTML = v ? '<img src="assets/images/visit-stamp.png" alt="방문 완료">' : (CAT_EMOJI[spot.category]||'📍');
   stamp.style.setProperty('--stamp-color', col);
   stamp.className = v ? 'visited' : '';
   // 방문 시 팝 애니메이션

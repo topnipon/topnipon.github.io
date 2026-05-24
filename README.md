@@ -36,6 +36,11 @@
 ## 데이터 구조
 
 ```
+assets/
+└── images/
+    ├── footprint-mascot.png # 발자국 마스코트 UI 이미지
+    └── visit-stamp.png      # 방문 완료 도장 이미지
+
 data/
 ├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
 ├── travel-spots.json     # 여행지 목록 567개 (위치, 카테고리 등)
