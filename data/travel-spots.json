@@ -2381,6 +2381,16 @@
       "description": "수원 신도시의 친환경 호수공원. 원천·신대 저수지 둘레길 트레킹"
     },
     {
+      "id": "park-okjeong-lake",
+      "name": "옥정호수공원",
+      "region": "경기",
+      "lat": 37.8222,
+      "lng": 127.095,
+      "radius": 1200,
+      "category": "park",
+      "description": "양주 옥정신도시 호수공원. 음악분수·수변 산책로·김삿갓 광장"
+    },
+    {
       "id": "park-incheon-daegong",
       "name": "인천대공원",
       "region": "인천",
