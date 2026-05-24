@@ -10,7 +10,7 @@
 
 ### 🗺 대한민국 여행 지도 (`index.html`)
 
-전국 364개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
+전국 443개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
 
 - 방문한 곳은 컬러/발광 표시, 미방문은 어둡게 표시
 - 13개 카테고리 필터 (산/자연, 해변, 역사/문화, 도시, 섬, 자연, 특별, 트래킹, 놀이동산, 리조트, 공원, 사찰, 박물관)
@@ -38,7 +38,7 @@
 ```
 data/
 ├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
-├── travel-spots.json     # 여행지 목록 364개 (위치, 카테고리 등)
+├── travel-spots.json     # 여행지 목록 443개 (위치, 카테고리 등)
 ├── visited-spots.json    # 방문한 여행지 ID 목록
 └── korea-regions.json    # 시도별 GeoJSON 경계 (색상 오버레이용)
 ```
@@ -85,6 +85,19 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 등록하면, 발자국 클릭 시 즉시 GitHub Contents API(PUT)로 `visited-spots.json`이 업데이트됩니다.
 
 > 토큰은 브라우저 localStorage에 저장되므로, 기기마다 1회 등록이 필요합니다.
+
+---
+
+## Codex 작업 메모
+
+이 저장소는 집 로컬 환경에서 Codex로 이어서 관리합니다. 작업 전에는 `git pull origin main`으로 GitHub Pages의 최신 상태를 받아오고, 수정 후에는 검증한 뒤 커밋/푸시합니다.
+
+여행지 스팟을 추가하거나 수정할 때는 두 곳을 함께 갱신해야 합니다.
+
+- `data/travel-spots.json` — 원본 데이터 목록
+- `index.html`의 `SPOTS_INLINE` 배열 — 실제 지도 화면에서 사용하는 내장 데이터
+
+스팟 변경 후에는 JSON 파싱, 중복 ID, `index.html` 내장 배열 포함 여부를 확인합니다.
 
 ---
 
