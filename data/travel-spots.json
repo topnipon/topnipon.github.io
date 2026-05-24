@@ -5219,6 +5219,456 @@
       "radius": 1500,
       "category": "nature",
       "description": "남원 477m. 지리산 북쪽 백두대간 마지막 고개"
+    },
+    {
+      "id": "seoul-cheonggye-plaza",
+      "name": "청계광장",
+      "region": "서울",
+      "lat": 37.5692,
+      "lng": 126.9787,
+      "radius": 400,
+      "category": "city",
+      "description": "청계천이 시작되는 도심 광장. 광화문 일대와 이어지는 서울 대표 산책·행사 공간"
+    },
+    {
+      "id": "seoul-cheongwadae-road",
+      "name": "청와대 앞길",
+      "region": "서울",
+      "lat": 37.5866,
+      "lng": 126.9748,
+      "radius": 700,
+      "category": "history",
+      "description": "북악산과 경복궁 사이를 잇는 청와대 주변 산책길. 근현대사의 상징성과 도심 경관을 함께 느낄 수 있다"
+    },
+    {
+      "id": "seoul-hongdae-redroad",
+      "name": "홍대 레드로드",
+      "region": "서울",
+      "lat": 37.5566,
+      "lng": 126.9228,
+      "radius": 700,
+      "category": "city",
+      "description": "홍대 문화예술관광특구의 핵심 보행축. 거리공연, 상점, 야간 분위기가 살아 있는 젊음의 거리"
+    },
+    {
+      "id": "ic-gyodongdo",
+      "name": "강화 교동도",
+      "region": "인천",
+      "lat": 37.789,
+      "lng": 126.28,
+      "radius": 6000,
+      "category": "island",
+      "description": "강화 북서쪽 접경 섬. 대룡시장과 평화전망대, 옛 골목 정취가 어우러진 시간여행 명소"
+    },
+    {
+      "id": "gg-caribbean-bay",
+      "name": "캐리비안베이",
+      "region": "경기",
+      "lat": 37.2934,
+      "lng": 127.2026,
+      "radius": 700,
+      "category": "theme",
+      "description": "용인 에버랜드 리조트의 대형 워터파크. 실내외 풀과 슬라이드가 모인 수도권 대표 물놀이 명소"
+    },
+    {
+      "id": "gg-korean-folk-village",
+      "name": "한국민속촌",
+      "region": "경기",
+      "lat": 37.2595,
+      "lng": 127.1217,
+      "radius": 1200,
+      "category": "history",
+      "description": "조선시대 생활문화를 재현한 야외 민속마을. 전통가옥, 공연, 체험이 결합된 대표 K-컬처 관광지"
+    },
+    {
+      "id": "gg-gwacheon-science-museum",
+      "name": "국립과천과학관",
+      "region": "경기",
+      "lat": 37.4388,
+      "lng": 127.0057,
+      "radius": 800,
+      "category": "museum",
+      "description": "천문·우주·자연사·첨단기술 전시를 갖춘 대형 과학관. 가족 체험형 여행지로 인기가 높다"
+    },
+    {
+      "id": "gg-mmca-gwacheon",
+      "name": "국립현대미술관 과천",
+      "region": "경기",
+      "lat": 37.431,
+      "lng": 127.0201,
+      "radius": 800,
+      "category": "museum",
+      "description": "서울대공원 숲속에 자리한 국립 현대미술관. 야외조각공원과 대형 전시실을 함께 둘러보기 좋다"
+    },
+    {
+      "id": "gg-gwangmyeong-cave",
+      "name": "광명동굴",
+      "region": "경기",
+      "lat": 37.4242,
+      "lng": 126.8649,
+      "radius": 900,
+      "category": "unique",
+      "description": "폐광을 문화관광 공간으로 재생한 동굴 테마파크. 와인동굴, 미디어 전시, 시원한 동굴 산책이 특징"
+    },
+    {
+      "id": "gg-morning-calm-arboretum",
+      "name": "아침고요수목원",
+      "region": "경기",
+      "lat": 37.743,
+      "lng": 127.352,
+      "radius": 1200,
+      "category": "park",
+      "description": "가평 축령산 자락의 정원형 수목원. 사계절 꽃과 야간 오색별빛정원전으로 유명하다"
+    },
+    {
+      "id": "gw-sokcho-tourist-fishery-market",
+      "name": "속초관광수산시장",
+      "region": "강원",
+      "lat": 38.204,
+      "lng": 128.5906,
+      "radius": 800,
+      "category": "unique",
+      "description": "속초 중앙시장으로도 알려진 먹거리 명소. 닭강정, 오징어순대, 활어 등 동해 여행의 대표 시장"
+    },
+    {
+      "id": "gw-ganhyeon-tourist-area",
+      "name": "원주 간현관광지",
+      "region": "강원",
+      "lat": 37.3643,
+      "lng": 127.8345,
+      "radius": 1800,
+      "category": "nature",
+      "description": "섬강 협곡과 소금산 출렁다리, 울렁다리, 잔도가 모인 원주 대표 체험형 자연 관광지"
+    },
+    {
+      "id": "gw-museum-san",
+      "name": "뮤지엄 산",
+      "region": "강원",
+      "lat": 37.4133,
+      "lng": 127.8237,
+      "radius": 900,
+      "category": "museum",
+      "description": "안도 다다오 건축과 제임스 터렐관, 종이박물관, 명상관이 어우러진 원주의 산속 미술관"
+    },
+    {
+      "id": "gw-mureung-byeolyucheonji",
+      "name": "무릉별유천지",
+      "region": "강원",
+      "lat": 37.4437,
+      "lng": 129.005,
+      "radius": 1800,
+      "category": "nature",
+      "description": "석회석 채석장을 에메랄드빛 호수와 라벤더 정원, 전망대로 재생한 동해의 이색 자연 관광지"
+    },
+    {
+      "id": "gw-dojjaebigol-skyvalley",
+      "name": "도째비골 스카이밸리",
+      "region": "강원",
+      "lat": 37.545,
+      "lng": 129.1175,
+      "radius": 700,
+      "category": "unique",
+      "description": "묵호등대와 논골담길 인근의 해안 전망 시설. 스카이워크와 자이언트 슬라이드로 동해를 내려다본다"
+    },
+    {
+      "id": "gw-balwangsan-yew-forest",
+      "name": "발왕산 천년주목숲길",
+      "region": "강원",
+      "lat": 37.6445,
+      "lng": 128.6807,
+      "radius": 1800,
+      "category": "hiking",
+      "description": "발왕산 정상부 주목 군락을 걷는 고원 숲길. 케이블카 접근과 무장애 데크 산책로가 장점"
+    },
+    {
+      "id": "cn-muryeong-royal-tomb",
+      "name": "무령왕릉과 왕릉원",
+      "region": "충남",
+      "lat": 36.461,
+      "lng": 127.1139,
+      "radius": 900,
+      "category": "history",
+      "description": "백제 웅진시대 왕릉군과 무령왕릉을 만나는 세계유산권 역사 유적. 공주 여행의 핵심 코스"
+    },
+    {
+      "id": "cb-songnisan-themepark-monorail",
+      "name": "속리산테마파크 모노레일",
+      "region": "충북",
+      "lat": 36.5098,
+      "lng": 127.8105,
+      "radius": 1000,
+      "category": "theme",
+      "description": "속리산 자락을 오르는 체험형 모노레일. 숲과 전망을 편하게 즐길 수 있는 보은 가족 여행지"
+    },
+    {
+      "id": "cn-gungnamji-seodong-park",
+      "name": "부여 서동공원과 궁남지",
+      "region": "충남",
+      "lat": 36.271,
+      "lng": 126.9122,
+      "radius": 1000,
+      "category": "park",
+      "description": "백제 무왕 설화가 깃든 우리나라 대표 연못 정원. 여름 연꽃과 야간 경관이 아름다운 부여 명소"
+    },
+    {
+      "id": "cb-cheongnamdae",
+      "name": "청남대",
+      "region": "충북",
+      "lat": 36.4637,
+      "lng": 127.4918,
+      "radius": 2500,
+      "category": "history",
+      "description": "대청호반에 자리한 옛 대통령 별장. 숲길, 정원, 대통령기념관을 함께 둘러보는 역사 산책지"
+    },
+    {
+      "id": "bs-haeundae-green-railway",
+      "name": "해운대 그린레일웨이",
+      "region": "부산",
+      "lat": 35.166,
+      "lng": 129.174,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "옛 동해남부선 철길을 바꾼 해안 산책로. 미포에서 청사포와 송정으로 이어지는 바다 걷기 코스"
+    },
+    {
+      "id": "bs-skyline-luge",
+      "name": "스카이라인 루지 부산",
+      "region": "부산",
+      "lat": 35.1969,
+      "lng": 129.2187,
+      "radius": 700,
+      "category": "theme",
+      "description": "기장 오시리아 관광단지의 루지 체험 시설. 트랙을 따라 바다와 테마파크 권역을 즐기는 액티비티 명소"
+    },
+    {
+      "id": "bs-x-the-sky",
+      "name": "부산엑스더스카이",
+      "region": "부산",
+      "lat": 35.1604,
+      "lng": 129.1691,
+      "radius": 500,
+      "category": "city",
+      "description": "해운대 엘시티 고층 전망대. 해운대해수욕장, 광안대교, 마린시티를 한눈에 보는 부산 대표 전망 명소"
+    },
+    {
+      "id": "bs-songjeong-beach",
+      "name": "송정해수욕장",
+      "region": "부산",
+      "lat": 35.1786,
+      "lng": 129.1998,
+      "radius": 1200,
+      "category": "beach",
+      "description": "해운대 동쪽의 서핑 명소 해변. 완만한 백사장과 송정역, 카페거리가 어우러진 젊은 바다 여행지"
+    },
+    {
+      "id": "bs-gwangalli-sup-zone",
+      "name": "광안리 SUP Zone",
+      "region": "부산",
+      "lat": 35.1532,
+      "lng": 129.1186,
+      "radius": 800,
+      "category": "unique",
+      "description": "광안대교를 배경으로 패들보드를 즐기는 해양레저 구역. 광안리의 낮과 밤을 모두 체험하기 좋다"
+    },
+    {
+      "id": "dg-dongseongro",
+      "name": "대구 동성로",
+      "region": "대구",
+      "lat": 35.8696,
+      "lng": 128.596,
+      "radius": 1000,
+      "category": "city",
+      "description": "대구 중심 상권과 청년 문화가 모인 번화가. 쇼핑, 공연, 카페, 야간 산책을 즐기기 좋은 거리"
+    },
+    {
+      "id": "dg-seomun-night-market",
+      "name": "서문시장과 야시장",
+      "region": "대구",
+      "lat": 35.869,
+      "lng": 128.5803,
+      "radius": 900,
+      "category": "unique",
+      "description": "대구 대표 전통시장과 야시장. 납작만두, 칼국수, 야식 포장마차가 이어지는 먹거리 여행지"
+    },
+    {
+      "id": "dg-sayuwon",
+      "name": "사유원",
+      "region": "대구",
+      "lat": 36.0955,
+      "lng": 128.6732,
+      "radius": 1200,
+      "category": "museum",
+      "description": "군위 팔공산 자락의 사색 정원. 건축, 조경, 예술 작품과 오래된 나무가 어우러진 예약제 힐링 공간"
+    },
+    {
+      "id": "gb-gyeongju-woljeonggyo",
+      "name": "경주 월정교",
+      "region": "경북",
+      "lat": 35.8316,
+      "lng": 129.2268,
+      "radius": 500,
+      "category": "history",
+      "description": "신라 왕경의 남천을 건너던 다리를 복원한 야경 명소. 교촌마을, 첨성대, 동궁과 월지를 잇는 산책 포인트"
+    },
+    {
+      "id": "gb-pohang-spacewalk",
+      "name": "포항 스페이스워크",
+      "region": "경북",
+      "lat": 36.0651,
+      "lng": 129.3949,
+      "radius": 700,
+      "category": "unique",
+      "description": "환호공원 언덕 위 체험형 조형 전망대. 롤러코스터처럼 휘어진 보행 구조물에서 영일만을 조망한다"
+    },
+    {
+      "id": "gn-geoje-botanic-garden",
+      "name": "거제식물원",
+      "region": "경남",
+      "lat": 34.8882,
+      "lng": 128.6114,
+      "radius": 1000,
+      "category": "park",
+      "description": "대형 돔 온실 정글돔과 정원을 갖춘 거제 대표 실내외 식물원. 비 오는 날에도 들르기 좋다"
+    },
+    {
+      "id": "gb-baekdudaegan-arboretum",
+      "name": "국립백두대간수목원",
+      "region": "경북",
+      "lat": 37.0032,
+      "lng": 128.8195,
+      "radius": 3500,
+      "category": "park",
+      "description": "봉화 백두대간 산림 생태를 보전·전시하는 국립 수목원. 호랑이숲과 야생식물 전시가 대표 콘텐츠"
+    },
+    {
+      "id": "gb-jusanji",
+      "name": "주산지",
+      "region": "경북",
+      "lat": 36.3758,
+      "lng": 129.1831,
+      "radius": 900,
+      "category": "nature",
+      "description": "청송 주왕산 자락의 고요한 저수지. 물안개와 왕버들 반영으로 사진가들이 즐겨 찾는 명승"
+    },
+    {
+      "id": "gn-jinjuseong",
+      "name": "진주성",
+      "region": "경남",
+      "lat": 35.1896,
+      "lng": 128.0801,
+      "radius": 1200,
+      "category": "history",
+      "description": "임진왜란 진주대첩의 현장. 촉석루, 의암, 국립진주박물관과 남강 야경을 함께 만난다"
+    },
+    {
+      "id": "gn-donguibogam-village",
+      "name": "산청 동의보감촌",
+      "region": "경남",
+      "lat": 35.4155,
+      "lng": 127.8695,
+      "radius": 2000,
+      "category": "unique",
+      "description": "지리산 자락의 한방 테마 관광지. 한의학 체험, 전망대, 숲길이 결합된 산청 대표 힐링 스팟"
+    },
+    {
+      "id": "gn-dpirang",
+      "name": "통영 디피랑",
+      "region": "경남",
+      "lat": 34.8449,
+      "lng": 128.4254,
+      "radius": 700,
+      "category": "unique",
+      "description": "남망산공원 야간 디지털 테마파크. 벽화와 미디어아트, 통영 야경이 어우러지는 밤 산책 명소"
+    },
+    {
+      "id": "gn-sacheon-cablecar-aramaru",
+      "name": "사천바다케이블카와 아라마루 아쿠아리움",
+      "region": "경남",
+      "lat": 34.9274,
+      "lng": 128.0644,
+      "radius": 1800,
+      "category": "theme",
+      "description": "삼천포대교와 바다를 건너는 케이블카 권역. 아라마루 아쿠아리움과 초양도 전망을 함께 즐긴다"
+    },
+    {
+      "id": "gj-asia-culture-center",
+      "name": "국립아시아문화전당",
+      "region": "광주",
+      "lat": 35.1469,
+      "lng": 126.9199,
+      "radius": 800,
+      "category": "museum",
+      "description": "옛 전남도청 일대에 조성된 복합문화예술기관. 전시, 공연, 라이브러리파크를 갖춘 광주 대표 문화 거점"
+    },
+    {
+      "id": "jn-damyang-gwanbangjerim",
+      "name": "담양 관방제림",
+      "region": "전남",
+      "lat": 35.3194,
+      "lng": 126.9864,
+      "radius": 1200,
+      "category": "nature",
+      "description": "담양천 제방을 따라 이어진 천연기념물 숲길. 죽녹원, 메타세쿼이아길과 함께 걷기 좋은 담양 대표 경관"
+    },
+    {
+      "id": "jb-muju-bandiland",
+      "name": "무주 반디랜드",
+      "region": "전북",
+      "lat": 36.0068,
+      "lng": 127.7532,
+      "radius": 1200,
+      "category": "theme",
+      "description": "반딧불이와 곤충, 천문 체험을 주제로 한 가족형 생태 테마파크. 무주 반딧불축제와 연결되는 명소"
+    },
+    {
+      "id": "jb-taekwondowon",
+      "name": "태권도원",
+      "region": "전북",
+      "lat": 36.0094,
+      "lng": 127.7699,
+      "radius": 2000,
+      "category": "unique",
+      "description": "무주에 자리한 태권도 성지. 태권도 박물관, 공연장, 전망대와 체험 시설을 갖춘 국제 태권도 복합공간"
+    },
+    {
+      "id": "jb-oseong-hanok-village",
+      "name": "완주 오성한옥마을",
+      "region": "전북",
+      "lat": 35.9209,
+      "lng": 127.2536,
+      "radius": 1000,
+      "category": "history",
+      "description": "종남산 자락의 조용한 한옥마을. 전통 숙박, 카페, 산책길이 어우러진 완주 감성 여행지"
+    },
+    {
+      "id": "jn-jangheung-woodland",
+      "name": "장흥 정남진 편백숲 우드랜드",
+      "region": "전남",
+      "lat": 34.6797,
+      "lng": 126.9219,
+      "radius": 1800,
+      "category": "nature",
+      "description": "억불산 편백숲을 중심으로 조성된 산림 치유 공간. 피톤치드 숲길과 목재문화 체험이 특징"
+    },
+    {
+      "id": "jn-yeosu-expo-ocean-park",
+      "name": "여수 엑스포해양공원",
+      "region": "전남",
+      "lat": 34.7526,
+      "lng": 127.7483,
+      "radius": 1500,
+      "category": "city",
+      "description": "2012 여수세계박람회장을 활용한 해양 관광 거점. 아쿠아플라넷, 빅오, 바다 산책로가 모여 있다"
+    },
+    {
+      "id": "jj-meochewat-forest-trail",
+      "name": "제주 머체왓숲길",
+      "region": "제주",
+      "lat": 33.3304,
+      "lng": 126.6768,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "서귀포 남원읍의 숲과 목장, 오름 자락을 걷는 치유 숲길. 제주 중산간의 조용한 자연을 느끼기 좋다"
     }
   ]
 }
