@@ -10,7 +10,7 @@
 
 ### 🗺 대한민국 여행 지도 (`index.html`)
 
-전국 443개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
+전국 522개 관광지를 지도 위에 표시하는 스티커 여행 기록 시스템입니다.
 
 - 방문한 곳은 컬러/발광 표시, 미방문은 어둡게 표시
 - 13개 카테고리 필터 (산/자연, 해변, 역사/문화, 도시, 섬, 자연, 특별, 트래킹, 놀이동산, 리조트, 공원, 사찰, 박물관)
@@ -38,7 +38,7 @@
 ```
 data/
 ├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
-├── travel-spots.json     # 여행지 목록 443개 (위치, 카테고리 등)
+├── travel-spots.json     # 여행지 목록 522개 (위치, 카테고리 등)
 ├── visited-spots.json    # 방문한 여행지 ID 목록
 └── korea-regions.json    # 시도별 GeoJSON 경계 (색상 오버레이용)
 ```
@@ -94,12 +94,9 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 
 현재 Codex 작업 환경은 저장소 내부에 `.codex-work/` 로컬 메모 폴더를 사용합니다. 이 폴더에는 `project-context.md`, `working-notes.md`, `decision-log.md` 같은 작업 참고 문서가 들어가며, 개인 작업 맥락용이므로 Git에는 포함하지 않습니다.
 
-여행지 스팟을 추가하거나 수정할 때는 두 곳을 함께 갱신해야 합니다.
+여행지 스팟을 추가하거나 수정할 때는 `data/travel-spots.json`만 갱신합니다. `index.html`은 페이지가 열릴 때 이 JSON을 불러와 지도, 검색, 통계에 사용합니다.
 
-- `data/travel-spots.json` — 원본 데이터 목록
-- `index.html`의 `SPOTS_INLINE` 배열 — 실제 지도 화면에서 사용하는 내장 데이터
-
-스팟 변경 후에는 JSON 파싱, 중복 ID, `index.html` 내장 배열 포함 여부를 확인합니다.
+스팟 변경 후에는 JSON 파싱, 중복 ID, 페이지 로드 시 `data/travel-spots.json` fetch 성공 여부를 확인합니다. 로컬에서 확인할 때는 브라우저 보안 정책 때문에 파일을 직접 열지 말고 HTTP 로컬 서버로 접속합니다.
 
 ---
 
