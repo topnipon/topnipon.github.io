@@ -835,7 +835,7 @@
       "name": "창원 저도 비치로드",
       "region": "경남",
       "lat": 35.03,
-      "lng": 128.53,
+      "lng": 128.585,
       "radius": 2500,
       "category": "hiking",
       "description": "마산합포구 저도의 연륙교와 해안 숲길을 도는 약 6.5km 순환 탐방로. 바다 전망대와 용두산 갈림길을 지나 가족 걷기 코스로 좋다"
@@ -4724,8 +4724,8 @@
       "id": "view-geoje-baram",
       "name": "거제 바람의 언덕",
       "region": "경남",
-      "lat": 34.7728,
-      "lng": 128.6839,
+      "lat": 34.7447,
+      "lng": 128.6631,
       "radius": 400,
       "category": "nature",
       "description": "도장포 마을 풍차 언덕. 다도해와 신선대 절벽 조망"
