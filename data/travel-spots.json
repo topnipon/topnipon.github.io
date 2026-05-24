@@ -1721,6 +1721,56 @@
       "description": "유네스코 세계유산. 447기 고인돌이 밀집한 선사시대의 성지"
     },
     {
+      "id": "jb-byeonsan-masilgil",
+      "name": "변산 마실길",
+      "region": "전북",
+      "lat": 35.669,
+      "lng": 126.531,
+      "radius": 6000,
+      "category": "hiking",
+      "description": "새만금 방조제에서 줄포만 갯벌까지 부안 해안을 잇는 8개 코스 걷기길. 갯벌, 해변, 노을, 어촌마을을 따라 걷는 전북 대표 해안 트레일"
+    },
+    {
+      "id": "jb-gunsan-gubulgil",
+      "name": "군산 구불길",
+      "region": "전북",
+      "lat": 35.967,
+      "lng": 126.705,
+      "radius": 5000,
+      "category": "hiking",
+      "description": "군산 도심과 호수, 고군산군도, 금강변을 구불구불 잇는 걷기길. 역사와 생태, 섬 풍경을 함께 만나는 전북 장거리 트레일"
+    },
+    {
+      "id": "jb-sunchang-gangcheonsan",
+      "name": "순창 강천산",
+      "region": "전북",
+      "lat": 35.401,
+      "lng": 127.049,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "강천사 계곡과 현수교, 단풍 숲길로 유명한 순창의 군립공원 명산. 완만한 계곡 산책부터 산행까지 즐기기 좋다"
+    },
+    {
+      "id": "jb-namwon-baraebong",
+      "name": "남원 지리산 바래봉",
+      "region": "전북",
+      "lat": 35.384,
+      "lng": 127.577,
+      "radius": 3500,
+      "category": "mountain",
+      "description": "지리산 서북능선의 철쭉 명소. 운봉 고원에서 바래봉 정상으로 오르는 능선 트레킹이 봄철 특히 유명하다"
+    },
+    {
+      "id": "jb-jinan-gubongsan",
+      "name": "진안 구봉산",
+      "region": "전북",
+      "lat": 35.921,
+      "lng": 127.416,
+      "radius": 3000,
+      "category": "mountain",
+      "description": "아홉 봉우리가 이어지는 진안의 암릉 산행지. 구름다리와 봉우리 조망이 인상적인 전북 대표 트레킹 명소"
+    },
+    {
       "id": "jn-maehwa",
       "name": "광양 매화마을",
       "region": "전남",
@@ -1799,6 +1849,36 @@
       "radius": 4000,
       "category": "island",
       "description": "고산 윤선도가 은거한 섬. 세연정과 청정 해수욕장이 아름답다"
+    },
+    {
+      "id": "gj-mudeungsan-mudolgil",
+      "name": "무등산 무돌길",
+      "region": "광주",
+      "lat": 35.134,
+      "lng": 126.994,
+      "radius": 6000,
+      "category": "hiking",
+      "description": "무등산 자락의 옛 마을길과 숲길을 잇는 순환형 걷기길. 광주·담양·화순 경계의 자연과 마을 풍경을 느끼는 도심권 트레일"
+    },
+    {
+      "id": "jn-haenam-dalmagodo",
+      "name": "해남 달마고도",
+      "region": "전남",
+      "lat": 34.381,
+      "lng": 126.584,
+      "radius": 4500,
+      "category": "hiking",
+      "description": "달마산 미황사를 중심으로 암릉과 다도해 풍경을 둘러 걷는 명품 숲길. 남도 바다와 산세를 함께 즐기는 해남 대표 트레일"
+    },
+    {
+      "id": "jn-cheongsando-slowgil",
+      "name": "청산도 슬로길",
+      "region": "전남",
+      "lat": 34.177,
+      "lng": 126.856,
+      "radius": 4000,
+      "category": "hiking",
+      "description": "완도 청산도의 돌담길, 구들장논, 해안 마을을 잇는 느림의 걷기길. 아시아 최초 슬로시티 섬의 풍경을 따라 걷는다"
     },
     {
       "id": "gb-hoeryongpo",
