@@ -1411,6 +1411,46 @@
       "description": "수원·용인·의왕 경계의 100대 명산. 해발 582m 흙산으로 완만한 능선과 울창한 수목이 이어지는 도심 인근 산행지"
     },
     {
+      "id": "gg-yongin-seokseongsan",
+      "name": "용인 석성산",
+      "region": "경기",
+      "lat": 37.273,
+      "lng": 127.173,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "용인8경 중 하나인 일출 명소. 용인시청에서 봉수터와 정상을 지나 마성리로 이어지는 대표 트레킹 코스"
+    },
+    {
+      "id": "gg-yongin-buasan-hambaksan",
+      "name": "용인 부아산·함박산",
+      "region": "경기",
+      "lat": 37.2272,
+      "lng": 127.1598,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "삼가초교에서 부아산과 부이봉으로 오르는 용인 도심권 트레킹 코스. 함박산 능선과 이어 걷기 좋다"
+    },
+    {
+      "id": "gg-yongin-jobisan",
+      "name": "용인 조비산",
+      "region": "경기",
+      "lat": 37.1184,
+      "lng": 127.3683,
+      "radius": 1800,
+      "category": "hiking",
+      "description": "용인8경 조망 명소. 백암면 들녘 위로 솟은 낮은 산으로, 짧지만 정상에서 사방이 트이는 풍경이 인상적"
+    },
+    {
+      "id": "gg-yongin-forest",
+      "name": "용인자연휴양림",
+      "region": "경기",
+      "lat": 37.3338,
+      "lng": 127.235,
+      "radius": 2000,
+      "category": "nature",
+      "description": "모현읍 정광산 자락의 숲 휴양지. 산책로와 숲체험, 숙박·야영 시설이 어우러진 가족형 자연 쉼터"
+    },
+    {
       "id": "gw-jajak-forest",
       "name": "인제 원대리 자작나무숲",
       "region": "강원",
