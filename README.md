@@ -92,6 +92,8 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 
 이 저장소는 집 로컬 환경에서 Codex로 이어서 관리합니다. 작업 전에는 `git pull origin main`으로 GitHub Pages의 최신 상태를 받아오고, 수정 후에는 검증한 뒤 커밋/푸시합니다.
 
+현재 Codex 작업 환경은 저장소 내부에 `.codex-work/` 로컬 메모 폴더를 사용합니다. 이 폴더에는 `project-context.md`, `working-notes.md`, `decision-log.md` 같은 작업 참고 문서가 들어가며, 개인 작업 맥락용이므로 Git에는 포함하지 않습니다.
+
 여행지 스팟을 추가하거나 수정할 때는 두 곳을 함께 갱신해야 합니다.
 
 - `data/travel-spots.json` — 원본 데이터 목록
