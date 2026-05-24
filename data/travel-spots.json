@@ -1641,6 +1641,126 @@
       "description": "바다를 바라보며 걷는 해안 마을 트레킹. 쪽빛 남해와 다랭이논 조망"
     },
     {
+      "id": "gg-gyeonggi-dulle",
+      "name": "경기둘레길",
+      "region": "경기",
+      "lat": 37.55,
+      "lng": 127.2,
+      "radius": 9000,
+      "category": "hiking",
+      "description": "경기도 외곽을 따라 평화누리길, 숲길, 물길, 갯길을 잇는 장거리 순환 걷기길. DMZ 접경지부터 한강·서해 풍경까지 경기도를 크게 한 바퀴 돈다"
+    },
+    {
+      "id": "ic-ganghwa-nadeul",
+      "name": "강화나들길",
+      "region": "인천",
+      "lat": 37.746,
+      "lng": 126.487,
+      "radius": 7000,
+      "category": "hiking",
+      "description": "강화도의 고인돌, 고려 왕릉, 돈대, 갯벌과 철새 서식지를 잇는 역사·생태 도보여행길. 코스별 스탬프가 있는 수도권 대표 섬 둘레길"
+    },
+    {
+      "id": "gg-yangpyeong-mulsori",
+      "name": "양평 물소리길",
+      "region": "경기",
+      "lat": 37.49,
+      "lng": 127.49,
+      "radius": 6000,
+      "category": "hiking",
+      "description": "남한강과 북한강, 중앙선 역들을 따라 양평을 동서로 걷는 인증형 도보여행길. 강물 소리와 시골 마을 풍경이 잔잔하게 이어진다"
+    },
+    {
+      "id": "gg-gyeonggi-yetgil",
+      "name": "경기옛길",
+      "region": "경기",
+      "lat": 37.39,
+      "lng": 127.14,
+      "radius": 9000,
+      "category": "hiking",
+      "description": "조선시대 한양과 지방을 잇던 삼남길, 의주길, 영남길, 평해길, 경흥길, 강화길을 현대적으로 복원한 역사 도보길"
+    },
+    {
+      "id": "cn-naepo-culture-forest",
+      "name": "내포문화숲길",
+      "region": "충남",
+      "lat": 36.68,
+      "lng": 126.65,
+      "radius": 8000,
+      "category": "hiking",
+      "description": "서산·당진·홍성·예산의 가야산권 마을과 사찰, 천주교 순례지, 동학 역사길을 잇는 약 320km 국가숲길"
+    },
+    {
+      "id": "cb-songnisan-dulle",
+      "name": "속리산둘레길",
+      "region": "충북",
+      "lat": 36.56,
+      "lng": 127.83,
+      "radius": 8000,
+      "category": "hiking",
+      "description": "충북 보은·괴산과 경북 상주·문경을 잇는 약 208km 국가숲길. 속리산권 옛길과 마을, 백두대간 생태를 따라 걷는다"
+    },
+    {
+      "id": "dj-dulle-sangil",
+      "name": "대전둘레산길",
+      "region": "대전",
+      "lat": 36.35,
+      "lng": 127.39,
+      "radius": 7000,
+      "category": "hiking",
+      "description": "보문산, 만인산, 식장산, 계족산, 금병산, 구봉산 등 대전 외곽 산줄기를 잇는 12구간 약 138km 도심형 국가숲길"
+    },
+    {
+      "id": "gw-baekdudaegan-trail",
+      "name": "백두대간트레일",
+      "region": "강원",
+      "lat": 37.92,
+      "lng": 128.2,
+      "radius": 9000,
+      "category": "hiking",
+      "description": "강원 인제·홍천·양구 일대 백두대간 산림과 계곡, 옛 고갯길을 잇는 국가숲길. 원시림과 산촌 문화가 살아 있는 장거리 트레일"
+    },
+    {
+      "id": "gw-dmz-punchbowl-dulle",
+      "name": "DMZ 펀치볼둘레길",
+      "region": "강원",
+      "lat": 38.267,
+      "lng": 128.12,
+      "radius": 4000,
+      "category": "hiking",
+      "description": "양구 해안분지 펀치볼을 따라 걷는 DMZ 인접 국가숲길. 민통선 가까운 생태와 전쟁의 흔적, 분지 지형을 함께 만난다"
+    },
+    {
+      "id": "gb-uljin-geumgangpine",
+      "name": "울진 금강소나무숲길",
+      "region": "경북",
+      "lat": 36.94,
+      "lng": 129.21,
+      "radius": 5000,
+      "category": "hiking",
+      "description": "울진 소광리 금강송 군락을 숲해설가와 함께 탐방하는 예약제 국가숲길. 조선 황장봉산의 역사와 천연 금강소나무 숲이 압권이다"
+    },
+    {
+      "id": "jj-hallasan-dulle",
+      "name": "한라산둘레길",
+      "region": "제주",
+      "lat": 33.36,
+      "lng": 126.55,
+      "radius": 7000,
+      "category": "hiking",
+      "description": "한라산 해발 600~800m 국유림 임도와 숲길을 연결한 국가숲길. 천아숲길, 돌오름길, 동백길 등 원시림과 오름 풍경을 둘러 걷는다"
+    },
+    {
+      "id": "cn-taean-haebyeongil",
+      "name": "태안 해변길",
+      "region": "충남",
+      "lat": 36.72,
+      "lng": 126.19,
+      "radius": 9000,
+      "category": "hiking",
+      "description": "태안해안국립공원의 해변과 사구, 송림, 어촌을 잇는 서해안 대표 해안 걷기길. 바라길, 소원길, 파도길 등 여러 구간으로 이어진다"
+    },
+    {
       "id": "seoul-inwangsan",
       "name": "인왕산 한양도성길",
       "region": "서울",
