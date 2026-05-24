@@ -1561,6 +1561,86 @@
       "description": "괴산호를 따라 걷는 10km 호숫길. 숨겨진 비경과 기암괴석이 가득"
     },
     {
+      "id": "dj-daecheongho-obaengni",
+      "name": "대청호 오백리길",
+      "region": "대전",
+      "lat": 36.3681,
+      "lng": 127.4805,
+      "radius": 6000,
+      "category": "hiking",
+      "description": "대전과 충북 청주·옥천·보은을 잇는 약 220km 호반 도보길. 명상정원과 호반낭만길 등 대청호 풍경을 따라 걷는 대표 트레일"
+    },
+    {
+      "id": "cb-chungju-jongdaengi",
+      "name": "충주호 종댕이길",
+      "region": "충북",
+      "lat": 36.9825,
+      "lng": 127.9786,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "심항산 자락을 따라 충주호를 조망하며 걷는 순환형 숲길. 호수 풍경과 출렁다리, 생태연못을 함께 만나는 충주 대표 걷기 코스"
+    },
+    {
+      "id": "cb-danyang-jando",
+      "name": "단양강 잔도길",
+      "region": "충북",
+      "lat": 36.9806,
+      "lng": 128.374,
+      "radius": 1500,
+      "category": "hiking",
+      "description": "남한강 절벽을 따라 조성된 약 1.2km 수변 데크길. 만천하스카이워크와 이어져 단양강 위를 걷는 듯한 경관이 인상적"
+    },
+    {
+      "id": "sj-wonsusan-jeonwolsan",
+      "name": "원수산·전월산 둘레길",
+      "region": "세종",
+      "lat": 36.511,
+      "lng": 127.284,
+      "radius": 2500,
+      "category": "hiking",
+      "description": "세종 도심 가까이에서 원수산과 전월산 숲길을 잇는 둘레길. 금강과 행복도시 풍경을 함께 바라보는 생활권 트레킹 코스"
+    },
+    {
+      "id": "cn-daedunsan",
+      "name": "대둔산",
+      "region": "충남",
+      "lat": 36.1247,
+      "lng": 127.3206,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "충남 금산·논산과 전북 완주에 걸친 기암 명산. 마천대와 구름다리, 삼선계단으로 유명한 충청권 대표 산행지"
+    },
+    {
+      "id": "cn-chilgapsan",
+      "name": "칠갑산",
+      "region": "충남",
+      "lat": 36.4341,
+      "lng": 126.8897,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "청양을 대표하는 도립공원 명산. 장곡사 숲길과 천장호 출렁다리, 부드러운 능선 산행으로 사계절 걷기 좋다"
+    },
+    {
+      "id": "cn-oseosan",
+      "name": "오서산",
+      "region": "충남",
+      "lat": 36.455,
+      "lng": 126.661,
+      "radius": 4000,
+      "category": "mountain",
+      "description": "홍성·보령 경계의 서해 조망 명산. 가을 억새 능선과 낙조가 유명해 서해의 등대산으로 불린다"
+    },
+    {
+      "id": "cn-taean-solhyanggi",
+      "name": "태안 솔향기길",
+      "region": "충남",
+      "lat": 36.909,
+      "lng": 126.281,
+      "radius": 5000,
+      "category": "hiking",
+      "description": "태안 이원면 해안을 따라 소나무 숲과 바다를 함께 걷는 생태문화탐방로. 해안 절경과 솔향이 어우러진 서해 트레킹 코스"
+    },
+    {
       "id": "cn-hyunchungsa",
       "name": "아산 현충사",
       "region": "충남",
