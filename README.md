@@ -82,7 +82,7 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
 
 **온라인(topnipon.github.io)에서만** 발자국 등록/삭제가 가능합니다. localhost에서는 해당 기능이 비활성화됩니다.
 
-사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 등록하면, 발자국 클릭 시 즉시 GitHub Contents API(PUT)로 `visited-spots.json`이 업데이트됩니다.
+사이트 우측 하단 ⚙ 버튼에서 GitHub Token을 등록한 뒤 소유자 암호를 입력하면, 발자국 클릭 시 GitHub Contents API(PUT) 저장 완료를 확인한 다음 화면에 반영합니다. 토큰이 없거나 저장에 실패하면 방문 상태를 바꾸지 않고 안내 메시지를 표시합니다.
 
 > 토큰은 브라우저 localStorage에 저장되므로, 기기마다 1회 등록이 필요합니다.
 

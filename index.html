@@ -986,7 +986,7 @@ async function verifyOwner(callback) {
     const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     if (hash === OWNER_HASH) {
       modal.classList.remove('open');
-      callback();
+      await callback();
     } else {
       err.textContent = '패스워드가 올바르지 않습니다';
       pw.value = ''; pw.focus();
@@ -1005,22 +1005,47 @@ async function toggleVisited() {
   if (!selectedSpot) return;
   const id = selectedSpot.id;
   const wasV = visitedSet.has(id);
+  const token = localStorage.getItem('gh-token');
+
+  if (!token) {
+    alert('GitHub Token이 저장되어 있지 않아 방문 기록을 저장할 수 없습니다. 설정에서 토큰을 먼저 등록해 주세요.');
+    document.getElementById('settings-btn').click();
+    return;
+  }
+
+  const btn = document.getElementById('panel-btn');
+  const previousVisited = new Set(visitedSet);
+  btn.disabled = true;
+  btn.style.opacity = '0.65';
+  btn.textContent = wasV ? '방문 취소 저장 중...' : '방문 기록 저장 중...';
+
   wasV ? visitedSet.delete(id) : visitedSet.add(id);
 
-  const token = localStorage.getItem('gh-token');
-  if (token) syncGitHub(id, !wasV, token);
-
-  renderSpots();
-  updateStats();
-  checkAchievements();
-  closePanel();
+  try {
+    await syncGitHub(id, !wasV, token);
+    renderSpots();
+    updateStats();
+    checkAchievements();
+    btn.textContent = 'GitHub 저장 완료';
+    btn.style.opacity = '';
+    setTimeout(closePanel, 650);
+  } catch(e) {
+    visitedSet = previousVisited;
+    renderSpots();
+    updateStats();
+    btn.disabled = false;
+    btn.style.opacity = '';
+    if (selectedSpot) openPanel(selectedSpot);
+    alert('방문 기록을 GitHub에 저장하지 못했습니다. 토큰 권한(repo)과 네트워크 상태를 확인해 주세요.\n\n' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = '';
+  }
 }
 
 async function syncGitHub(spotId, visited, token) {
   // 개별 토글 시: 전체 목록을 Contents API로 즉시 업로드
-  try {
-    await pushVisitedToGitHub(token);
-  } catch(e) { console.warn('GitHub sync 실패:', e); }
+  await pushVisitedToGitHub(token);
 }
 
 async function pushVisitedToGitHub(token, statusEl) {
@@ -1034,7 +1059,10 @@ async function pushVisitedToGitHub(token, statusEl) {
 
   // 현재 파일 SHA 가져오기
   const getRes = await fetch(BASE, { headers });
-  if (!getRes.ok) throw new Error('파일 조회 실패: ' + getRes.status);
+  if (!getRes.ok) {
+    const detail = await getRes.text().catch(() => '');
+    throw new Error('파일 조회 실패: ' + getRes.status + (detail ? ` ${detail}` : ''));
+  }
   const { sha } = await getRes.json();
 
   // 새 내용 생성
@@ -1052,7 +1080,10 @@ async function pushVisitedToGitHub(token, statusEl) {
       sha
     })
   });
-  if (!putRes.ok) throw new Error('업로드 실패: ' + putRes.status);
+  if (!putRes.ok) {
+    const detail = await putRes.text().catch(() => '');
+    throw new Error('업로드 실패: ' + putRes.status + (detail ? ` ${detail}` : ''));
+  }
   if (statusEl) statusEl.textContent = `✓ ${[...visitedSet].length}개 방문 기록이 GitHub에 저장되었습니다.`;
   if (statusEl) statusEl.style.color = 'var(--accent)';
 }
