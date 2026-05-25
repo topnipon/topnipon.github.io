@@ -41,7 +41,7 @@
   }
 
   function stat(value, label) {
-    return `<div class="site-footer-stat"><div class="site-footer-value">${value}</div><div class="site-footer-label">${label}</div></div>`;
+    return `<span class="site-footer-stat"><span class="site-footer-value">${value}</span><span class="site-footer-label">${label}</span></span>`;
   }
 
   Promise.all([
@@ -59,27 +59,29 @@
     const dataDate = latestDate([visitData.lastUpdated, walkingLastDate]);
 
     const copyright = `© ${new Date().getFullYear()} topnipon`;
-    const summaryMeta = `최종 데이터 기준: ${formatDate(dataDate)} · 확인 시간: ${formatDateTime()} · ${copyright}`;
+    const dataMeta = `최종 데이터 기준: ${formatDate(dataDate)} · 확인 시간: ${formatDateTime()}`;
+    const instagram = `<a href="https://www.instagram.com/seonggyu/" target="_blank" rel="noopener">@seonggyu</a>`;
+    const compactMeta = `${dataMeta} · ${copyright} · Instagram ${instagram}`;
 
     footer.innerHTML = `
       <div class="site-footer-inner">
-        <div class="site-footer-grid">
-          <div class="site-footer-brand">
-            <div class="site-footer-kicker">Archive Summary</div>
-            <div class="site-footer-title">땡굴이의 발자국</div>
-            <div class="site-footer-copy">
-              여행 스팟 ${nf.format(spots.length)}곳, 방문 ${nf.format(visited.length)}곳, 걷기 ${nf.format(totalKm)}km를 함께 기록하는 개인 아카이브입니다.<br>${summaryMeta}
-            </div>
+        <div class="site-footer-main">
+          <div class="site-footer-title">땡굴이의 발자국</div>
+          <div class="site-footer-summary">
+            여행 스팟 ${nf.format(spots.length)}곳과 방문 ${nf.format(visited.length)}곳, 걷기 ${nf.format(totalKm)}km를 함께 기록하는 개인 아카이브입니다.
+            <span class="site-footer-compact-meta">· ${compactMeta}</span>
           </div>
-          ${stat(`${nf.format(visited.length)}/${nf.format(spots.length)}`, 'Visited Spots')}
-          ${stat(`${completion}%`, 'Completion')}
-          ${stat(`${nf.format(totalKm)} km`, 'Walking')}
+        </div>
+        <div class="site-footer-stats">
+          ${stat(`${nf.format(visited.length)}/${nf.format(spots.length)}`, 'Spots')}
+          ${stat(`${completion}%`, 'Complete')}
+          ${stat(`${nf.format(totalKm)}km`, 'Walking')}
           ${stat(totalSteps ? `${(totalSteps / 10000).toFixed(1)}만 보` : '-', 'Steps')}
         </div>
       </div>
       <div class="site-footer-bottom">
-        <div>${summaryMeta}</div>
-        <div>${copyright} · Powered by GitHub Pages · <a href="https://github.com/topnipon/topnipon.github.io" target="_blank" rel="noopener">Repository</a></div>
+        <div>${dataMeta}</div>
+        <div>${copyright} · Instagram ${instagram}</div>
       </div>
     `;
   });
