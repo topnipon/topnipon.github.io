@@ -125,8 +125,16 @@
     "view-geoje-baram",
     "gw-hoengseong-lake-trail",
     "gg-morning-calm-arboretum",
-    "resort-shinhwa"
+    "resort-shinhwa",
+    "resort-sonobel-cheonan"
   ],
-  "records": {},
+  "records": {
+    "resort-sonobel-cheonan": {
+      "visitedAt": "2026-05-25",
+      "memo": "",
+      "rating": null,
+      "photos": []
+    }
+  },
   "lastUpdated": "2026-05-25"
 }
