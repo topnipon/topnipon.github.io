@@ -144,6 +144,28 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 #panel-region{font-size:0.72rem;color:var(--text2)}
 #panel-desc{font-size:0.8rem;color:var(--text2);line-height:1.7;margin-bottom:18px}
+#panel-image-wrap{
+  position:relative;width:100%;aspect-ratio:16/9;margin-bottom:14px;
+  border-radius:10px;overflow:hidden;background:linear-gradient(135deg,var(--surface2),var(--surface3));
+  border:1px solid rgba(48,54,61,.72);
+}
+#panel-image{
+  width:100%;height:100%;display:block;object-fit:cover;object-position:center center;
+  opacity:0;transition:opacity .25s ease,filter .25s ease;
+}
+#panel-image-wrap.loaded #panel-image{opacity:1}
+#panel-image-wrap.loading #panel-image{filter:saturate(.85) brightness(.78)}
+#panel-image-placeholder{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:16px;text-align:center;color:var(--text2);font-size:0.72rem;line-height:1.5;
+}
+#panel-image-wrap.loaded #panel-image-placeholder{display:none}
+#panel-image-search{
+  position:absolute;right:8px;bottom:8px;display:none;padding:5px 8px;border-radius:8px;
+  background:rgba(13,17,23,.72);border:1px solid rgba(255,255,255,.16);
+  color:var(--text);font-size:0.66rem;text-decoration:none;backdrop-filter:blur(8px);
+}
+#panel-image-wrap.loaded #panel-image-search{display:inline-flex}
 #panel-stamp{
   width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:2.2rem;margin:0 auto 20px;border:3px solid var(--border2);background:var(--surface2);
@@ -497,6 +519,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   #panel-mascot{width:58px;height:58px;right:46px;top:14px}
   #panel-close{top:13px;right:13px;width:34px;height:34px;border-radius:50%;background:rgba(13,17,23,.45)}
   #panel-desc{font-size:0.82rem;margin-bottom:12px}
+  #panel-image-wrap{border-radius:9px;margin-bottom:12px}
   #nearby-section{margin-bottom:12px}
   #panel-stamp{width:58px;height:58px;font-size:1.75rem;margin-bottom:12px}
   #panel-stamp.visited{width:86px;height:86px;margin-bottom:8px}
@@ -598,6 +621,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <span id="panel-region"></span>
     </div>
     <div id="panel-desc"></div>
+    <div id="panel-image-wrap" class="loading">
+      <img id="panel-image" alt="" loading="lazy" referrerpolicy="no-referrer">
+      <div id="panel-image-placeholder">대표 이미지를 찾는 중입니다</div>
+      <a id="panel-image-search" target="_blank" rel="noopener">이미지 검색</a>
+    </div>
     <a id="panel-map-open" target="_blank" rel="noopener">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       구글 지도에서 보기
@@ -663,6 +691,7 @@ let spotsData = [], visitedSet = new Set();
 let activeTheme = 'all', activeRegion = null;
 let markerMap = {}, selectedSpot = null, lastSelectedId = null;
 let map, regionLayer, clusterGroup, fuseSearch;
+const spotImageCache = new Map();
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -870,6 +899,92 @@ function getNearbySpots(spot, n=3) {
     .slice(0, n);
 }
 
+// ─── 스팟 대표 이미지 ───
+function getSpotImageQuery(spot) {
+  return [spot.name, spot.region, '대한민국 여행지'].filter(Boolean).join(' ');
+}
+
+function getGoogleImageSearchUrl(spot) {
+  return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(getSpotImageQuery(spot))}`;
+}
+
+function fallbackSpotImage(spot) {
+  const col = (CAT_COLOR[spot.category] || '#f6ad55').replace('#', '');
+  const label = encodeURIComponent(spot.name || 'Travel spot');
+  return `https://placehold.co/640x360/111827/${col}?text=${label}`;
+}
+
+async function findSpotImage(spot) {
+  if (spot.imageUrl) return spot.imageUrl;
+  if (spotImageCache.has(spot.id)) return spotImageCache.get(spot.id);
+
+  const url = new URL('https://commons.wikimedia.org/w/api.php');
+  url.search = new URLSearchParams({
+    action:'query',
+    format:'json',
+    origin:'*',
+    generator:'search',
+    gsrnamespace:'6',
+    gsrlimit:'8',
+    gsrsearch:getSpotImageQuery(spot),
+    prop:'imageinfo',
+    iiprop:'url',
+    iiurlwidth:'640'
+  }).toString();
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('image search failed');
+    const json = await res.json();
+    const pages = Object.values(json.query?.pages || {});
+    const image = pages
+      .map(p => p.imageinfo?.[0]?.thumburl || p.imageinfo?.[0]?.url)
+      .find(Boolean);
+    if (image) {
+      spotImageCache.set(spot.id, image);
+      return image;
+    }
+  } catch(e) {
+    console.warn('spot image lookup failed', spot.id, e);
+  }
+
+  const fallback = fallbackSpotImage(spot);
+  spotImageCache.set(spot.id, fallback);
+  return fallback;
+}
+
+function renderSpotImage(spot) {
+  const wrap = document.getElementById('panel-image-wrap');
+  const img = document.getElementById('panel-image');
+  const placeholder = document.getElementById('panel-image-placeholder');
+  const search = document.getElementById('panel-image-search');
+  const token = spot.id + ':' + Date.now();
+
+  wrap.dataset.token = token;
+  wrap.classList.remove('loaded');
+  wrap.classList.add('loading');
+  placeholder.textContent = '대표 이미지를 찾는 중입니다';
+  search.href = getGoogleImageSearchUrl(spot);
+  img.alt = `${spot.name} 대표 이미지`;
+  img.removeAttribute('src');
+
+  findSpotImage(spot).then(src => {
+    if (wrap.dataset.token !== token) return;
+    img.onload = () => {
+      if (wrap.dataset.token !== token) return;
+      wrap.classList.remove('loading');
+      wrap.classList.add('loaded');
+    };
+    img.onerror = () => {
+      if (wrap.dataset.token !== token) return;
+      img.onerror = null;
+      img.src = fallbackSpotImage(spot);
+      placeholder.textContent = '대표 이미지를 준비하지 못했습니다';
+    };
+    img.src = src;
+  });
+}
+
 // ─── 업적 시스템 ───
 const ACHIEVEMENTS = [
   {id:'first',   emoji:'👣', label:'첫 발자국',   desc:'첫 방문 기록',          test:v=>v.size>=1},
@@ -991,6 +1106,7 @@ function openPanel(spot) {
   document.getElementById('panel-name').textContent = spot.name;
   document.getElementById('panel-region').textContent = '📌 ' + spot.region;
   document.getElementById('panel-desc').textContent = spot.description;
+  renderSpotImage(spot);
   document.getElementById('panel-map-open').href = `https://www.google.com/maps?q=${spot.lat},${spot.lng}`;
 
   // 근처 스팟 (가장 가까운 3개)
