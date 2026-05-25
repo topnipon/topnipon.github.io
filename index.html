@@ -447,6 +447,68 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   #filters{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
   .fl1-btn,.fl2-btn{min-height:36px;padding-top:7px;padding-bottom:7px}
 }
+
+/* ─── 모바일 사용성 보정: 마지막 선언으로 이전 기본값을 확실히 덮어쓴다 ─── */
+@media(max-width:640px){
+  html,body{height:100dvh}
+  #topnav{
+    min-height:104px;height:auto;padding:8px 12px 9px;gap:8px;flex-wrap:wrap;
+    align-content:center;
+  }
+  #nav-brand{font-size:0.78rem;margin-right:4px;max-width:34%;overflow:hidden;text-overflow:ellipsis}
+  #nav-tabs{margin-left:auto;gap:5px}
+  .nav-tab{font-size:0.72rem;padding:6px 10px}
+  #nav-right{
+    order:3;width:100%;max-width:none;margin-left:0;flex:0 0 100%;
+    gap:8px;
+  }
+  #hd-prog{display:flex;gap:8px;width:100%;align-items:center}
+  #prog-label{font-size:0.76rem;min-width:max-content}
+  #prog-pct{font-size:0.86rem}
+  #prog-count{font-size:0.66rem}
+  #prog-bar{min-width:34px}
+
+  #map{top:104px;bottom:0}
+
+  #filters{
+    top:auto!important;left:12px!important;right:12px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important;
+    transform:none!important;width:auto;max-width:none;max-height:34dvh;overflow:visible;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-radius:16px;
+    box-shadow:0 10px 34px rgba(0,0,0,.45);
+  }
+  #fl1{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  #fl1::-webkit-scrollbar,#fl2::-webkit-scrollbar{display:none}
+  #fl2{
+    flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding-bottom:2px;
+    -webkit-overflow-scrolling:touch;
+  }
+  #search-wrap{position:relative;padding-top:5px}
+  #search-inp{min-width:0;height:40px;font-size:16px}
+  #search-res{position:fixed;left:12px;right:12px;top:auto;bottom:calc(82px + env(safe-area-inset-bottom));max-height:42dvh}
+
+  #panel{
+    width:100%;top:auto;left:0;right:0;bottom:0;height:auto;max-height:68dvh;
+    border-left:none;border-top:1px solid var(--border2);border-radius:18px 18px 0 0;
+    transform:translateY(105%);box-shadow:0 -16px 40px rgba(0,0,0,.55);
+  }
+  #panel.open{transform:translateY(0)}
+  #panel-body{padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-height:calc(68dvh - 5px)}
+  #panel-name{font-size:1.25rem;padding-right:70px;margin-bottom:8px}
+  #panel-mascot{width:58px;height:58px;right:46px;top:14px}
+  #panel-close{top:13px;right:13px;width:34px;height:34px;border-radius:50%;background:rgba(13,17,23,.45)}
+  #panel-desc{font-size:0.82rem;margin-bottom:12px}
+  #nearby-section{margin-bottom:12px}
+  #panel-stamp{width:58px;height:58px;font-size:1.75rem;margin-bottom:12px}
+  #panel-stamp.visited{width:86px;height:86px;margin-bottom:8px}
+  #panel-btn{min-height:48px;font-size:0.9rem}
+  body.panel-open #filters{opacity:0;pointer-events:none;transform:translateY(10px)!important}
+  body.panel-open #settings-btn{opacity:0;pointer-events:none}
+  #settings-btn{
+    right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:44px;height:44px;
+  }
+  #settings-box{width:calc(100vw - 28px);max-width:360px;padding:22px 18px}
+  #owner-box{width:calc(100vw - 48px);max-width:300px}
+}
 </style>
 </head>
 <body>
@@ -970,6 +1032,7 @@ function openPanel(spot) {
   }
 
   document.getElementById('panel').classList.add('open');
+  document.body.classList.add('panel-open');
 }
 
 function closePanel() {
@@ -979,6 +1042,7 @@ function closePanel() {
   }
   lastSelectedId = null;
   document.getElementById('panel').classList.remove('open');
+  document.body.classList.remove('panel-open');
   selectedSpot = null;
 }
 
