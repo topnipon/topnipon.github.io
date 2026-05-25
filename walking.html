@@ -205,6 +205,7 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
 .reveal.visible{opacity:1;transform:none}
 </style>
+<link rel="stylesheet" href="assets/common-footer.css">
 </head>
 <body>
 <!-- 공통 네비게이션 -->
@@ -398,27 +399,8 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 
 </div>
 
-<footer id="footer">
-  <div id="footer-inner">
-    <div class="ft-block">
-      <div class="ft-label">기록 기간</div>
-      <div class="ft-val">2025.04 – 2026.05</div>
-      <div class="ft-desc">1년간의 걷기 데이터를 기반으로 작성되었습니다.</div>
-    </div>
-    <div class="ft-block">
-      <div class="ft-label">등가 거리</div>
-      <div class="ft-val" id="ft-equiv">—</div>
-      <div class="ft-desc" id="ft-equiv-desc">—</div>
-    </div>
-    <div class="ft-block">
-      <div class="ft-label">Best Record</div>
-      <div class="ft-val" id="ft-best">—</div>
-      <div class="ft-desc" id="ft-best-desc">—</div>
-    </div>
-  </div>
-  <div id="footer-copy" id="ft-copy">—</div>
-  <div id="footer-data-date" style="text-align:center;margin-top:8px;font-size:0.68rem;color:#484f58;letter-spacing:2px;">—</div>
-</footer>
+<footer id="site-footer" class="site-footer"></footer>
+<script src="assets/common-footer.js"></script>
 
 <script>
 // ── 데이터 (walking-data.json에서 동적 로드) ─────────────────────────
@@ -1125,38 +1107,6 @@ buildMonthly();
 buildJourney();
 buildWeekday();
 buildTravelBridge();
-
-// ── 푸터 ────────────────────────────────────────────────────────────
-(function buildFooter() {
-  const totalKm = Math.round(TOTAL);
-  const sbRound = (totalKm / 400).toFixed(1);
-  const earthPct = (totalKm / 40075 * 100).toFixed(1);
-
-  // 등가 거리
-  document.getElementById('ft-equiv').textContent = `서울↔부산 ${sbRound}회`;
-  document.getElementById('ft-equiv-desc').textContent =
-    `총 ${totalKm.toLocaleString('ko-KR')}km — 지구 한 바퀴의 ${earthPct}%에 해당하는 거리입니다.`;
-
-  // 베스트 기록
-  const bestMonth = MONTHS.reduce((a,b)=>b[1]>a[1]?b:a);
-  const [bmy, bmm] = bestMonth[0].split('-');
-  const maxAvg = Math.max(...WD_AVG.map(Number));
-  const bestWdIdx = WD_AVG.findIndex(v => Number(v) === maxAvg);
-  document.getElementById('ft-best').textContent =
-    `${bmy}.${bmm} · ${Math.round(bestMonth[1]).toLocaleString('ko-KR')}km`;
-  document.getElementById('ft-best-desc').textContent =
-    `가장 많이 걸은 달입니다. 요일 기준으로는 ${WD_LABELS[bestWdIdx]}요일 평균 ${WD_AVG[bestWdIdx]}km로 가장 활발했습니다.`;
-
-  // 카피라이트
-  document.getElementById('footer-copy').textContent =
-    `${DAYS.length}일간의 기록 · 총 ${totalKm.toLocaleString('ko-KR')}km · ${TOTAL_STEPS.toLocaleString('ko-KR')}걸음 · 일평균 ${AVG}km · 데이터 출처: Apple Health`;
-
-  // 데이터 기준일
-  const lastDate = DAYS[DAYS.length - 1].date;
-  const [ly, lm, ld] = lastDate.split('-');
-  document.getElementById('footer-data-date').textContent =
-    `데이터 기준 · ${ly}.${lm}.${ld}`;
-})();
 
 // ── 날씨 + 날씨 효과 애니메이션 ─────────────────────────────────────
 const WX_ICON = {

@@ -152,6 +152,7 @@ node tools/validate-data.mjs
 ## 기술 스택
 
 - Vanilla JS / HTML / CSS
+- 공통 Footer 컴포넌트 (`assets/common-footer.css`, `assets/common-footer.js`) — 4개 페이지에서 여행/걷기 요약과 데이터 기준일 표시
 - [Chart.js](https://www.chartjs.org/) — 차트
 - [Leaflet.js](https://leafletjs.com/) — 인터랙티브 지도 + 시도별 GeoJSON 오버레이 + 스팟 미니맵
 - [Lottie](https://lottiefiles.com/) — 캐릭터 애니메이션
