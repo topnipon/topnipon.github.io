@@ -953,7 +953,49 @@ function getGoogleImageSearchUrl(spot) {
   return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(getSpotImageQuery(spot))}`;
 }
 
+const OLLE_IMAGE_HINTS = {
+  'jj-olle-01':['성산일출봉','광치기해변','말미오름'],
+  'jj-olle-01-1':['우도봉','검멀레해변','하고수동해변'],
+  'jj-olle-02':['광치기해변','온평포구','혼인지'],
+  'jj-olle-03':['표선해비치해변','온평포구','신풍 신천 바다목장'],
+  'jj-olle-04':['표선해비치해변','남원 큰엉','세화리 해안'],
+  'jj-olle-05':['남원 큰엉','쇠소깍','위미 동백나무군락'],
+  'jj-olle-06':['쇠소깍','정방폭포','서귀포항'],
+  'jj-olle-07':['외돌개','법환포구','범섬'],
+  'jj-olle-07-1':['엉또폭포','고근산','서귀포 월드컵경기장'],
+  'jj-olle-08':['중문색달해변','주상절리대','박수기정'],
+  'jj-olle-09':['박수기정','안덕계곡','월라봉'],
+  'jj-olle-10':['산방산','용머리해안','송악산'],
+  'jj-olle-10-1':['가파도','가파도 청보리밭','산방산'],
+  'jj-olle-11':['모슬봉','제주 곶자왈','대정 들판'],
+  'jj-olle-12':['수월봉','차귀도','엉알해안'],
+  'jj-olle-13':['저지오름','낙천리 아홉굿마을','제주 곶자왈'],
+  'jj-olle-14':['협재해수욕장','금능해수욕장','월령 선인장 군락'],
+  'jj-olle-14-1':['저지오름','문도지오름','제주 곶자왈'],
+  'jj-olle-15':['곽지해수욕장','한담해안산책로','협재해수욕장'],
+  'jj-olle-16':['애월한담해안산책로','수산봉','항파두리 항몽유적'],
+  'jj-olle-17':['이호테우해변','도두봉','용두암'],
+  'jj-olle-18':['사라봉','별도봉','삼양검은모래해변'],
+  'jj-olle-18-1':['추자도','나바론 하늘길','상추자도'],
+  'jj-olle-18-2':['하추자도','신양항','추자도 몽돌해안'],
+  'jj-olle-19':['함덕해수욕장','서우봉','김녕해수욕장'],
+  'jj-olle-20':['월정리해변','세화해변','해녀박물관'],
+  'jj-olle-21':['지미봉','하도해변','종달리']
+};
+
+function isJejuOlleSpot(spot) {
+  return spot.id?.startsWith('jj-olle-') || spot.name?.includes('제주올레');
+}
+
 function getSpotImageQueries(spot) {
+  if (isJejuOlleSpot(spot)) {
+    return [
+      ...(OLLE_IMAGE_HINTS[spot.id] || []),
+      `${spot.name} 제주올레`,
+      `${spot.name} Jeju Olle Trail`,
+      '제주 올레길 해안'
+    ].filter(Boolean);
+  }
   return [
     `${spot.name} ${spot.region}`,
     `${spot.name} 관광지`,
@@ -970,6 +1012,16 @@ function normalizeImageText(text) {
     .trim();
 }
 
+function isRejectedImageTitle(title) {
+  const text = normalizeImageText(title);
+  return [
+    'school','university','college','campus','hospital','clinic','office','city hall',
+    'press','kpop','entertainment','actress','actor','singer','celebrity','conference',
+    '학교','초등학교','중학교','고등학교','대학교','대학','병원','의원','청사','사무소',
+    '행사','연예','배우','가수','기자','포토타임','포토월'
+  ].some(word => text.includes(word));
+}
+
 function getSpotImageTokens(spot) {
   return normalizeImageText(spot.name)
     .split(/\s+/)
@@ -977,6 +1029,13 @@ function getSpotImageTokens(spot) {
 }
 
 function isRelevantImageTitle(title, spot) {
+  if (isRejectedImageTitle(title)) return false;
+  if (isJejuOlleSpot(spot)) {
+    const titleText = normalizeImageText(title);
+    const hints = (OLLE_IMAGE_HINTS[spot.id] || []).flatMap(h => normalizeImageText(h).split(/\s+/));
+    return ['제주','jeju','olle','올레','해변','해안','오름','봉','포구','산','trail','coast','beach']
+      .some(t => titleText.includes(t)) || hints.some(t => t.length >= 2 && titleText.includes(t));
+  }
   const normalizedTitle = normalizeImageText(title);
   const tokens = getSpotImageTokens(spot);
   if (!tokens.length) return false;
@@ -1061,9 +1120,8 @@ async function findWikipediaGeoThumbnail(spot) {
   if (!res.ok) throw new Error('wikipedia geo image search failed');
   const json = await res.json();
   const pages = Object.values(json.query?.pages || {});
-  return pages
-    .map(p => p.thumbnail?.source)
-    .find(Boolean) || null;
+  const page = pages.find(p => p.thumbnail?.source && isRelevantImageTitle(p.title, spot));
+  return page?.thumbnail?.source || null;
 }
 
 async function findCommonsGeoImage(spot) {
@@ -1086,9 +1144,8 @@ async function findCommonsGeoImage(spot) {
   if (!res.ok) throw new Error('commons geo image search failed');
   const json = await res.json();
   const pages = Object.values(json.query?.pages || {});
-  return pages
-    .map(p => p.imageinfo?.[0]?.thumburl || p.imageinfo?.[0]?.url)
-    .find(Boolean) || null;
+  const page = pages.find(p => (p.imageinfo?.[0]?.thumburl || p.imageinfo?.[0]?.url) && isRelevantImageTitle(p.title, spot));
+  return page ? (page.imageinfo?.[0]?.thumburl || page.imageinfo?.[0]?.url) : null;
 }
 
 async function trySpotImageLookup(label, lookup) {
