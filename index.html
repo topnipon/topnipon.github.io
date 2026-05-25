@@ -921,7 +921,33 @@ function getSpotImageQueries(spot) {
   ].filter(Boolean);
 }
 
-async function findWikipediaThumbnail(query) {
+function normalizeImageText(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/^file:/, '')
+    .replace(/\.[a-z0-9]+$/i, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
+
+function getSpotImageTokens(spot) {
+  return normalizeImageText(spot.name)
+    .split(/\s+/)
+    .filter(t => t.length >= 2);
+}
+
+function isRelevantImageTitle(title, spot) {
+  const normalizedTitle = normalizeImageText(title);
+  const tokens = getSpotImageTokens(spot);
+  if (!tokens.length) return false;
+  const normalizedName = tokens.join(' ');
+  const compactTitle = normalizedTitle.replace(/\s+/g, '');
+  const compactName = normalizedName.replace(/\s+/g, '');
+  return compactTitle.includes(compactName) ||
+    tokens.some(t => normalizedTitle.includes(t) || compactTitle.includes(t));
+}
+
+async function findWikipediaThumbnail(query, spot) {
   const url = new URL('https://ko.wikipedia.org/w/api.php');
   url.search = new URLSearchParams({
     action:'query',
@@ -940,13 +966,13 @@ async function findWikipediaThumbnail(query) {
   if (!res.ok) throw new Error('wikipedia image search failed');
   const json = await res.json();
   const pages = Object.values(json.query?.pages || {});
-  return pages
+  const page = pages
     .sort((a,b) => (a.index || 99) - (b.index || 99))
-    .map(p => p.thumbnail?.source)
-    .find(Boolean) || null;
+    .find(p => p.thumbnail?.source && isRelevantImageTitle(p.title, spot));
+  return page?.thumbnail?.source || null;
 }
 
-async function findCommonsImage(query) {
+async function findCommonsImage(query, spot) {
   const url = new URL('https://commons.wikimedia.org/w/api.php');
   url.search = new URLSearchParams({
     action:'query',
@@ -965,10 +991,10 @@ async function findCommonsImage(query) {
   if (!res.ok) throw new Error('commons image search failed');
   const json = await res.json();
   const pages = Object.values(json.query?.pages || {});
-  return pages
+  const page = pages
     .sort((a,b) => (a.index || 99) - (b.index || 99))
-    .map(p => p.imageinfo?.[0]?.thumburl || p.imageinfo?.[0]?.url)
-    .find(Boolean) || null;
+    .find(p => (p.imageinfo?.[0]?.thumburl || p.imageinfo?.[0]?.url) && isRelevantImageTitle(p.title, spot));
+  return page ? (page.imageinfo?.[0]?.thumburl || page.imageinfo?.[0]?.url) : null;
 }
 
 function getSpotImageRadius(spot) {
@@ -1039,9 +1065,7 @@ async function findSpotImage(spot) {
   if (spotImageCache.has(spot.id)) return spotImageCache.get(spot.id);
 
   for (const query of getSpotImageQueries(spot)) {
-    const image =
-      await trySpotImageLookup(`${spot.id} wiki ${query}`, () => findWikipediaThumbnail(query)) ||
-      await trySpotImageLookup(`${spot.id} commons ${query}`, () => findCommonsImage(query));
+    const image = await trySpotImageLookup(`${spot.id} wiki ${query}`, () => findWikipediaThumbnail(query, spot));
     if (image) {
       spotImageCache.set(spot.id, image);
       return image;
@@ -1054,6 +1078,14 @@ async function findSpotImage(spot) {
   if (geoImage) {
     spotImageCache.set(spot.id, geoImage);
     return geoImage;
+  }
+
+  for (const query of getSpotImageQueries(spot)) {
+    const image = await trySpotImageLookup(`${spot.id} commons ${query}`, () => findCommonsImage(query, spot));
+    if (image) {
+      spotImageCache.set(spot.id, image);
+      return image;
+    }
   }
 
   spotImageCache.set(spot.id, null);
