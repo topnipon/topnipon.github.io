@@ -19,6 +19,7 @@
 - 스팟 클릭 시 상세 패널 — Leaflet 미니맵 + 구글 지도 연동 버튼
 - 발자국 남기기 / 방문 완료 — 소유자 인증 후 온라인에서만 사용 가능 (localhost 비활성화)
 - ⚙ 설정에서 GitHub Token 입력 시 발자국 클릭과 동시에 GitHub에 자동 저장
+- 다음 발자국 추천 — 지역 완성도 기반 후보 + 선택한 스팟 주변 미방문 후보
 
 ### 🚶 걷기 기록 (`walking.html`)
 
@@ -29,7 +30,26 @@
 - **월별 통계** — 월별 km / 걸음 수 전환 차트
 - **요일별 평균** — 요일 패턴 분석
 - **지도 오버레이** — 총 거리, 활동 일수, 최고 기록 요약 카드
+- **걷기 × 여행 연결** — 누적 걷기 거리와 여행 도감 완성률을 함께 표시
 - **실시간 날씨** — 성남 현재 날씨 패널 (Open-Meteo API)
+
+### 🧭 방문 타임라인 (`timeline.html`)
+
+방문 완료한 여행지를 날짜순으로 모아보는 개인 발자국 타임라인입니다.
+
+- 날짜가 있는 방문 기록은 월별 타임라인으로 표시
+- 기존 방문지처럼 방문일이 없는 기록은 `방문일 미입력` 구역에 정리
+- 지역/테마/검색 필터
+- 지역별·테마별 방문 랭킹 요약
+
+### 🏅 발자국 도감 (`atlas.html`)
+
+지역별·테마별 여행 완성률을 관리하는 진행 상황 도감입니다.
+
+- 지역/테마 모드 전환
+- 완성률 높은순·낮은순·남은 곳 많은순·이름순 정렬
+- 각 도감 항목의 방문/미방문/완성률 요약
+- 선택한 지역 또는 테마의 남은 발자국 목록 표시
 
 ---
 
@@ -44,7 +64,7 @@ assets/
 data/
 ├── walking-data.json     # 일별 걷기 기록 (km, 걸음 수)
 ├── travel-spots.json     # 여행지 목록 567개 (위치, 카테고리 등)
-├── visited-spots.json    # 방문한 여행지 ID 목록
+├── visited-spots.json    # 방문한 여행지 ID 목록 + 개인 방문 기록
 └── korea-regions.json    # 시도별 GeoJSON 경계 (색상 오버레이용)
 ```
 
@@ -65,6 +85,14 @@ data/
 // visited-spots.json
 {
   "visited": ["hallasan", "bukhansan"],
+  "records": {
+    "hallasan": {
+      "visitedAt": "2026-05-17",
+      "memo": "",
+      "rating": null,
+      "photos": []
+    }
+  },
   "lastUpdated": "2026-05-17"
 }
 ```
@@ -82,6 +110,22 @@ curl -X POST https://api.github.com/repos/topnipon/topnipon.github.io/dispatches
   -H "Authorization: token <TOKEN>" \
   -d '{"event_type":"update-walking","client_payload":{"date":"2026-05-17","km":7.5,"steps":9500}}'
 ```
+
+### 데이터 검증
+
+여행지/방문/걷기 데이터 변경 후에는 아래 명령으로 JSON 품질을 확인합니다.
+
+```bash
+node tools/validate-data.mjs
+```
+
+검증 항목:
+
+- 여행지 ID 중복, 필수 필드, 좌표/반경, 지역/카테고리 값
+- 방문 완료 ID가 실제 여행지에 존재하는지 여부
+- 개인 방문 기록(`records`)의 날짜/평점/사진 형식
+- 걷기 데이터 날짜, km, 걸음 수 형식
+- 시도 GeoJSON 기본 구조
 
 ### 여행지 방문 기록
 

@@ -276,6 +276,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   }
   #panel.open{transform:translateY(0)}
   #legend{display:none}
+  #recommend-panel{left:10px;right:10px;bottom:134px;width:auto;padding:10px}
+  .rec-item:nth-child(n+4){display:none}
   #hd-prog{gap:6px}
   #prog-label{font-size:0.78rem}
   #prog-count{font-size:0.62rem}
@@ -338,6 +340,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .sr-name{font-size:0.8rem;color:var(--text);font-weight:600}
 .sr-meta{font-size:0.65rem;color:var(--text2);margin-top:1px}
 
+/* ─── 다음 발자국 추천 ─── */
+#recommend-panel{
+  position:fixed;right:20px;bottom:78px;z-index:890;width:290px;
+  background:rgba(13,17,23,.92);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:10px;padding:12px;
+  box-shadow:0 10px 28px rgba(0,0,0,.38);
+}
+.rec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.rec-kicker{font-size:.58rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--text2);font-weight:800;margin-bottom:3px}
+#rec-title{font-size:.84rem;color:var(--text);font-weight:850}
+#rec-refresh{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text2);cursor:pointer;font-size:.9rem;line-height:1;
+}
+#rec-refresh:hover{border-color:var(--accent);color:var(--accent)}
+#rec-list{display:flex;flex-direction:column;gap:7px}
+.rec-item{
+  display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:9px;align-items:center;
+  padding:9px;border-radius:8px;background:rgba(22,27,34,.84);border:1px solid transparent;
+  cursor:pointer;transition:all .18s;
+}
+.rec-item:hover{border-color:rgba(246,173,85,.45);background:rgba(246,173,85,.08)}
+.rec-dot{width:9px;height:9px;border-radius:50%}
+.rec-name{font-size:.78rem;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec-meta{font-size:.62rem;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec-score{font-size:.65rem;color:var(--accent);font-weight:850;white-space:nowrap}
+.rec-empty{font-size:.72rem;color:var(--text2);line-height:1.6;padding:8px 2px}
+
 /* ─── MarkerCluster 커스텀 ─── */
 .custom-cluster{
   border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -377,6 +407,26 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   text-decoration:none;cursor:pointer;transition:all .2s;margin-bottom:18px;
 }
 #panel-map-open:hover{border-color:#4285F4;color:#4285F4;background:rgba(66,133,244,0.08)}
+
+/* ─── 개인 방문 기록 ─── */
+#visit-record-card{
+  margin-bottom:18px;padding:12px;border:1px solid rgba(246,173,85,.28);
+  border-radius:8px;background:rgba(246,173,85,.07);
+}
+#visit-record-card[hidden]{display:none}
+.record-title{
+  font-size:0.65rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--accent);font-weight:800;margin-bottom:10px;
+}
+.record-grid{display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:10px}
+.record-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.record-label{font-size:0.68rem;color:var(--text2);white-space:nowrap}
+.record-value{font-size:0.72rem;color:var(--text);font-weight:700;text-align:right;min-width:0}
+#record-rating.has-rating{color:#ffd060;letter-spacing:1px}
+#record-memo{
+  padding-top:10px;border-top:1px solid rgba(246,173,85,.18);
+  font-size:0.74rem;line-height:1.6;color:var(--text2);word-break:keep-all;
+}
 
 /* ─── 업적 토스트 ─── */
 #ach-toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -562,6 +612,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   #panel-stamp.visited{width:86px;height:86px;margin-bottom:8px}
   #panel-btn{min-height:48px;font-size:0.9rem}
   body.panel-open #filters{opacity:0;pointer-events:none;transform:translateY(10px)!important}
+  body.panel-open #recommend-panel{opacity:0;pointer-events:none;transform:translateY(10px)}
   body.panel-open #settings-btn{opacity:0;pointer-events:none}
   #settings-btn{
     right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:44px;height:44px;
@@ -578,6 +629,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div id="nav-brand">땡굴이의 발자국</div>
   <div id="nav-tabs">
     <a href="index.html" class="nav-tab active">🗺 여행 지도</a>
+    <a href="timeline.html" class="nav-tab">🧭 방문 타임라인</a>
+    <a href="atlas.html" class="nav-tab">🏅 발자국 도감</a>
     <a href="walking.html" class="nav-tab">🚶 걷기 기록</a>
   </div>
   <div id="nav-right">
@@ -611,6 +664,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <img id="map-empty-mascot" src="assets/images/footprint-mascot.png" alt="" aria-hidden="true">
   <div id="map-empty-msg">아직 이 테마의 발자국은 없습니다</div>
   <div id="map-empty-sub">다른 여행지를 탐험해보세요</div>
+</div>
+
+<div id="recommend-panel">
+  <div class="rec-head">
+    <div>
+      <div class="rec-kicker">Next Footprints</div>
+      <div id="rec-title">다음 발자국 후보</div>
+    </div>
+    <button id="rec-refresh" aria-label="추천 새로고침">↻</button>
+  </div>
+  <div id="rec-list"></div>
 </div>
 
 <div id="owner-modal">
@@ -667,6 +731,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       구글 지도에서 보기
     </a>
+    <div id="visit-record-card" hidden>
+      <div class="record-title">내 발자국 기록</div>
+      <div class="record-grid">
+        <div class="record-row">
+          <span class="record-label">방문일</span>
+          <span class="record-value" id="record-date">방문일 미입력</span>
+        </div>
+        <div class="record-row">
+          <span class="record-label">평점</span>
+          <span class="record-value" id="record-rating">평점 미입력</span>
+        </div>
+        <div class="record-row">
+          <span class="record-label">사진</span>
+          <span class="record-value" id="record-photos">0장</span>
+        </div>
+      </div>
+      <div id="record-memo">아직 남긴 메모가 없습니다.</div>
+    </div>
     <div id="nearby-section">
       <div class="nearby-title">주변 발자국</div>
       <div id="nearby-list"></div>
@@ -724,10 +806,11 @@ const CAT_EMOJI = {
 const REPO = 'topnipon/topnipon.github.io';
 const SPOTS_DATA_URL = 'data/travel-spots.json';
 
-let spotsData = [], visitedSet = new Set();
+let spotsData = [], visitedSet = new Set(), visitRecords = {};
 let activeTheme = 'all', activeRegion = null;
 let markerMap = {}, selectedSpot = null, lastSelectedId = null;
 let map, regionLayer, clusterGroup, fuseSearch;
+let recOffset = 0, recContextSpot = null;
 const spotImageCache = new Map();
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
@@ -750,6 +833,55 @@ async function loadTravelSpots() {
   const data = await res.json();
   if (!Array.isArray(data.spots)) throw new Error('여행지 데이터 형식이 올바르지 않습니다.');
   return data.spots;
+}
+
+function normalizeVisitData(data = {}) {
+  return {
+    visited: Array.isArray(data.visited) ? data.visited : [],
+    records: data.records && typeof data.records === 'object' && !Array.isArray(data.records)
+      ? data.records
+      : {},
+    lastUpdated: data.lastUpdated || ''
+  };
+}
+
+function parseGitHubJsonContent(content) {
+  if (!content) return {};
+  const jsonText = decodeURIComponent(escape(atob(content.replace(/\s/g, ''))));
+  return JSON.parse(jsonText);
+}
+
+function formatVisitDate(value) {
+  if (!value) return '방문일 미입력';
+  const d = new Date(value + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+}
+
+function formatRating(value) {
+  const rating = Number(value);
+  if (!Number.isFinite(rating) || rating <= 0) return '평점 미입력';
+  const safeRating = Math.max(1, Math.min(5, Math.round(rating)));
+  return '★'.repeat(safeRating) + '☆'.repeat(5 - safeRating);
+}
+
+function renderVisitRecord(spot, isVisited) {
+  const card = document.getElementById('visit-record-card');
+  if (!card) return;
+  card.hidden = !isVisited;
+  if (!isVisited) return;
+
+  const record = visitRecords[spot.id] || {};
+  const ratingText = formatRating(record.rating);
+  const photos = Array.isArray(record.photos) ? record.photos.length : 0;
+
+  document.getElementById('record-date').textContent = formatVisitDate(record.visitedAt);
+  const ratingEl = document.getElementById('record-rating');
+  ratingEl.textContent = ratingText;
+  ratingEl.classList.toggle('has-rating', ratingText.includes('★'));
+  document.getElementById('record-photos').textContent = photos ? `${photos}장` : '0장';
+  document.getElementById('record-memo').textContent =
+    record.memo && record.memo.trim() ? record.memo.trim() : '아직 남긴 메모가 없습니다.';
 }
 
 async function init() {
@@ -795,12 +927,14 @@ async function init() {
   try {
     if (location.protocol !== 'file:') {
       const vr = await fetch('data/visited-spots.json?v='+Date.now());
-      const vd = await vr.json();
+      const vd = normalizeVisitData(await vr.json());
       (vd.visited || []).forEach(id => visitedSet.add(id));
+      visitRecords = vd.records;
     }
   } catch(e) {}
   renderSpots();
   updateStats();
+  renderRecommendations(null, true);
   bindEvents();
 
   // 지역 GeoJSON 오버레이 (서버에서만)
@@ -942,6 +1076,98 @@ function getNearbySpots(spot, n=3) {
     .map(s => ({...s, dist:haversine(spot, s)}))
     .sort((a,b) => a.dist-b.dist)
     .slice(0, n);
+}
+
+function regionProgressMap() {
+  const map = {};
+  spotsData.forEach(s => {
+    if (!map[s.region]) map[s.region] = {total:0, visited:0};
+    map[s.region].total++;
+    if (visitedSet.has(s.id)) map[s.region].visited++;
+  });
+  Object.values(map).forEach(d => {
+    d.rate = d.total ? d.visited / d.total : 0;
+    d.remaining = d.total - d.visited;
+  });
+  return map;
+}
+
+function getNextFootprints(limit=5) {
+  const unvisited = spotsData.filter(s => !visitedSet.has(s.id));
+  if (!unvisited.length) return [];
+  if (recContextSpot) {
+    return unvisited
+      .map(s => ({...s, dist:haversine(recContextSpot, s), reason:'주변 미방문'}))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(recOffset, recOffset + limit);
+  }
+
+  const progress = regionProgressMap();
+  const ranked = unvisited
+    .map(s => {
+      const r = progress[s.region] || {rate:0, visited:0, remaining:0};
+      const themeVisited = spotsData.filter(x => x.category === s.category && visitedSet.has(x.id)).length;
+      const score = r.rate * 100 + Math.min(r.visited, 20) + Math.min(themeVisited, 12);
+      return {...s, score, reason:`${s.region} ${Math.round(r.rate * 100)}% 완료`};
+    })
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, 'ko'));
+  return ranked.slice(recOffset, recOffset + limit);
+}
+
+function focusRecommendedSpot(spot) {
+  closePanel();
+  activeRegion = null;
+  activeTheme = 'all';
+  document.querySelectorAll('.fl1-btn[data-mode]').forEach(b => b.classList.remove('active'));
+  const allBtn = document.querySelector('.fl1-btn[data-mode="all"]');
+  if (allBtn) allBtn.classList.add('active');
+  document.getElementById('fl2').classList.remove('show');
+  renderSpots();
+  const marker = markerMap[spot.id];
+  if (marker) {
+    clusterGroup.zoomToShowLayer(marker, () => {
+      map.flyTo([spot.lat, spot.lng], Math.max(map.getZoom(), 12), {duration:.45});
+      openPanel(spot);
+    });
+  } else {
+    map.flyTo([spot.lat, spot.lng], 12, {duration:.45});
+    openPanel(spot);
+  }
+}
+
+function renderRecommendations(contextSpot=null, reset=false) {
+  if (reset) recOffset = 0;
+  recContextSpot = contextSpot;
+  const title = document.getElementById('rec-title');
+  const list = document.getElementById('rec-list');
+  if (!title || !list) return;
+
+  title.textContent = contextSpot ? `${contextSpot.name} 근처 미방문` : '다음 발자국 후보';
+  const items = getNextFootprints(5);
+  if (!items.length) {
+    list.innerHTML = '<div class="rec-empty">추천할 미방문 장소가 없습니다.</div>';
+    return;
+  }
+  list.innerHTML = items.map(s => {
+    const color = CAT_COLOR[s.category] || '#888';
+    const score = s.dist != null
+      ? (s.dist < 1 ? Math.round(s.dist * 1000) + 'm' : s.dist.toFixed(1) + 'km')
+      : s.reason;
+    return `<div class="rec-item" data-id="${s.id}">
+      <div class="rec-dot" style="background:${color}"></div>
+      <div>
+        <div class="rec-name">${s.name}</div>
+        <div class="rec-meta">${CAT_LABEL[s.category] || s.category} · ${s.region}</div>
+      </div>
+      <div class="rec-score">${score}</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.rec-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const spot = spotsData.find(s => s.id === el.dataset.id);
+      if (spot) focusRecommendedSpot(spot);
+    });
+  });
 }
 
 // ─── 스팟 대표 이미지 ───
@@ -1356,6 +1582,8 @@ function openPanel(spot) {
   document.getElementById('panel-desc').textContent = spot.description;
   renderSpotImage(spot);
   document.getElementById('panel-map-open').href = `https://www.google.com/maps?q=${spot.lat},${spot.lng}`;
+  renderVisitRecord(spot, v);
+  renderRecommendations(spot, true);
 
   // 근처 스팟 (가장 가까운 3개)
   const nearby = getNearbySpots(spot, 3);
@@ -1408,6 +1636,7 @@ function closePanel() {
   document.getElementById('panel').classList.remove('open');
   document.body.classList.remove('panel-open');
   selectedSpot = null;
+  renderRecommendations(null, true);
 }
 
 async function verifyOwner(callback) {
@@ -1452,24 +1681,38 @@ async function toggleVisited() {
 
   const btn = document.getElementById('panel-btn');
   const previousVisited = new Set(visitedSet);
+  const previousRecords = {...visitRecords};
   btn.disabled = true;
   btn.style.opacity = '0.65';
   btn.textContent = wasV ? '방문 취소 저장 중...' : '방문 기록 저장 중...';
 
   wasV ? visitedSet.delete(id) : visitedSet.add(id);
+  if (wasV) {
+    delete visitRecords[id];
+  } else if (!visitRecords[id]) {
+    visitRecords[id] = {
+      visitedAt: new Date().toISOString().slice(0, 10),
+      memo: '',
+      rating: null,
+      photos: []
+    };
+  }
 
   try {
     await syncGitHub(id, !wasV, token);
     renderSpots();
     updateStats();
+    renderRecommendations(selectedSpot, true);
     checkAchievements();
     btn.textContent = 'GitHub 저장 완료';
     btn.style.opacity = '';
     setTimeout(closePanel, 650);
   } catch(e) {
     visitedSet = previousVisited;
+    visitRecords = previousRecords;
     renderSpots();
     updateStats();
+    renderRecommendations(selectedSpot, true);
     btn.disabled = false;
     btn.style.opacity = '';
     if (selectedSpot) openPanel(selectedSpot);
@@ -1500,11 +1743,17 @@ async function pushVisitedToGitHub(token, statusEl) {
     const detail = await getRes.text().catch(() => '');
     throw new Error('파일 조회 실패: ' + getRes.status + (detail ? ` ${detail}` : ''));
   }
-  const { sha } = await getRes.json();
+  const currentFile = await getRes.json();
+  const { sha } = currentFile;
+  const currentData = normalizeVisitData(parseGitHubJsonContent(currentFile.content));
+  visitRecords = {...currentData.records, ...visitRecords};
+  Object.keys(visitRecords).forEach(id => {
+    if (!visitedSet.has(id)) delete visitRecords[id];
+  });
 
   // 새 내용 생성
   const today = new Date().toISOString().slice(0, 10);
-  const content = JSON.stringify({ visited: [...visitedSet], lastUpdated: today }, null, 2);
+  const content = JSON.stringify({ visited: [...visitedSet], records: visitRecords, lastUpdated: today }, null, 2);
   const encoded = btoa(unescape(encodeURIComponent(content)));
 
   // 파일 업데이트
@@ -1655,6 +1904,13 @@ function bindEvents() {
     if (!document.getElementById('filters').contains(e.target)) {
       document.getElementById('search-res').innerHTML='';
     }
+  });
+
+  document.getElementById('rec-refresh').addEventListener('click', () => {
+    recOffset += 5;
+    const total = spotsData.filter(s => !visitedSet.has(s.id) && (!recContextSpot || s.id !== recContextSpot.id)).length;
+    if (recOffset >= total) recOffset = 0;
+    renderRecommendations(recContextSpot, false);
   });
 
   document.getElementById('panel-close').addEventListener('click', closePanel);

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>땡굴이의 발자국 도감 · 완성률 통계</title>
+<meta name="description" content="지역별·테마별 여행 발자국 완성률을 한눈에 보는 개인 여행 도감입니다.">
+<meta name="theme-color" content="#0d1117">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1117;--surface:#111827;--surface2:#161b22;--surface3:#0f1624;
+  --border:#21262d;--border2:#30363d;--text:#e2e8f4;--text2:#8899b8;
+  --accent:#f6ad55;--green:#68d391;--blue:#63b3ed;--pink:#f472b6;
+}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif}
+#topnav{
+  position:sticky;top:0;z-index:1000;height:57px;background:rgba(13,17,23,.96);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;
+}
+#nav-brand{font-size:.92rem;font-weight:800;color:var(--accent);white-space:nowrap;letter-spacing:.5px;margin-right:20px;flex-shrink:0}
+#nav-tabs{display:flex;gap:4px;align-items:center;overflow-x:auto}
+.nav-tab{
+  font-size:.75rem;padding:6px 16px;border-radius:20px;text-decoration:none;color:var(--text2);
+  border:1px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.nav-tab:hover{color:var(--text);border-color:var(--border2)}
+.nav-tab.active{background:rgba(246,173,85,.12);border-color:var(--accent);color:var(--accent);font-weight:700}
+#page{max-width:1180px;margin:0 auto;padding:32px 20px 64px}
+#hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;margin-bottom:22px}
+#eyebrow{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+h1{font-size:2rem;line-height:1.15;margin-bottom:10px}
+#hero-copy{font-size:.9rem;line-height:1.7;color:var(--text2);max-width:700px}
+#hero-mark{width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 12px 28px rgba(0,0,0,.45))}
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px}
+.stat-val{font-size:1.55rem;font-weight:850;color:var(--accent);line-height:1}
+.stat-lbl{font-size:.66rem;color:var(--text2);letter-spacing:1.8px;text-transform:uppercase;margin-top:8px}
+#layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+#controls{
+  display:grid;grid-template-columns:auto minmax(180px,1fr) 150px;gap:10px;
+  padding:12px;background:rgba(17,24,39,.74);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;
+}
+#mode-tabs{display:flex;gap:6px}
+.mode-btn,#sort-select,#search{
+  height:38px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);
+  font-size:.8rem;padding:0 12px;outline:none;
+}
+.mode-btn{cursor:pointer;white-space:nowrap}
+.mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(246,173,85,.1);font-weight:800}
+#search:focus,#sort-select:focus{border-color:var(--accent)}
+#grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.atlas-card{
+  background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:14px;
+  cursor:pointer;transition:border-color .18s,background .18s,transform .18s;
+}
+.atlas-card:hover{border-color:rgba(246,173,85,.5);background:rgba(246,173,85,.05);transform:translateY(-2px)}
+.atlas-card.active{border-color:var(--accent);background:rgba(246,173,85,.09)}
+.card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.card-name{font-size:.95rem;font-weight:850}
+.card-count{font-size:.72rem;color:var(--text2);white-space:nowrap}
+.card-pct{font-size:1.5rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:9px}
+.bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent),#ffd060);border-radius:999px}
+.card-foot{display:flex;justify-content:space-between;gap:10px;margin-top:9px;font-size:.7rem;color:var(--text2)}
+#side{position:sticky;top:77px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px}
+.panel-title{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-weight:850;margin-bottom:12px}
+#detail-title{font-size:1.05rem;font-weight:900;margin-bottom:8px}
+#detail-meta{font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.detail-row{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;padding:7px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-val{color:var(--accent);font-weight:850}
+#remaining-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;padding-right:2px}
+.spot-row{display:grid;grid-template-columns:9px minmax(0,1fr);gap:9px;align-items:center}
+.spot-dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.spot-name{font-size:.78rem;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spot-meta{font-size:.64rem;color:var(--text2);margin-top:2px}
+#empty{display:none;color:var(--text2);background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:30px;text-align:center}
+#empty.show{display:block}
+@media(max-width:860px){
+  #topnav{padding:0 12px}#nav-brand{font-size:.78rem;margin-right:8px}.nav-tab{font-size:.7rem;padding:6px 10px}
+  #page{padding:24px 14px 42px}#hero{grid-template-columns:1fr}#hero-mark{display:none}
+  #stats{grid-template-columns:1fr 1fr}#layout{grid-template-columns:1fr}#side{position:static}
+  #controls{grid-template-columns:1fr}#mode-tabs{display:grid;grid-template-columns:1fr 1fr}
+  #grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav id="topnav">
+  <div id="nav-brand">땡굴이의 발자국</div>
+  <div id="nav-tabs">
+    <a href="index.html" class="nav-tab">🗺 여행 지도</a>
+    <a href="timeline.html" class="nav-tab">🧭 방문 타임라인</a>
+    <a href="atlas.html" class="nav-tab active">🏅 발자국 도감</a>
+    <a href="walking.html" class="nav-tab">🚶 걷기 기록</a>
+  </div>
+</nav>
+
+<main id="page">
+  <section id="hero">
+    <div>
+      <div id="eyebrow">Footprint Atlas</div>
+      <h1>지역과 테마별 완성률 도감</h1>
+      <p id="hero-copy">여행 지도의 진행 상황을 지역과 테마 단위로 정리합니다. 많이 채운 곳, 아직 비어 있는 곳, 조금만 더 가면 완성되는 묶음을 빠르게 확인할 수 있습니다.</p>
+    </div>
+    <img id="hero-mark" src="assets/images/visit-stamp.png" alt="" aria-hidden="true">
+  </section>
+
+  <section id="stats">
+    <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total Spots</div></div>
+    <div class="stat"><div class="stat-val" id="stat-visited">0</div><div class="stat-lbl">Visited</div></div>
+    <div class="stat"><div class="stat-val" id="stat-rate">0%</div><div class="stat-lbl">Completion</div></div>
+    <div class="stat"><div class="stat-val" id="stat-best">-</div><div class="stat-lbl">Best Region</div></div>
+  </section>
+
+  <section id="layout">
+    <div>
+      <div id="controls">
+        <div id="mode-tabs">
+          <button class="mode-btn active" data-mode="region">지역</button>
+          <button class="mode-btn" data-mode="category">테마</button>
+        </div>
+        <input id="search" type="search" placeholder="지역 또는 테마 검색">
+        <select id="sort-select">
+          <option value="rate-desc">완성률 높은순</option>
+          <option value="rate-asc">완성률 낮은순</option>
+          <option value="remaining-desc">남은 곳 많은순</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
+      <div id="grid"></div>
+      <div id="empty">조건에 맞는 도감 항목이 없습니다.</div>
+    </div>
+
+    <aside id="side">
+      <div class="panel">
+        <div class="panel-title">선택한 도감</div>
+        <div id="detail-title">항목을 선택하세요</div>
+        <div id="detail-meta">카드를 클릭하면 방문 현황과 남은 장소를 볼 수 있습니다.</div>
+        <div id="detail-rows"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">남은 발자국</div>
+        <div id="remaining-list"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script>
+const CAT_LABEL = {
+  mountain:'산/자연', beach:'해변', history:'역사/문화', city:'도시',
+  island:'섬', nature:'자연', unique:'특별', hiking:'트래킹',
+  theme:'놀이동산', resort:'리조트', park:'공원', temple:'사찰', museum:'박물관'
+};
+const CAT_COLOR = {
+  mountain:'#34d399', hiking:'#a3cb38', beach:'#60a5fa', history:'#fbbf24', city:'#a78bfa',
+  island:'#22d3ee', nature:'#86efac', unique:'#f472b6', theme:'#ff6b35', resort:'#00b4d8',
+  park:'#52b788', temple:'#e76f51', museum:'#457b9d'
+};
+
+let spots = [], visitedSet = new Set(), mode = 'region', selectedKey = null;
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function getKey(spot) {
+  return mode === 'region' ? spot.region : spot.category;
+}
+
+function getLabel(key) {
+  return mode === 'region' ? key : (CAT_LABEL[key] || key);
+}
+
+function buildGroups() {
+  const groups = {};
+  spots.forEach(spot => {
+    const key = getKey(spot);
+    if (!groups[key]) groups[key] = {key, label:getLabel(key), total:0, visited:0, spots:[], remaining:[]};
+    groups[key].total++;
+    groups[key].spots.push(spot);
+    if (visitedSet.has(spot.id)) groups[key].visited++;
+    else groups[key].remaining.push(spot);
+  });
+  return Object.values(groups).map(group => ({
+    ...group,
+    rate: group.total ? Math.round(group.visited / group.total * 100) : 0
+  }));
+}
+
+function sortGroups(groups) {
+  const sort = document.getElementById('sort-select').value;
+  return groups.sort((a, b) => {
+    if (sort === 'rate-asc') return a.rate - b.rate || a.label.localeCompare(b.label, 'ko');
+    if (sort === 'remaining-desc') return b.remaining.length - a.remaining.length || b.rate - a.rate;
+    if (sort === 'name') return a.label.localeCompare(b.label, 'ko');
+    return b.rate - a.rate || b.visited - a.visited || a.label.localeCompare(b.label, 'ko');
+  });
+}
+
+function renderGrid() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const groups = sortGroups(buildGroups()).filter(g => !q || g.label.toLowerCase().includes(q));
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  empty.classList.toggle('show', groups.length === 0);
+  grid.style.display = groups.length ? 'grid' : 'none';
+  if (!selectedKey && groups[0]) selectedKey = groups[0].key;
+  if (selectedKey && !groups.some(g => g.key === selectedKey)) selectedKey = groups[0]?.key || null;
+
+  grid.innerHTML = groups.map(g => `
+    <article class="atlas-card${g.key === selectedKey ? ' active' : ''}" data-key="${escapeHtml(g.key)}">
+      <div class="card-top">
+        <div class="card-name">${escapeHtml(g.label)}</div>
+        <div class="card-count">${g.visited}/${g.total}</div>
+      </div>
+      <div class="card-pct">${g.rate}%</div>
+      <div class="bar"><div class="fill" style="width:${g.rate}%"></div></div>
+      <div class="card-foot"><span>방문 ${g.visited}곳</span><span>남은 ${g.remaining.length}곳</span></div>
+    </article>
+  `).join('');
+  grid.querySelectorAll('.atlas-card').forEach(card => {
+    card.addEventListener('click', () => {
+      selectedKey = card.dataset.key;
+      renderGrid();
+      renderDetail();
+    });
+  });
+  renderDetail();
+}
+
+function renderDetail() {
+  const group = buildGroups().find(g => g.key === selectedKey) || buildGroups()[0];
+  const title = document.getElementById('detail-title');
+  const meta = document.getElementById('detail-meta');
+  const rows = document.getElementById('detail-rows');
+  const list = document.getElementById('remaining-list');
+  if (!group) {
+    title.textContent = '항목 없음';
+    meta.textContent = '표시할 도감 항목이 없습니다.';
+    rows.innerHTML = '';
+    list.innerHTML = '';
+    return;
+  }
+  selectedKey = group.key;
+  title.textContent = group.label;
+  meta.textContent = `${mode === 'region' ? '지역' : '테마'} 도감 진행률 ${group.rate}%`;
+  rows.innerHTML = `
+    <div class="detail-row"><span>전체 장소</span><span class="detail-val">${group.total}</span></div>
+    <div class="detail-row"><span>방문 완료</span><span class="detail-val">${group.visited}</span></div>
+    <div class="detail-row"><span>남은 장소</span><span class="detail-val">${group.remaining.length}</span></div>
+    <div class="detail-row"><span>완성까지</span><span class="detail-val">${Math.max(group.remaining.length, 0)}곳</span></div>
+  `;
+  list.innerHTML = group.remaining.length ? group.remaining.slice(0, 30).map(spot => {
+    const color = CAT_COLOR[spot.category] || 'var(--accent)';
+    return `<div class="spot-row">
+      <span class="spot-dot" style="background:${color}"></span>
+      <div>
+        <div class="spot-name">${escapeHtml(spot.name)}</div>
+        <div class="spot-meta">${escapeHtml(spot.region)} · ${escapeHtml(CAT_LABEL[spot.category] || spot.category)}</div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="spot-row"><span class="spot-dot"></span><div><div class="spot-name">이 도감은 완성되었습니다.</div><div class="spot-meta">멋진 완주 기록입니다.</div></div></div>';
+}
+
+function renderStats() {
+  const total = spots.length;
+  const visited = visitedSet.size;
+  const rate = total ? Math.round(visited / total * 100) : 0;
+  const best = buildGroups().sort((a, b) => b.rate - a.rate || b.visited - a.visited)[0];
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-visited').textContent = visited;
+  document.getElementById('stat-rate').textContent = rate + '%';
+  document.getElementById('stat-best').textContent = best ? best.label : '-';
+}
+
+async function init() {
+  const [spotsRes, visitedRes] = await Promise.all([
+    fetch('data/travel-spots.json?v=' + Date.now()),
+    fetch('data/visited-spots.json?v=' + Date.now())
+  ]);
+  spots = (await spotsRes.json()).spots || [];
+  const visitData = await visitedRes.json();
+  visitedSet = new Set(Array.isArray(visitData.visited) ? visitData.visited : []);
+  renderStats();
+  renderGrid();
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.mode;
+    selectedKey = null;
+    renderStats();
+    renderGrid();
+  });
+});
+document.getElementById('search').addEventListener('input', renderGrid);
+document.getElementById('sort-select').addEventListener('change', renderGrid);
+
+init().catch(err => {
+  console.error(err);
+  document.getElementById('empty').textContent = '도감 데이터를 불러오지 못했습니다. 로컬 서버로 접속했는지 확인해 주세요.';
+  document.getElementById('empty').classList.add('show');
+});
+</script>
+</body>
+</html>

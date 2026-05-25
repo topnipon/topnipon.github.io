@@ -119,6 +119,24 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 #wx-upd{font-size:10px;color:#484f58;margin-top:10px;padding-top:8px;border-top:1px solid #21262d}
 #map-live-dot{width:6px;height:6px;border-radius:50%;background:#68d391;animation:liveBlink 1.4s ease-in-out infinite}
 
+/* 여행 기록 연결 */
+#travel-bridge{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:stretch}
+.bridge-card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:22px;min-height:220px}
+.bridge-title{font-size:0.72rem;color:#8b949e;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
+.bridge-main{font-size:2.2rem;font-weight:850;color:#f6ad55;line-height:1;margin-bottom:10px}
+.bridge-copy{font-size:0.84rem;color:#8b949e;line-height:1.75}
+.bridge-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.bridge-mini{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:12px}
+.bridge-mini-val{font-size:1.12rem;font-weight:800;color:#68d391}
+.bridge-mini-lbl{font-size:0.65rem;color:#8b949e;letter-spacing:1.6px;text-transform:uppercase;margin-top:4px}
+#bridge-bars{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.bridge-bar-row{display:grid;grid-template-columns:76px minmax(0,1fr) 44px;gap:10px;align-items:center}
+.bridge-bar-name{font-size:0.72rem;color:#c9d1d9;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bridge-bar-track{height:7px;background:#21262d;border-radius:999px;overflow:hidden}
+.bridge-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f6ad55,#ffd060)}
+.bridge-bar-pct{font-size:0.68rem;color:#f6ad55;text-align:right;font-weight:800}
+@media(max-width:760px){#travel-bridge{grid-template-columns:1fr}.bridge-grid{grid-template-columns:1fr}}
+
 /* 푸터 */
 #footer{background:#161b22;border-top:1px solid #30363d;padding:40px 20px;margin-top:8px}
 #footer-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
@@ -194,6 +212,8 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
   <div id="nav-brand">땡굴이의 발자국</div>
   <div id="nav-tabs">
     <a href="index.html" class="nav-tab">🗺 여행 지도</a>
+    <a href="timeline.html" class="nav-tab">🧭 방문 타임라인</a>
+    <a href="atlas.html" class="nav-tab">🏅 발자국 도감</a>
     <a href="walking.html" class="nav-tab active">🚶 걷기 기록</a>
   </div>
 </nav>
@@ -302,6 +322,33 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
     </div><!-- /map-wrap -->
   </div>
 
+  <!-- 여행 기록 연결 -->
+  <div>
+    <div class="section-label">🧭 걷기와 여행 기록 연결</div>
+    <div id="travel-bridge">
+      <div class="bridge-card">
+        <div class="bridge-title">Walking x Travel</div>
+        <div class="bridge-main" id="bridge-main">—</div>
+        <div class="bridge-copy" id="bridge-copy">여행 기록을 불러오는 중…</div>
+        <div class="bridge-grid">
+          <div class="bridge-mini">
+            <div class="bridge-mini-val" id="bridge-visited">—</div>
+            <div class="bridge-mini-lbl">Visited Spots</div>
+          </div>
+          <div class="bridge-mini">
+            <div class="bridge-mini-val" id="bridge-left">—</div>
+            <div class="bridge-mini-lbl">Remaining</div>
+          </div>
+        </div>
+      </div>
+      <div class="bridge-card">
+        <div class="bridge-title">Closest Collections</div>
+        <div class="bridge-copy">완성률이 높은 지역부터, 조금만 더 채우면 도감이 완성되는 곳입니다.</div>
+        <div id="bridge-bars"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- 히트맵 (전체 너비) -->
   <div>
     <div class="section-label">🗓 캘린더 히트맵</div>
@@ -375,9 +422,12 @@ body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',sans-serif;min-heig
 
 <script>
 // ── 데이터 (walking-data.json에서 동적 로드) ─────────────────────────
-fetch('./data/walking-data.json?v=' + Date.now())
-  .then(r => r.json())
-  .then(RAW => {
+Promise.all([
+  fetch('./data/walking-data.json?v=' + Date.now()).then(r => r.json()),
+  fetch('./data/travel-spots.json?v=' + Date.now()).then(r => r.json()).catch(() => ({spots:[]})),
+  fetch('./data/visited-spots.json?v=' + Date.now()).then(r => r.json()).catch(() => ({visited:[]}))
+])
+  .then(([RAW, TRAVEL_DATA, VISIT_DATA]) => {
 
 // ── 데이터 가공 ─────────────────────────────────────────────────────
 const entries = Object.entries(RAW).sort(([a],[b])=>a<b?-1:1);
@@ -395,6 +445,8 @@ const AVG = (DAYS.reduce((s,d)=>s+d.km,0)/DAYS.length).toFixed(1);
 const TOTAL_STEPS = DAYS.reduce((s,d)=>s+d.steps, 0);
 const AVG_STEPS = Math.round(TOTAL_STEPS / DAYS.length);
 const MAX_STEPS = DAYS.reduce((a,b)=>b.steps>a.steps?b:a);
+const TRAVEL_SPOTS = Array.isArray(TRAVEL_DATA.spots) ? TRAVEL_DATA.spots : [];
+const VISITED_SET = new Set(Array.isArray(VISIT_DATA.visited) ? VISIT_DATA.visited : []);
 
 // 카운터 애니메이션 — 바 차트와 동일한 ANIM_DUR 사용
 const ANIM_DUR = 20000; // ms — 카운터·바 차트 공통 완료 시간 (20초)
@@ -436,6 +488,45 @@ const WD_COLORS=['#e879f9','#60a5fa','#34d399','#fbbf24','#f87171','#a78bfa','#f
 const wdStepsSum=[0,0,0,0,0,0,0], wdStepsCnt=[0,0,0,0,0,0,0];
 DAYS.forEach(({wd,steps})=>{ if(steps>0){wdStepsSum[wd]+=steps;wdStepsCnt[wd]++;} });
 const WD_STEPS_AVG=wdStepsSum.map((s,i)=>wdStepsCnt[i]?Math.round(s/wdStepsCnt[i]):0);
+
+// ── 여행 기록 연결 데이터 ───────────────────────────────────────────
+function buildTravelBridge() {
+  const totalSpots = TRAVEL_SPOTS.length;
+  const visitedCount = VISITED_SET.size;
+  const completion = totalSpots ? Math.round(visitedCount / totalSpots * 100) : 0;
+  const kmPerVisited = visitedCount ? Math.round(TOTAL / visitedCount) : 0;
+  const kmPerPct = totalSpots ? TOTAL / Math.max(completion, 1) : 0;
+
+  document.getElementById('bridge-main').textContent = completion + '%';
+  document.getElementById('bridge-visited').textContent = `${visitedCount}/${totalSpots}`;
+  document.getElementById('bridge-left').textContent = Math.max(totalSpots - visitedCount, 0).toLocaleString('ko-KR') + '곳';
+  document.getElementById('bridge-copy').innerHTML =
+    `총 <span class="walk-em">${Math.round(TOTAL).toLocaleString('ko-KR')}km</span>의 걷기 기록 위에 ` +
+    `<span class="walk-em">${visitedCount.toLocaleString('ko-KR')}곳</span>의 여행 발자국이 쌓였습니다. ` +
+    (visitedCount ? `방문지 하나당 약 <span class="walk-em">${kmPerVisited.toLocaleString('ko-KR')}km</span>를 걸어온 셈입니다.` : '') +
+    (completion ? `<br>도감 1%를 채우는 동안 평균 <span class="walk-em">${Math.round(kmPerPct).toLocaleString('ko-KR')}km</span>가 함께 쌓였습니다.` : '');
+
+  const regions = {};
+  TRAVEL_SPOTS.forEach(spot => {
+    if (!regions[spot.region]) regions[spot.region] = {total:0, visited:0};
+    regions[spot.region].total++;
+    if (VISITED_SET.has(spot.id)) regions[spot.region].visited++;
+  });
+
+  const rows = Object.entries(regions)
+    .map(([name, d]) => ({name, ...d, pct:d.total ? Math.round(d.visited / d.total * 100) : 0}))
+    .filter(d => d.visited > 0 && d.visited < d.total)
+    .sort((a, b) => b.pct - a.pct || b.visited - a.visited || a.name.localeCompare(b.name, 'ko'))
+    .slice(0, 5);
+
+  document.getElementById('bridge-bars').innerHTML = rows.length ? rows.map(r => `
+    <div class="bridge-bar-row">
+      <div class="bridge-bar-name">${r.name}</div>
+      <div class="bridge-bar-track"><div class="bridge-bar-fill" style="width:${r.pct}%"></div></div>
+      <div class="bridge-bar-pct">${r.pct}%</div>
+    </div>
+  `).join('') : '<div class="bridge-copy">아직 연결할 여행 기록이 없습니다.</div>';
+}
 
 // ── 히트맵 ──────────────────────────────────────────────────────────
 function kmColor(km) {
@@ -1033,6 +1124,7 @@ buildHeatmap();
 buildMonthly();
 buildJourney();
 buildWeekday();
+buildTravelBridge();
 
 // ── 푸터 ────────────────────────────────────────────────────────────
 (function buildFooter() {

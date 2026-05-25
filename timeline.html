@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>땡굴이의 방문 타임라인 · 발자국 아카이브</title>
+<meta name="description" content="방문한 여행지를 날짜순으로 모아보는 개인 발자국 타임라인입니다.">
+<meta name="theme-color" content="#0d1117">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1117;--surface:#111827;--surface2:#161b22;--border:#21262d;--border2:#30363d;
+  --text:#e2e8f4;--text2:#8899b8;--accent:#f6ad55;--green:#68d391;
+}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif}
+#topnav{
+  position:sticky;top:0;z-index:1000;height:57px;background:rgba(13,17,23,.96);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:0;
+}
+#nav-brand{font-size:.92rem;font-weight:800;color:var(--accent);white-space:nowrap;letter-spacing:.5px;margin-right:20px;flex-shrink:0}
+#nav-tabs{display:flex;gap:4px;align-items:center;overflow-x:auto}
+.nav-tab{
+  font-size:.75rem;padding:6px 16px;border-radius:20px;text-decoration:none;color:var(--text2);
+  border:1px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.nav-tab:hover{color:var(--text);border-color:var(--border2)}
+.nav-tab.active{background:rgba(246,173,85,.12);border-color:var(--accent);color:var(--accent);font-weight:700}
+#page{max-width:1120px;margin:0 auto;padding:32px 20px 64px}
+#hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;margin-bottom:24px}
+#eyebrow{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+h1{font-size:2rem;line-height:1.15;margin-bottom:10px}
+#hero-copy{font-size:.9rem;line-height:1.7;color:var(--text2);max-width:680px}
+#mascot{width:116px;height:116px;object-fit:contain;filter:drop-shadow(0 12px 28px rgba(0,0,0,.45))}
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:16px}
+.stat-val{font-size:1.55rem;font-weight:850;color:var(--accent);line-height:1}
+.stat-lbl{font-size:.66rem;color:var(--text2);letter-spacing:1.8px;text-transform:uppercase;margin-top:8px}
+#tools{
+  display:grid;grid-template-columns:minmax(180px,1fr) 150px 150px;gap:10px;
+  padding:12px;background:rgba(17,24,39,.74);border:1px solid var(--border);border-radius:8px;margin-bottom:22px;
+}
+#search,#region-filter,#category-filter{
+  width:100%;height:38px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  color:var(--text);font-size:.8rem;padding:0 12px;outline:none;
+}
+#search:focus,#region-filter:focus,#category-filter:focus{border-color:var(--accent)}
+#content{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:22px;align-items:start}
+#timeline{position:relative;display:flex;flex-direction:column;gap:14px}
+.month-group{position:relative;padding-left:22px}
+.month-group::before{content:"";position:absolute;left:5px;top:24px;bottom:-18px;width:1px;background:var(--border2)}
+.month-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.month-dot{width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(246,173,85,.12);margin-left:-22px}
+.month-title{font-size:.86rem;font-weight:800;color:var(--text)}
+.month-count{font-size:.68rem;color:var(--text2)}
+.visit-card{
+  display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;
+  background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:8px;
+}
+.visit-date{font-size:.72rem;color:var(--accent);font-weight:800;line-height:1.35}
+.visit-name{font-size:.95rem;font-weight:800;margin-bottom:5px}
+.visit-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:.7rem;color:var(--text2);margin-bottom:7px}
+.visit-chip{padding:2px 7px;border:1px solid var(--border2);border-radius:999px}
+.visit-memo{font-size:.76rem;color:var(--text2);line-height:1.6}
+.visit-actions{display:flex;gap:8px;margin-top:10px}
+.visit-link{font-size:.7rem;color:var(--accent);text-decoration:none;border:1px solid rgba(246,173,85,.36);border-radius:7px;padding:5px 8px}
+#side{position:sticky;top:77px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:16px}
+.panel-title{font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:12px;font-weight:800}
+.rank-row{display:flex;justify-content:space-between;gap:12px;font-size:.78rem;padding:7px 0;border-bottom:1px solid var(--border)}
+.rank-row:last-child{border-bottom:none}
+.rank-count{color:var(--accent);font-weight:800}
+#empty{display:none;text-align:center;padding:44px 18px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text2)}
+#empty.show{display:block}
+@media(max-width:780px){
+  #topnav{padding:0 12px}#nav-brand{font-size:.78rem;margin-right:8px}.nav-tab{font-size:.7rem;padding:6px 10px}
+  #page{padding:24px 14px 42px}#hero{grid-template-columns:1fr}#mascot{display:none}
+  #stats{grid-template-columns:1fr 1fr}#tools{grid-template-columns:1fr}
+  #content{grid-template-columns:1fr}#side{position:static}
+  .visit-card{grid-template-columns:1fr}.visit-date{display:flex;gap:6px}
+}
+</style>
+</head>
+<body>
+<nav id="topnav">
+  <div id="nav-brand">땡굴이의 발자국</div>
+  <div id="nav-tabs">
+    <a href="index.html" class="nav-tab">🗺 여행 지도</a>
+    <a href="timeline.html" class="nav-tab active">🧭 방문 타임라인</a>
+    <a href="atlas.html" class="nav-tab">🏅 발자국 도감</a>
+    <a href="walking.html" class="nav-tab">🚶 걷기 기록</a>
+  </div>
+</nav>
+
+<main id="page">
+  <section id="hero">
+    <div>
+      <div id="eyebrow">Visit Timeline</div>
+      <h1>다녀온 발자국을 시간순으로 모아보기</h1>
+      <p id="hero-copy">방문한 여행지를 날짜가 있는 기록부터 정리합니다. 아직 날짜가 없는 기존 방문지는 아래쪽의 미입력 구역에 모아두고, 앞으로 새로 남기는 발자국은 자동으로 날짜순 타임라인에 쌓입니다.</p>
+    </div>
+    <img id="mascot" src="assets/images/footprint-mascot.png" alt="" aria-hidden="true">
+  </section>
+
+  <section id="stats">
+    <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Visited</div></div>
+    <div class="stat"><div class="stat-val" id="stat-dated">0</div><div class="stat-lbl">Dated</div></div>
+    <div class="stat"><div class="stat-val" id="stat-undated">0</div><div class="stat-lbl">Need Date</div></div>
+    <div class="stat"><div class="stat-val" id="stat-regions">0</div><div class="stat-lbl">Regions</div></div>
+  </section>
+
+  <section id="tools">
+    <input id="search" type="search" placeholder="방문지 검색">
+    <select id="region-filter"><option value="">전체 지역</option></select>
+    <select id="category-filter"><option value="">전체 테마</option></select>
+  </section>
+
+  <section id="content">
+    <div>
+      <div id="timeline"></div>
+      <div id="empty">조건에 맞는 발자국이 없습니다.</div>
+    </div>
+    <aside id="side">
+      <div class="panel">
+        <div class="panel-title">지역별 방문</div>
+        <div id="region-rank"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">테마별 방문</div>
+        <div id="category-rank"></div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script>
+const CAT_LABEL = {
+  mountain:'산/자연', beach:'해변', history:'역사/문화', city:'도시',
+  island:'섬', nature:'자연', unique:'특별', hiking:'트래킹',
+  theme:'놀이동산', resort:'리조트', park:'공원', temple:'사찰', museum:'박물관'
+};
+
+let allVisits = [];
+
+function normalizeVisitData(data = {}) {
+  return {
+    visited: Array.isArray(data.visited) ? data.visited : [],
+    records: data.records && typeof data.records === 'object' && !Array.isArray(data.records) ? data.records : {},
+    lastUpdated: data.lastUpdated || ''
+  };
+}
+
+function fmtDate(value) {
+  if (!value) return '미입력';
+  const d = new Date(value + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString('ko-KR', {month:'long', day:'numeric'});
+}
+
+function fmtMonth(value) {
+  if (!value) return '방문일 미입력';
+  const d = new Date(value + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return '날짜 형식 확인 필요';
+  return d.toLocaleDateString('ko-KR', {year:'numeric', month:'long'});
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function groupBy(items, getKey) {
+  return items.reduce((acc, item) => {
+    const key = getKey(item);
+    acc[key] = acc[key] || [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
+
+function countBy(items, getKey) {
+  return Object.entries(groupBy(items, getKey)).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ko'));
+}
+
+function renderRank(el, rows, fallback) {
+  el.innerHTML = rows.length ? rows.slice(0, 8).map(([name, items]) =>
+    `<div class="rank-row"><span>${escapeHtml(name)}</span><span class="rank-count">${items.length}</span></div>`
+  ).join('') : `<div class="rank-row"><span>${fallback}</span></div>`;
+}
+
+function renderTimeline() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const region = document.getElementById('region-filter').value;
+  const category = document.getElementById('category-filter').value;
+  const filtered = allVisits.filter(v =>
+    (!q || v.name.toLowerCase().includes(q) || v.region.toLowerCase().includes(q)) &&
+    (!region || v.region === region) &&
+    (!category || v.category === category)
+  );
+
+  const timeline = document.getElementById('timeline');
+  document.getElementById('empty').classList.toggle('show', filtered.length === 0);
+  timeline.style.display = filtered.length ? 'flex' : 'none';
+
+  const dated = filtered.filter(v => v.visitedAt).sort((a, b) => b.visitedAt.localeCompare(a.visitedAt));
+  const undated = filtered.filter(v => !v.visitedAt).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  const groups = groupBy([...dated, ...undated], v => fmtMonth(v.visitedAt));
+
+  timeline.innerHTML = Object.entries(groups).map(([month, items]) => `
+    <section class="month-group">
+      <div class="month-head"><span class="month-dot"></span><span class="month-title">${escapeHtml(month)}</span><span class="month-count">${items.length}곳</span></div>
+      ${items.map(v => `
+        <article class="visit-card">
+          <div class="visit-date">${escapeHtml(fmtDate(v.visitedAt))}</div>
+          <div>
+            <div class="visit-name">${escapeHtml(v.name)}</div>
+            <div class="visit-meta">
+              <span class="visit-chip">${escapeHtml(v.region)}</span>
+              <span class="visit-chip">${escapeHtml(CAT_LABEL[v.category] || v.category)}</span>
+              ${v.rating ? `<span class="visit-chip">${'★'.repeat(Math.round(v.rating))}</span>` : ''}
+            </div>
+            <div class="visit-memo">${escapeHtml(v.memo || '아직 남긴 메모가 없습니다.')}</div>
+            <div class="visit-actions">
+              <a class="visit-link" href="https://www.google.com/maps?q=${v.lat},${v.lng}" target="_blank" rel="noopener">구글 지도</a>
+            </div>
+          </div>
+        </article>
+      `).join('')}
+    </section>
+  `).join('');
+}
+
+function fillFilters() {
+  const regionSelect = document.getElementById('region-filter');
+  const categorySelect = document.getElementById('category-filter');
+  [...new Set(allVisits.map(v => v.region))].sort((a, b) => a.localeCompare(b, 'ko')).forEach(region => {
+    regionSelect.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`);
+  });
+  [...new Set(allVisits.map(v => v.category))].sort((a, b) => (CAT_LABEL[a] || a).localeCompare(CAT_LABEL[b] || b, 'ko')).forEach(category => {
+    categorySelect.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(category)}">${escapeHtml(CAT_LABEL[category] || category)}</option>`);
+  });
+}
+
+async function init() {
+  const [spotsRes, visitedRes] = await Promise.all([
+    fetch('data/travel-spots.json?v=' + Date.now()),
+    fetch('data/visited-spots.json?v=' + Date.now())
+  ]);
+  const spots = (await spotsRes.json()).spots || [];
+  const visitData = normalizeVisitData(await visitedRes.json());
+  const spotMap = new Map(spots.map(s => [s.id, s]));
+
+  allVisits = visitData.visited.map(id => {
+    const spot = spotMap.get(id) || {id, name:id, region:'알 수 없음', category:'unknown', lat:0, lng:0};
+    const record = visitData.records[id] || {};
+    return {
+      ...spot,
+      visitedAt: record.visitedAt || '',
+      memo: record.memo || '',
+      rating: record.rating,
+      photos: Array.isArray(record.photos) ? record.photos : []
+    };
+  });
+
+  const dated = allVisits.filter(v => v.visitedAt).length;
+  document.getElementById('stat-total').textContent = allVisits.length;
+  document.getElementById('stat-dated').textContent = dated;
+  document.getElementById('stat-undated').textContent = allVisits.length - dated;
+  document.getElementById('stat-regions').textContent = new Set(allVisits.map(v => v.region)).size;
+
+  fillFilters();
+  renderRank(document.getElementById('region-rank'), countBy(allVisits, v => v.region), '방문 기록 없음');
+  renderRank(document.getElementById('category-rank'), countBy(allVisits, v => CAT_LABEL[v.category] || v.category), '방문 기록 없음');
+  renderTimeline();
+}
+
+document.getElementById('search').addEventListener('input', renderTimeline);
+document.getElementById('region-filter').addEventListener('change', renderTimeline);
+document.getElementById('category-filter').addEventListener('change', renderTimeline);
+
+init().catch(err => {
+  console.error(err);
+  document.getElementById('empty').textContent = '방문 기록을 불러오지 못했습니다. 로컬 서버로 접속했는지 확인해 주세요.';
+  document.getElementById('empty').classList.add('show');
+});
+</script>
+</body>
+</html>
