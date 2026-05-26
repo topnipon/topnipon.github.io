@@ -427,10 +427,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   padding-top:10px;border-top:1px solid rgba(246,173,85,.18);
   font-size:0.74rem;line-height:1.6;color:var(--text2);word-break:keep-all;
 }
+#visit-record-edit{
+  width:100%;margin-top:10px;padding:8px 10px;border-radius:8px;
+  border:1px solid rgba(246,173,85,.45);background:transparent;color:var(--accent);
+  font-size:0.74rem;font-weight:800;cursor:pointer;transition:background .15s;
+}
+#visit-record-edit:hover{background:rgba(246,173,85,.1)}
+#visit-record-edit[hidden]{display:none}
 #visit-record-form{
   margin-top:12px;padding-top:12px;border-top:1px solid rgba(246,173,85,.18);
   display:flex;flex-direction:column;gap:9px;
 }
+#visit-record-form[hidden]{display:none}
 #visit-record-form label{display:flex;flex-direction:column;gap:5px}
 #visit-record-form label span{
   font-size:0.66rem;color:var(--text2);font-weight:700;letter-spacing:.3px;
@@ -776,6 +784,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </div>
       </div>
       <div id="record-memo">아직 남긴 메모가 없습니다.</div>
+      <button id="visit-record-edit" type="button">정보 수정</button>
       <form id="visit-record-form">
         <label>
           <span>방문일</span>
@@ -867,6 +876,7 @@ let markerMap = {}, selectedSpot = null, lastSelectedId = null;
 let map, regionLayer, clusterGroup, fuseSearch;
 let recOffset = 0, recContextSpot = null;
 const spotImageCache = new Map();
+let isVisitRecordEditing = false;
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -944,11 +954,38 @@ function populateVisitRecordForm(record = {}) {
   if (status) status.textContent = '';
 }
 
+function setVisitRecordFormVisible(visible) {
+  const form = document.getElementById('visit-record-form');
+  const editBtn = document.getElementById('visit-record-edit');
+  if (form) form.hidden = !visible;
+  if (editBtn) editBtn.hidden = visible || !selectedSpot || !visitedSet.has(selectedSpot.id);
+}
+
+function startVisitRecordEdit() {
+  if (!selectedSpot) return;
+  isVisitRecordEditing = true;
+  const card = document.getElementById('visit-record-card');
+  if (card) card.hidden = false;
+  populateVisitRecordForm(visitRecords[selectedSpot.id] || {});
+  setVisitRecordFormVisible(true);
+  const status = document.getElementById('visit-record-status');
+  if (status) status.textContent = visitedSet.has(selectedSpot.id)
+    ? '기록을 수정한 뒤 저장해 주세요.'
+    : '방문 정보를 입력한 뒤 저장하면 발자국이 남습니다.';
+  if (!visitedSet.has(selectedSpot.id)) {
+    const btn = document.getElementById('panel-btn');
+    btn.textContent = '입력 취소';
+    btn.className = 'unvisited';
+    btn.style.background = '';
+  }
+}
+
 function renderVisitRecord(spot, isVisited) {
   const card = document.getElementById('visit-record-card');
   if (!card) return;
-  card.hidden = !isVisited;
-  if (!isVisited) return;
+  const showEditor = isVisitRecordEditing && selectedSpot && selectedSpot.id === spot.id;
+  card.hidden = !isVisited && !showEditor;
+  if (!isVisited && !showEditor) return;
 
   const record = visitRecords[spot.id] || {};
   const ratingText = formatRating(record.rating);
@@ -962,6 +999,7 @@ function renderVisitRecord(spot, isVisited) {
   document.getElementById('record-memo').textContent =
     record.memo && record.memo.trim() ? record.memo.trim() : '아직 남긴 메모가 없습니다.';
   populateVisitRecordForm(record);
+  setVisitRecordFormVisible(showEditor);
 }
 
 async function init() {
@@ -1639,6 +1677,7 @@ document.querySelectorAll('.leg-tab').forEach(btn => {
 });
 
 function openPanel(spot) {
+  isVisitRecordEditing = false;
   // 이전 선택 마커 복원
   if (lastSelectedId && lastSelectedId !== spot.id && markerMap[lastSelectedId]) {
     const prev = spotsData.find(x => x.id === lastSelectedId);
@@ -1694,7 +1733,7 @@ function openPanel(spot) {
   if (btn.disabled) {
     // localhost: 버튼 상태 고정
   } else if (v) {
-    btn.textContent = '✓ 방문 완료 (기록 취소)';
+    btn.textContent = '✓ 방문 기록 취소';
     btn.className = 'done';
     btn.style.background = col;
   } else {
@@ -1716,6 +1755,7 @@ function closePanel() {
   document.getElementById('panel').classList.remove('open');
   document.body.classList.remove('panel-open');
   selectedSpot = null;
+  isVisitRecordEditing = false;
   renderRecommendations(null, true);
 }
 
@@ -1820,7 +1860,7 @@ function setVisitRecordSaving(isSaving, text = '') {
 }
 
 async function saveVisitRecord() {
-  if (!selectedSpot || !visitedSet.has(selectedSpot.id)) return;
+  if (!selectedSpot) return;
   const token = localStorage.getItem('gh-token');
   if (!token) {
     alert('GitHub Token이 저장되어 있지 않아 방문 기록을 저장할 수 없습니다. 설정에서 토큰을 먼저 등록해 주세요.');
@@ -1829,8 +1869,11 @@ async function saveVisitRecord() {
   }
 
   const id = selectedSpot.id;
+  const wasVisited = visitedSet.has(id);
+  const previousVisited = new Set(visitedSet);
   const previousRecords = JSON.parse(JSON.stringify(visitRecords));
   const ratingValue = document.getElementById('visit-rating-input').value;
+  visitedSet.add(id);
   visitRecords[id] = {
     visitedAt: document.getElementById('visit-date-input').value || new Date().toISOString().slice(0, 10),
     rating: ratingValue ? Number(ratingValue) : null,
@@ -1841,15 +1884,35 @@ async function saveVisitRecord() {
   setVisitRecordSaving(true, 'GitHub에 저장하는 중입니다...');
   try {
     await pushVisitedToGitHub(token);
-    renderVisitRecord(selectedSpot, true);
-    renderRecommendations(selectedSpot, true);
-    setVisitRecordSaving(false, '기록이 저장되었습니다.');
+    isVisitRecordEditing = false;
+    renderSpots();
+    updateStats();
+    if (selectedSpot) openPanel(selectedSpot);
+    if (!wasVisited) checkAchievements();
+    setVisitRecordSaving(false, '');
   } catch(e) {
+    visitedSet = previousVisited;
     visitRecords = previousRecords;
-    renderVisitRecord(selectedSpot, true);
+    renderSpots();
+    updateStats();
+    renderVisitRecord(selectedSpot, visitedSet.has(selectedSpot.id));
     setVisitRecordSaving(false, '저장하지 못했습니다.');
     alert('발자국 세부 기록을 GitHub에 저장하지 못했습니다. 토큰 권한(repo)과 네트워크 상태를 확인해 주세요.\n\n' + e.message);
   }
+}
+
+function handlePanelButtonClick() {
+  if (!selectedSpot) return;
+  if (!visitedSet.has(selectedSpot.id)) {
+    if (isVisitRecordEditing) {
+      isVisitRecordEditing = false;
+      openPanel(selectedSpot);
+    } else {
+      startVisitRecordEdit();
+    }
+    return;
+  }
+  verifyOwner(toggleVisited);
 }
 
 async function syncGitHub(spotId, visited, token) {
@@ -2051,8 +2114,9 @@ function bindEvents() {
     panelBtn.style.opacity = '0.4';
     document.getElementById('settings-btn').style.display = 'none';
   } else {
-    document.getElementById('panel-btn').addEventListener('click', () => verifyOwner(toggleVisited));
+    document.getElementById('panel-btn').addEventListener('click', handlePanelButtonClick);
   }
+  document.getElementById('visit-record-edit').addEventListener('click', startVisitRecordEdit);
   document.getElementById('visit-record-form').addEventListener('submit', e => {
     e.preventDefault();
     verifyOwner(saveVisitRecord);
