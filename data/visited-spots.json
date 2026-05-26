@@ -126,19 +126,13 @@
     "gw-hoengseong-lake-trail",
     "gg-morning-calm-arboretum",
     "resort-shinhwa",
-    "hike-seoul-dulle",
-    "seoul-cheongwadae-road"
+    "hike-seoul-dulle"
   ],
   "records": {
     "hike-seoul-dulle": {
       "visitedAt": "2026-05-26",
       "memo": "",
       "rating": null
-    },
-    "seoul-cheongwadae-road": {
-      "visitedAt": "2026-05-26",
-      "memo": "러너들의 성지",
-      "rating": 3
     }
   },
   "lastUpdated": "2026-05-26"
