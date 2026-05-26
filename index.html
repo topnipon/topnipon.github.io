@@ -460,7 +460,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   cursor:pointer;transition:opacity .15s,transform .15s;
 }
 #visit-record-save:hover{transform:translateY(-1px)}
-#visit-record-save:disabled{opacity:.58;cursor:default;transform:none}
+#visit-record-save:disabled{opacity:.42;cursor:default;transform:none}
 #visit-record-status{min-height:1em;font-size:0.68rem;color:var(--text2);line-height:1.45}
 
 /* ─── 업적 토스트 ─── */
@@ -778,10 +778,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           <span class="record-label">평점</span>
           <span class="record-value" id="record-rating">평점 미입력</span>
         </div>
-        <div class="record-row">
-          <span class="record-label">사진</span>
-          <span class="record-value" id="record-photos">0장</span>
-        </div>
       </div>
       <div id="record-memo">아직 남긴 메모가 없습니다.</div>
       <button id="visit-record-edit" type="button">정보 수정</button>
@@ -802,14 +798,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           </select>
         </label>
         <label>
-          <span>사진 URL</span>
-          <textarea id="visit-photos-input" rows="2" placeholder="사진 링크를 한 줄에 하나씩 입력"></textarea>
-        </label>
-        <label>
           <span>메모</span>
           <textarea id="visit-memo-input" rows="3" placeholder="이곳에서 남기고 싶은 기억"></textarea>
         </label>
-        <button id="visit-record-save" type="submit">기록 저장</button>
+        <button id="visit-record-save" type="submit" disabled>기록 저장</button>
         <div id="visit-record-status" aria-live="polite"></div>
       </form>
     </div>
@@ -930,28 +922,40 @@ function formatRating(value) {
   return '★'.repeat(safeRating) + '☆'.repeat(5 - safeRating);
 }
 
-function normalizePhotoList(value) {
-  if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
-  if (!value) return [];
-  return String(value)
-    .split(/\n|,/)
-    .map(v => v.trim())
-    .filter(Boolean);
-}
-
 function populateVisitRecordForm(record = {}) {
   const dateInput = document.getElementById('visit-date-input');
   const ratingInput = document.getElementById('visit-rating-input');
-  const photosInput = document.getElementById('visit-photos-input');
   const memoInput = document.getElementById('visit-memo-input');
   const status = document.getElementById('visit-record-status');
-  if (!dateInput || !ratingInput || !photosInput || !memoInput) return;
+  if (!dateInput || !ratingInput || !memoInput) return;
 
   dateInput.value = record.visitedAt || new Date().toISOString().slice(0, 10);
   ratingInput.value = record.rating ? String(Math.max(1, Math.min(5, Math.round(Number(record.rating))))) : '';
-  photosInput.value = normalizePhotoList(record.photos).join('\n');
   memoInput.value = record.memo || '';
   if (status) status.textContent = '';
+  updateVisitRecordSaveState();
+}
+
+function getVisitRecordFormData() {
+  const visitedAt = document.getElementById('visit-date-input').value;
+  const rating = document.getElementById('visit-rating-input').value;
+  const memo = document.getElementById('visit-memo-input').value.trim();
+  return { visitedAt, rating, memo };
+}
+
+function isVisitRecordFormComplete() {
+  const data = getVisitRecordFormData();
+  return Boolean(data.visitedAt && data.rating && data.memo);
+}
+
+function updateVisitRecordSaveState() {
+  const saveBtn = document.getElementById('visit-record-save');
+  const status = document.getElementById('visit-record-status');
+  if (!saveBtn) return;
+  saveBtn.disabled = !isVisitRecordFormComplete();
+  if (status && !saveBtn.disabled && status.textContent === '방문 정보를 모두 입력해야 저장할 수 있습니다.') {
+    status.textContent = '';
+  }
 }
 
 function setVisitRecordFormVisible(visible) {
@@ -989,13 +993,11 @@ function renderVisitRecord(spot, isVisited) {
 
   const record = visitRecords[spot.id] || {};
   const ratingText = formatRating(record.rating);
-  const photos = normalizePhotoList(record.photos).length;
 
   document.getElementById('record-date').textContent = formatVisitDate(record.visitedAt);
   const ratingEl = document.getElementById('record-rating');
   ratingEl.textContent = ratingText;
   ratingEl.classList.toggle('has-rating', ratingText.includes('★'));
-  document.getElementById('record-photos').textContent = photos ? `${photos}장` : '0장';
   document.getElementById('record-memo').textContent =
     record.memo && record.memo.trim() ? record.memo.trim() : '아직 남긴 메모가 없습니다.';
   populateVisitRecordForm(record);
@@ -1853,14 +1855,20 @@ function setVisitRecordSaving(isSaving, text = '') {
   const saveBtn = document.getElementById('visit-record-save');
   const status = document.getElementById('visit-record-status');
   if (saveBtn) {
-    saveBtn.disabled = isSaving;
     saveBtn.textContent = isSaving ? '저장 중...' : '기록 저장';
+    saveBtn.disabled = isSaving || !isVisitRecordFormComplete();
   }
   if (status) status.textContent = text;
 }
 
 async function saveVisitRecord() {
   if (!selectedSpot) return;
+  if (!isVisitRecordFormComplete()) {
+    const status = document.getElementById('visit-record-status');
+    if (status) status.textContent = '방문 정보를 모두 입력해야 저장할 수 있습니다.';
+    updateVisitRecordSaveState();
+    return;
+  }
   const token = localStorage.getItem('gh-token');
   if (!token) {
     alert('GitHub Token이 저장되어 있지 않아 방문 기록을 저장할 수 없습니다. 설정에서 토큰을 먼저 등록해 주세요.');
@@ -1872,13 +1880,14 @@ async function saveVisitRecord() {
   const wasVisited = visitedSet.has(id);
   const previousVisited = new Set(visitedSet);
   const previousRecords = JSON.parse(JSON.stringify(visitRecords));
-  const ratingValue = document.getElementById('visit-rating-input').value;
+  const formData = getVisitRecordFormData();
+  const previousRecord = visitRecords[id] || {};
   visitedSet.add(id);
   visitRecords[id] = {
-    visitedAt: document.getElementById('visit-date-input').value || new Date().toISOString().slice(0, 10),
-    rating: ratingValue ? Number(ratingValue) : null,
-    photos: normalizePhotoList(document.getElementById('visit-photos-input').value),
-    memo: document.getElementById('visit-memo-input').value.trim()
+    visitedAt: formData.visitedAt,
+    rating: Number(formData.rating),
+    memo: formData.memo,
+    photos: Array.isArray(previousRecord.photos) ? previousRecord.photos : []
   };
 
   setVisitRecordSaving(true, 'GitHub에 저장하는 중입니다...');
@@ -1908,7 +1917,7 @@ function handlePanelButtonClick() {
       isVisitRecordEditing = false;
       openPanel(selectedSpot);
     } else {
-      startVisitRecordEdit();
+      verifyOwner(startVisitRecordEdit);
     }
     return;
   }
@@ -2116,10 +2125,17 @@ function bindEvents() {
   } else {
     document.getElementById('panel-btn').addEventListener('click', handlePanelButtonClick);
   }
-  document.getElementById('visit-record-edit').addEventListener('click', startVisitRecordEdit);
+  document.getElementById('visit-record-edit').addEventListener('click', () => verifyOwner(startVisitRecordEdit));
+  ['visit-date-input', 'visit-rating-input', 'visit-memo-input'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', updateVisitRecordSaveState);
+      el.addEventListener('change', updateVisitRecordSaveState);
+    }
+  });
   document.getElementById('visit-record-form').addEventListener('submit', e => {
     e.preventDefault();
-    verifyOwner(saveVisitRecord);
+    saveVisitRecord();
   });
   map.on('click', closePanel);
 
