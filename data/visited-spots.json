@@ -133,14 +133,12 @@
     "hike-seoul-dulle": {
       "visitedAt": "2026-05-26",
       "memo": "",
-      "rating": null,
-      "photos": []
+      "rating": null
     },
     "seoul-cheongwadae-road": {
       "visitedAt": "2026-05-26",
-      "rating": 4,
       "memo": "러너들의 성지",
-      "photos": []
+      "rating": 3
     }
   },
   "lastUpdated": "2026-05-26"
