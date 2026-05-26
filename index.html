@@ -427,6 +427,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   padding-top:10px;border-top:1px solid rgba(246,173,85,.18);
   font-size:0.74rem;line-height:1.6;color:var(--text2);word-break:keep-all;
 }
+#visit-record-form{
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(246,173,85,.18);
+  display:flex;flex-direction:column;gap:9px;
+}
+#visit-record-form label{display:flex;flex-direction:column;gap:5px}
+#visit-record-form label span{
+  font-size:0.66rem;color:var(--text2);font-weight:700;letter-spacing:.3px;
+}
+#visit-record-form input,
+#visit-record-form select,
+#visit-record-form textarea{
+  width:100%;padding:8px 9px;border-radius:8px;border:1px solid var(--border2);
+  background:rgba(13,17,23,.72);color:var(--text);font-size:0.74rem;
+  font-family:inherit;outline:none;
+}
+#visit-record-form textarea{resize:vertical;min-height:38px;line-height:1.45}
+#visit-record-form input:focus,
+#visit-record-form select:focus,
+#visit-record-form textarea:focus{border-color:var(--accent)}
+#visit-record-save{
+  margin-top:2px;padding:9px 10px;border:none;border-radius:8px;
+  background:var(--accent);color:var(--bg);font-size:0.76rem;font-weight:800;
+  cursor:pointer;transition:opacity .15s,transform .15s;
+}
+#visit-record-save:hover{transform:translateY(-1px)}
+#visit-record-save:disabled{opacity:.58;cursor:default;transform:none}
+#visit-record-status{min-height:1em;font-size:0.68rem;color:var(--text2);line-height:1.45}
 
 /* ─── 업적 토스트 ─── */
 #ach-toast-wrap{position:fixed;top:80px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -749,6 +776,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </div>
       </div>
       <div id="record-memo">아직 남긴 메모가 없습니다.</div>
+      <form id="visit-record-form">
+        <label>
+          <span>방문일</span>
+          <input id="visit-date-input" type="date">
+        </label>
+        <label>
+          <span>평점</span>
+          <select id="visit-rating-input">
+            <option value="">평점 미입력</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option>
+            <option value="2">★★☆☆☆</option>
+            <option value="1">★☆☆☆☆</option>
+          </select>
+        </label>
+        <label>
+          <span>사진 URL</span>
+          <textarea id="visit-photos-input" rows="2" placeholder="사진 링크를 한 줄에 하나씩 입력"></textarea>
+        </label>
+        <label>
+          <span>메모</span>
+          <textarea id="visit-memo-input" rows="3" placeholder="이곳에서 남기고 싶은 기억"></textarea>
+        </label>
+        <button id="visit-record-save" type="submit">기록 저장</button>
+        <div id="visit-record-status" aria-live="polite"></div>
+      </form>
     </div>
     <div id="nearby-section">
       <div class="nearby-title">주변 발자국</div>
@@ -866,6 +920,30 @@ function formatRating(value) {
   return '★'.repeat(safeRating) + '☆'.repeat(5 - safeRating);
 }
 
+function normalizePhotoList(value) {
+  if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+  if (!value) return [];
+  return String(value)
+    .split(/\n|,/)
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function populateVisitRecordForm(record = {}) {
+  const dateInput = document.getElementById('visit-date-input');
+  const ratingInput = document.getElementById('visit-rating-input');
+  const photosInput = document.getElementById('visit-photos-input');
+  const memoInput = document.getElementById('visit-memo-input');
+  const status = document.getElementById('visit-record-status');
+  if (!dateInput || !ratingInput || !photosInput || !memoInput) return;
+
+  dateInput.value = record.visitedAt || new Date().toISOString().slice(0, 10);
+  ratingInput.value = record.rating ? String(Math.max(1, Math.min(5, Math.round(Number(record.rating))))) : '';
+  photosInput.value = normalizePhotoList(record.photos).join('\n');
+  memoInput.value = record.memo || '';
+  if (status) status.textContent = '';
+}
+
 function renderVisitRecord(spot, isVisited) {
   const card = document.getElementById('visit-record-card');
   if (!card) return;
@@ -874,7 +952,7 @@ function renderVisitRecord(spot, isVisited) {
 
   const record = visitRecords[spot.id] || {};
   const ratingText = formatRating(record.rating);
-  const photos = Array.isArray(record.photos) ? record.photos.length : 0;
+  const photos = normalizePhotoList(record.photos).length;
 
   document.getElementById('record-date').textContent = formatVisitDate(record.visitedAt);
   const ratingEl = document.getElementById('record-rating');
@@ -883,6 +961,7 @@ function renderVisitRecord(spot, isVisited) {
   document.getElementById('record-photos').textContent = photos ? `${photos}장` : '0장';
   document.getElementById('record-memo').textContent =
     record.memo && record.memo.trim() ? record.memo.trim() : '아직 남긴 메모가 없습니다.';
+  populateVisitRecordForm(record);
 }
 
 async function init() {
@@ -1707,7 +1786,13 @@ async function toggleVisited() {
     checkAchievements();
     btn.textContent = 'GitHub 저장 완료';
     btn.style.opacity = '';
-    setTimeout(closePanel, 650);
+    if (wasV) {
+      setTimeout(closePanel, 650);
+    } else if (selectedSpot) {
+      openPanel(selectedSpot);
+      const status = document.getElementById('visit-record-status');
+      if (status) status.textContent = '발자국이 저장되었습니다. 아래에서 세부 기록을 입력할 수 있습니다.';
+    }
   } catch(e) {
     visitedSet = previousVisited;
     visitRecords = previousRecords;
@@ -1721,6 +1806,49 @@ async function toggleVisited() {
   } finally {
     btn.disabled = false;
     btn.style.opacity = '';
+  }
+}
+
+function setVisitRecordSaving(isSaving, text = '') {
+  const saveBtn = document.getElementById('visit-record-save');
+  const status = document.getElementById('visit-record-status');
+  if (saveBtn) {
+    saveBtn.disabled = isSaving;
+    saveBtn.textContent = isSaving ? '저장 중...' : '기록 저장';
+  }
+  if (status) status.textContent = text;
+}
+
+async function saveVisitRecord() {
+  if (!selectedSpot || !visitedSet.has(selectedSpot.id)) return;
+  const token = localStorage.getItem('gh-token');
+  if (!token) {
+    alert('GitHub Token이 저장되어 있지 않아 방문 기록을 저장할 수 없습니다. 설정에서 토큰을 먼저 등록해 주세요.');
+    document.getElementById('settings-btn').click();
+    return;
+  }
+
+  const id = selectedSpot.id;
+  const previousRecords = JSON.parse(JSON.stringify(visitRecords));
+  const ratingValue = document.getElementById('visit-rating-input').value;
+  visitRecords[id] = {
+    visitedAt: document.getElementById('visit-date-input').value || new Date().toISOString().slice(0, 10),
+    rating: ratingValue ? Number(ratingValue) : null,
+    photos: normalizePhotoList(document.getElementById('visit-photos-input').value),
+    memo: document.getElementById('visit-memo-input').value.trim()
+  };
+
+  setVisitRecordSaving(true, 'GitHub에 저장하는 중입니다...');
+  try {
+    await pushVisitedToGitHub(token);
+    renderVisitRecord(selectedSpot, true);
+    renderRecommendations(selectedSpot, true);
+    setVisitRecordSaving(false, '기록이 저장되었습니다.');
+  } catch(e) {
+    visitRecords = previousRecords;
+    renderVisitRecord(selectedSpot, true);
+    setVisitRecordSaving(false, '저장하지 못했습니다.');
+    alert('발자국 세부 기록을 GitHub에 저장하지 못했습니다. 토큰 권한(repo)과 네트워크 상태를 확인해 주세요.\n\n' + e.message);
   }
 }
 
@@ -1925,6 +2053,10 @@ function bindEvents() {
   } else {
     document.getElementById('panel-btn').addEventListener('click', () => verifyOwner(toggleVisited));
   }
+  document.getElementById('visit-record-form').addEventListener('submit', e => {
+    e.preventDefault();
+    verifyOwner(saveVisitRecord);
+  });
   map.on('click', closePanel);
 
   document.getElementById('settings-btn').addEventListener('click', () => {
