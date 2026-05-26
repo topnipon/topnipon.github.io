@@ -125,16 +125,8 @@
     "view-geoje-baram",
     "gw-hoengseong-lake-trail",
     "gg-morning-calm-arboretum",
-    "resort-shinhwa",
-    "seoul-cheongwadae-road"
+    "resort-shinhwa"
   ],
-  "records": {
-    "seoul-cheongwadae-road": {
-      "visitedAt": "2026-05-26",
-      "memo": "",
-      "rating": null,
-      "photos": []
-    }
-  },
+  "records": {},
   "lastUpdated": "2026-05-26"
 }
