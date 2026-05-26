@@ -784,11 +784,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <form id="visit-record-form">
         <label>
           <span>방문일</span>
-          <input id="visit-date-input" type="date">
+          <input id="visit-date-input" type="date" required>
         </label>
         <label>
           <span>평점</span>
-          <select id="visit-rating-input">
+          <select id="visit-rating-input" required>
             <option value="">평점 미입력</option>
             <option value="5">★★★★★</option>
             <option value="4">★★★★☆</option>
@@ -799,7 +799,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </label>
         <label>
           <span>메모</span>
-          <textarea id="visit-memo-input" rows="3" placeholder="이곳에서 남기고 싶은 기억"></textarea>
+          <textarea id="visit-memo-input" rows="3" placeholder="이곳에서 남기고 싶은 기억" required></textarea>
         </label>
         <button id="visit-record-save" type="submit" disabled>기록 저장</button>
         <div id="visit-record-status" aria-live="polite"></div>
@@ -869,6 +869,7 @@ let map, regionLayer, clusterGroup, fuseSearch;
 let recOffset = 0, recContextSpot = null;
 const spotImageCache = new Map();
 let isVisitRecordEditing = false;
+let pendingVisitRemovals = new Set();
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -948,13 +949,26 @@ function isVisitRecordFormComplete() {
   return Boolean(data.visitedAt && data.rating && data.memo);
 }
 
+function getMissingVisitRecordFields() {
+  const data = getVisitRecordFormData();
+  const missing = [];
+  if (!data.visitedAt) missing.push('방문일');
+  if (!data.rating) missing.push('평점');
+  if (!data.memo) missing.push('메모');
+  return missing;
+}
+
 function updateVisitRecordSaveState() {
   const saveBtn = document.getElementById('visit-record-save');
   const status = document.getElementById('visit-record-status');
   if (!saveBtn) return;
-  saveBtn.disabled = !isVisitRecordFormComplete();
-  if (status && !saveBtn.disabled && status.textContent === '방문 정보를 모두 입력해야 저장할 수 있습니다.') {
-    status.textContent = '';
+  const missing = getMissingVisitRecordFields();
+  saveBtn.disabled = missing.length > 0;
+  if (!status || document.getElementById('visit-record-form').hidden) return;
+  if (missing.length) {
+    status.textContent = `${missing.join(', ')} 입력 후 저장할 수 있습니다.`;
+  } else if (status.textContent.includes('입력 후 저장할 수 있습니다') || status.textContent === '방문 정보를 모두 입력해야 저장할 수 있습니다.') {
+    status.textContent = '저장할 준비가 되었습니다.';
   }
 }
 
@@ -976,6 +990,7 @@ function startVisitRecordEdit() {
   if (status) status.textContent = visitedSet.has(selectedSpot.id)
     ? '기록을 수정한 뒤 저장해 주세요.'
     : '방문 정보를 입력한 뒤 저장하면 발자국이 남습니다.';
+  updateVisitRecordSaveState();
   if (!visitedSet.has(selectedSpot.id)) {
     const btn = document.getElementById('panel-btn');
     btn.textContent = '입력 취소';
@@ -1804,14 +1819,17 @@ async function toggleVisited() {
   const btn = document.getElementById('panel-btn');
   const previousVisited = new Set(visitedSet);
   const previousRecords = {...visitRecords};
+  const previousRemovals = new Set(pendingVisitRemovals);
   btn.disabled = true;
   btn.style.opacity = '0.65';
   btn.textContent = wasV ? '방문 취소 저장 중...' : '방문 기록 저장 중...';
 
   wasV ? visitedSet.delete(id) : visitedSet.add(id);
   if (wasV) {
+    pendingVisitRemovals.add(id);
     delete visitRecords[id];
   } else if (!visitRecords[id]) {
+    pendingVisitRemovals.delete(id);
     visitRecords[id] = {
       visitedAt: new Date().toISOString().slice(0, 10),
       memo: '',
@@ -1864,12 +1882,15 @@ async function saveVisitRecord() {
   if (!selectedSpot) return;
   if (!isVisitRecordFormComplete()) {
     const status = document.getElementById('visit-record-status');
-    if (status) status.textContent = '방문 정보를 모두 입력해야 저장할 수 있습니다.';
+    const missing = getMissingVisitRecordFields();
+    if (status) status.textContent = `${missing.join(', ')} 입력 후 저장할 수 있습니다.`;
     updateVisitRecordSaveState();
     return;
   }
   const token = localStorage.getItem('gh-token');
   if (!token) {
+    const status = document.getElementById('visit-record-status');
+    if (status) status.textContent = 'GitHub 토큰을 먼저 등록해야 저장할 수 있습니다.';
     alert('GitHub Token이 저장되어 있지 않아 방문 기록을 저장할 수 없습니다. 설정에서 토큰을 먼저 등록해 주세요.');
     document.getElementById('settings-btn').click();
     return;
@@ -1879,8 +1900,10 @@ async function saveVisitRecord() {
   const wasVisited = visitedSet.has(id);
   const previousVisited = new Set(visitedSet);
   const previousRecords = JSON.parse(JSON.stringify(visitRecords));
+  const previousRemovals = new Set(pendingVisitRemovals);
   const formData = getVisitRecordFormData();
   visitedSet.add(id);
+  pendingVisitRemovals.delete(id);
   visitRecords[id] = {
     visitedAt: formData.visitedAt,
     rating: Number(formData.rating),
@@ -1899,10 +1922,11 @@ async function saveVisitRecord() {
   } catch(e) {
     visitedSet = previousVisited;
     visitRecords = previousRecords;
+    pendingVisitRemovals = previousRemovals;
     renderSpots();
     updateStats();
     renderVisitRecord(selectedSpot, visitedSet.has(selectedSpot.id));
-    setVisitRecordSaving(false, '저장하지 못했습니다.');
+    setVisitRecordSaving(false, '저장하지 못했습니다. 토큰 권한 또는 네트워크 상태를 확인해 주세요.');
     alert('발자국 세부 기록을 GitHub에 저장하지 못했습니다. 토큰 권한(repo)과 네트워크 상태를 확인해 주세요.\n\n' + e.message);
   }
 }
@@ -1941,7 +1965,7 @@ function sanitizeVisitRecords(records, visitedIds) {
   return cleaned;
 }
 
-async function pushVisitedToGitHub(token, statusEl) {
+async function pushVisitedToGitHub(token, statusEl, maxAttempts = 2) {
   const FILE = 'data/visited-spots.json';
   const BASE = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
   const headers = {
@@ -1950,39 +1974,45 @@ async function pushVisitedToGitHub(token, statusEl) {
     'Content-Type': 'application/json'
   };
 
-  // 현재 파일 SHA 가져오기
-  const getRes = await fetch(BASE, { headers });
-  if (!getRes.ok) {
-    const detail = await getRes.text().catch(() => '');
-    throw new Error('파일 조회 실패: ' + getRes.status + (detail ? ` ${detail}` : ''));
-  }
-  const currentFile = await getRes.json();
-  const { sha } = currentFile;
-  const currentData = normalizeVisitData(parseGitHubJsonContent(currentFile.content));
-  visitRecords = {...currentData.records, ...visitRecords};
-  visitRecords = sanitizeVisitRecords(visitRecords, visitedSet);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const getRes = await fetch(BASE, { headers });
+    if (!getRes.ok) {
+      const detail = await getRes.text().catch(() => '');
+      throw new Error('파일 조회 실패: ' + getRes.status + (detail ? ` ${detail}` : ''));
+    }
+    const currentFile = await getRes.json();
+    const { sha } = currentFile;
+    const currentData = normalizeVisitData(parseGitHubJsonContent(currentFile.content));
 
-  // 새 내용 생성
-  const today = new Date().toISOString().slice(0, 10);
-  const content = JSON.stringify({ visited: [...visitedSet], records: visitRecords, lastUpdated: today }, null, 2);
-  const encoded = btoa(unescape(encodeURIComponent(content)));
+    const mergedVisited = new Set([...(currentData.visited || []), ...visitedSet]);
+    pendingVisitRemovals.forEach(id => mergedVisited.delete(id));
+    visitedSet = mergedVisited;
+    visitRecords = {...currentData.records, ...visitRecords};
+    visitRecords = sanitizeVisitRecords(visitRecords, visitedSet);
 
-  // 파일 업데이트
-  const putRes = await fetch(BASE, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify({
-      message: `방문 기록 동기화 (${[...visitedSet].length}개)`,
-      content: encoded,
-      sha
-    })
-  });
-  if (!putRes.ok) {
+    const today = new Date().toISOString().slice(0, 10);
+    const content = JSON.stringify({ visited: [...visitedSet], records: visitRecords, lastUpdated: today }, null, 2);
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+
+    const putRes = await fetch(BASE, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        message: `방문 기록 동기화 (${[...visitedSet].length}개)`,
+        content: encoded,
+        sha
+      })
+    });
+    if (putRes.ok) {
+      pendingVisitRemovals.clear();
+      if (statusEl) statusEl.textContent = `✓ ${[...visitedSet].length}개 방문 기록이 GitHub에 저장되었습니다.`;
+      if (statusEl) statusEl.style.color = 'var(--accent)';
+      return;
+    }
     const detail = await putRes.text().catch(() => '');
+    if (putRes.status === 409 && attempt < maxAttempts) continue;
     throw new Error('업로드 실패: ' + putRes.status + (detail ? ` ${detail}` : ''));
   }
-  if (statusEl) statusEl.textContent = `✓ ${[...visitedSet].length}개 방문 기록이 GitHub에 저장되었습니다.`;
-  if (statusEl) statusEl.style.color = 'var(--accent)';
 }
 
 // ─── 2단계 필터 데이터 ───
