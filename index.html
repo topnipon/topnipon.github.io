@@ -1815,8 +1815,7 @@ async function toggleVisited() {
     visitRecords[id] = {
       visitedAt: new Date().toISOString().slice(0, 10),
       memo: '',
-      rating: null,
-      photos: []
+      rating: null
     };
   }
 
@@ -1881,13 +1880,11 @@ async function saveVisitRecord() {
   const previousVisited = new Set(visitedSet);
   const previousRecords = JSON.parse(JSON.stringify(visitRecords));
   const formData = getVisitRecordFormData();
-  const previousRecord = visitRecords[id] || {};
   visitedSet.add(id);
   visitRecords[id] = {
     visitedAt: formData.visitedAt,
     rating: Number(formData.rating),
-    memo: formData.memo,
-    photos: Array.isArray(previousRecord.photos) ? previousRecord.photos : []
+    memo: formData.memo
   };
 
   setVisitRecordSaving(true, 'GitHub에 저장하는 중입니다...');
@@ -1929,6 +1926,21 @@ async function syncGitHub(spotId, visited, token) {
   await pushVisitedToGitHub(token);
 }
 
+function sanitizeVisitRecords(records, visitedIds) {
+  const cleaned = {};
+  visitedIds.forEach(id => {
+    const record = records[id];
+    if (!record || typeof record !== 'object' || Array.isArray(record)) return;
+    const rating = Number(record.rating);
+    cleaned[id] = {
+      visitedAt: record.visitedAt || '',
+      memo: typeof record.memo === 'string' ? record.memo : '',
+      rating: Number.isFinite(rating) && rating >= 1 && rating <= 5 ? rating : null
+    };
+  });
+  return cleaned;
+}
+
 async function pushVisitedToGitHub(token, statusEl) {
   const FILE = 'data/visited-spots.json';
   const BASE = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
@@ -1948,9 +1960,7 @@ async function pushVisitedToGitHub(token, statusEl) {
   const { sha } = currentFile;
   const currentData = normalizeVisitData(parseGitHubJsonContent(currentFile.content));
   visitRecords = {...currentData.records, ...visitRecords};
-  Object.keys(visitRecords).forEach(id => {
-    if (!visitedSet.has(id)) delete visitRecords[id];
-  });
+  visitRecords = sanitizeVisitRecords(visitRecords, visitedSet);
 
   // 새 내용 생성
   const today = new Date().toISOString().slice(0, 10);
