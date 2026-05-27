@@ -957,6 +957,8 @@ let routeWalkerFrame = null;
 let routeWalkerPoints = [];
 let routeWalkerDistances = [];
 let routeWalkerTotalDistance = 0;
+let routeWalkerDuration = 0;
+let routeWalkerStartedAt = 0;
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -1119,6 +1121,7 @@ async function init() {
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     {subdomains:'abcd', maxZoom:19}).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
+  map.on('zoom move zoomend moveend', () => syncRouteWalkerPosition());
 
   // MarkerCluster 초기화
   clusterGroup = L.markerClusterGroup({
@@ -1371,6 +1374,8 @@ function stopRouteWalker() {
   routeWalkerPoints = [];
   routeWalkerDistances = [];
   routeWalkerTotalDistance = 0;
+  routeWalkerDuration = 0;
+  routeWalkerStartedAt = 0;
 }
 
 function startRouteWalker(points) {
@@ -1378,6 +1383,10 @@ function startRouteWalker(points) {
     stopRouteWalker();
     return;
   }
+  const now = performance.now();
+  const currentProgress = routeWalkerDuration
+    ? ((now - routeWalkerStartedAt) % routeWalkerDuration) / routeWalkerDuration
+    : 0;
   if (routeWalkerFrame) cancelAnimationFrame(routeWalkerFrame);
   routeWalkerPoints = points.map(p => L.latLng(p[0], p[1]));
   routeWalkerDistances = [0];
@@ -1401,17 +1410,23 @@ function startRouteWalker(points) {
   } else {
     routeWalkerMarker.setLatLng(routeWalkerPoints[0]).addTo(map);
   }
-  const duration = Math.max(150000, Math.min(routeWalkerTotalDistance * 86, 360000));
-  const startedAt = performance.now();
+  routeWalkerDuration = Math.max(300000, Math.min(routeWalkerTotalDistance * 172, 720000));
+  routeWalkerStartedAt = now - currentProgress * routeWalkerDuration;
+  syncRouteWalkerPosition(now);
   const tick = now => {
-    const elapsed = (now - startedAt) % duration;
-    const distance = routeWalkerTotalDistance * (elapsed / duration);
-    const position = getRouteWalkerPosition(distance);
-    routeWalkerMarker.setLatLng(position.latLng);
-    updateRouteWalkerDirection(position.angle);
+    syncRouteWalkerPosition(now);
     routeWalkerFrame = requestAnimationFrame(tick);
   };
   routeWalkerFrame = requestAnimationFrame(tick);
+}
+
+function syncRouteWalkerPosition(now = performance.now()) {
+  if (!routeWalkerMarker || !routeWalkerTotalDistance || !routeWalkerDuration) return;
+  const elapsed = (now - routeWalkerStartedAt) % routeWalkerDuration;
+  const distance = routeWalkerTotalDistance * (elapsed / routeWalkerDuration);
+  const position = getRouteWalkerPosition(distance);
+  routeWalkerMarker.setLatLng(position.latLng);
+  updateRouteWalkerDirection(position.angle);
 }
 
 function getRouteWalkerPosition(distance) {
