@@ -1401,7 +1401,7 @@ function startRouteWalker(points) {
   } else {
     routeWalkerMarker.setLatLng(routeWalkerPoints[0]).addTo(map);
   }
-  const duration = Math.max(62000, Math.min(routeWalkerTotalDistance * 34, 148000));
+  const duration = Math.max(150000, Math.min(routeWalkerTotalDistance * 86, 360000));
   const startedAt = performance.now();
   const tick = now => {
     const elapsed = (now - startedAt) % duration;
