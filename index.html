@@ -1251,11 +1251,11 @@ function renderVisitedRoute() {
   }
   const routeSpots = getVisitedRouteSpots();
   if (routeSpots.length < 2) return;
-  const points = routeSpots.map(s => [s.lat, s.lng]);
+  const points = getCurvedRoutePoints(routeSpots);
   visitedRouteLayer = L.polyline(points, {
     color:'#f6ad55',
     weight:1.35,
-    opacity:.28,
+    opacity:.42,
     dashArray:'1 8',
     interactive:false,
     className:'visited-route'
@@ -1274,6 +1274,43 @@ function animateVisitedRoute() {
   path.style.transition = 'opacity 2.2s ease, stroke-dashoffset 2.2s cubic-bezier(.22,1,.36,1)';
   path.style.opacity = '1';
   path.style.strokeDashoffset = '0';
+}
+
+function getCurvedRoutePoints(routeSpots) {
+  const curved = [];
+  routeSpots.forEach((spot, index) => {
+    if (index === 0) {
+      curved.push([spot.lat, spot.lng]);
+      return;
+    }
+    const prev = routeSpots[index - 1];
+    curved.push(...buildCurveSegment(prev, spot, index));
+  });
+  return curved;
+}
+
+function buildCurveSegment(start, end, index) {
+  const steps = 16;
+  const dx = end.lng - start.lng;
+  const dy = end.lat - start.lat;
+  const distance = Math.hypot(dx, dy);
+  if (!distance) return [[end.lat, end.lng]];
+  const bend = Math.min(Math.max(distance * 0.18, 0.018), 0.18) * (index % 2 ? 1 : -1);
+  const midLat = (start.lat + end.lat) / 2;
+  const midLng = (start.lng + end.lng) / 2;
+  const control = {
+    lat: midLat + (dx / distance) * bend,
+    lng: midLng - (dy / distance) * bend
+  };
+  const points = [];
+  for (let step = 1; step <= steps; step++) {
+    const t = step / steps;
+    const oneMinusT = 1 - t;
+    const lat = oneMinusT * oneMinusT * start.lat + 2 * oneMinusT * t * control.lat + t * t * end.lat;
+    const lng = oneMinusT * oneMinusT * start.lng + 2 * oneMinusT * t * control.lng + t * t * end.lng;
+    points.push([lat, lng]);
+  }
+  return points;
 }
 
 function pulseMarker(spotId) {
