@@ -389,6 +389,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .visited-route{
   stroke-linecap:round;stroke-linejoin:round;
   filter:drop-shadow(0 0 3px rgba(246,173,85,.18));
+  animation:routeFlow 2.8s linear infinite;
 }
 .spot-dot{position:relative}
 .spot-dot.selected::after{
@@ -551,7 +552,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 @keyframes visitMarkerPop{0%{transform:scale(.58);filter:brightness(1)}48%{transform:scale(1.72);filter:brightness(1.7)}100%{transform:scale(1);filter:brightness(1.08)}}
 @keyframes visitMarkerRing{0%{opacity:.75;transform:scale(.55)}100%{opacity:0;transform:scale(3.1)}}
 @keyframes stampPop{0%{transform:scale(.58) rotate(-14deg);opacity:.55}60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
-@keyframes routeFlow{to{stroke-dashoffset:-24}}
+@keyframes routeFlow{to{stroke-dashoffset:-36}}
 @keyframes listItemIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── 검색 키보드 포커스 ─── */
@@ -1271,9 +1272,14 @@ function animateVisitedRoute() {
   path.style.opacity = '0';
   path.style.strokeDashoffset = '24';
   path.getBoundingClientRect();
+  path.style.animation = 'none';
   path.style.transition = 'opacity 2.2s ease, stroke-dashoffset 2.2s cubic-bezier(.22,1,.36,1)';
   path.style.opacity = '1';
   path.style.strokeDashoffset = '0';
+  setTimeout(() => {
+    path.style.transition = '';
+    path.style.animation = '';
+  }, 2200);
 }
 
 function getCurvedRoutePoints(routeSpots) {
