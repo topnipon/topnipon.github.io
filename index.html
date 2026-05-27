@@ -1343,7 +1343,7 @@ function buildCurveSegment(start, end, index) {
   const dy = end.lat - start.lat;
   const distance = Math.hypot(dx, dy);
   if (!distance) return [[end.lat, end.lng]];
-  const bend = Math.min(Math.max(distance * 0.18, 0.018), 0.18) * (index % 2 ? 1 : -1);
+  const bend = Math.min(Math.max(distance * 0.34, 0.034), 0.34) * (index % 2 ? 1 : -1);
   const midLat = (start.lat + end.lat) / 2;
   const midLng = (start.lng + end.lng) / 2;
   const control = {
