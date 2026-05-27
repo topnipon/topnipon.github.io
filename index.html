@@ -409,6 +409,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .route-walker-icon{background:transparent;border:none}
 .route-walker-avatar{
   --walker-tilt:0deg;
+  --walker-facing:1;
   width:32px;height:41px;display:flex;align-items:flex-end;justify-content:center;
   position:relative;
   transform-origin:50% 100%;
@@ -422,6 +423,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .route-walker-avatar img{
   width:100%;height:100%;object-fit:contain;display:block;
+  filter:invert(1) brightness(1.08) drop-shadow(0 1px 1px rgba(0,0,0,.5));
   animation:routeWalkerStride .82s steps(2,end) infinite;
 }
 #map.filtering .spot-icon>div{animation:markerRefresh .28s ease both}
@@ -578,8 +580,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   75%{transform:translateY(-2px) rotate(calc(var(--walker-tilt) - 3deg))}
 }
 @keyframes routeWalkerStride{
-  0%,49%{transform:translateX(-1px) skewX(-2deg)}
-  50%,100%{transform:translateX(1px) skewX(2deg)}
+  0%,49%{transform:scaleX(var(--walker-facing)) translateX(-1px) skewX(-2deg)}
+  50%,100%{transform:scaleX(var(--walker-facing)) translateX(1px) skewX(2deg)}
 }
 @keyframes routeWalkerShadow{0%,100%{transform:translateX(-50%) scaleX(1.08);opacity:.34}50%{transform:translateX(-50%) scaleX(.78);opacity:.2}}
 @keyframes listItemIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -1447,6 +1449,7 @@ function updateRouteWalkerDirection(angle) {
   if (!avatar) return;
   const normalized = ((angle + 540) % 360) - 180;
   avatar.style.setProperty('--walker-tilt', `${Math.max(-9, Math.min(9, normalized / 12))}deg`);
+  avatar.style.setProperty('--walker-facing', Math.abs(normalized) > 90 ? -1 : 1);
 }
 
 function pulseMarker(spotId) {
