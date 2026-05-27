@@ -389,7 +389,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .visited-route{
   stroke-linecap:round;stroke-linejoin:round;
   filter:drop-shadow(0 0 3px rgba(246,173,85,.18));
-  animation:routeFlow 2.8s linear infinite;
+  animation:routeFlow 6s linear infinite;
 }
 .spot-dot{position:relative}
 .spot-dot.selected::after{
@@ -1120,7 +1120,7 @@ async function init() {
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     {subdomains:'abcd', maxZoom:19}).addTo(map);
   L.control.zoom({position:'bottomright'}).addTo(map);
-  map.on('zoom move zoomend moveend', () => syncRouteWalkerPosition());
+  map.on('zoomend moveend', () => syncRouteWalkerPosition());
 
   // MarkerCluster 초기화
   clusterGroup = L.markerClusterGroup({
@@ -1338,7 +1338,7 @@ function getCurvedRoutePoints(routeSpots) {
 }
 
 function buildCurveSegment(start, end, index) {
-  const steps = 16;
+  const steps = 8;
   const dx = end.lng - start.lng;
   const dy = end.lat - start.lat;
   const distance = Math.hypot(dx, dy);
@@ -1375,6 +1375,7 @@ function stopRouteWalker() {
   routeWalkerTotalDistance = 0;
   routeWalkerDuration = 0;
   routeWalkerStartedAt = 0;
+  startRouteWalker.lastTick = 0;
 }
 
 function startRouteWalker(points) {
@@ -1412,8 +1413,12 @@ function startRouteWalker(points) {
   routeWalkerDuration = Math.max(300000, Math.min(routeWalkerTotalDistance * 172, 720000));
   routeWalkerStartedAt = now - currentProgress * routeWalkerDuration;
   syncRouteWalkerPosition(now);
+  startRouteWalker.lastTick = 0;
   const tick = now => {
-    syncRouteWalkerPosition(now);
+    if (!startRouteWalker.lastTick || now - startRouteWalker.lastTick >= 100) {
+      syncRouteWalkerPosition(now);
+      startRouteWalker.lastTick = now;
+    }
     routeWalkerFrame = requestAnimationFrame(tick);
   };
   routeWalkerFrame = requestAnimationFrame(tick);
@@ -2549,6 +2554,14 @@ function bindEvents() {
   document.getElementById('visit-record-form').addEventListener('submit', e => {
     e.preventDefault();
     saveVisitRecord();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && routeWalkerFrame) {
+      cancelAnimationFrame(routeWalkerFrame);
+      routeWalkerFrame = null;
+    } else if (!document.hidden && routeWalkerPoints.length > 1 && !routeWalkerFrame) {
+      startRouteWalker(routeWalkerPoints.map(p => [p.lat, p.lng]));
+    }
   });
   map.on('click', closePanel);
 
