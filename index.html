@@ -406,6 +406,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid currentColor;
   animation:visitMarkerRing .95s ease-out both;pointer-events:none;
 }
+.route-walker-icon{background:transparent;border:none}
+.route-walker-avatar{
+  width:42px;height:54px;display:flex;align-items:flex-end;justify-content:center;
+  transform-origin:50% 100%;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.42));
+  animation:routeWalkerStep .72s ease-in-out infinite;
+}
+.route-walker-avatar img{width:100%;height:100%;object-fit:contain;display:block}
 #map.filtering .spot-icon>div{animation:markerRefresh .28s ease both}
 
 /* ─── 근처 스팟 ─── */
@@ -553,6 +561,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 @keyframes visitMarkerRing{0%{opacity:.75;transform:scale(.55)}100%{opacity:0;transform:scale(3.1)}}
 @keyframes stampPop{0%{transform:scale(.58) rotate(-14deg);opacity:.55}60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 @keyframes routeFlow{to{stroke-dashoffset:-36}}
+@keyframes routeWalkerStep{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
 @keyframes listItemIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── 검색 키보드 포커스 ─── */
@@ -921,6 +930,11 @@ let isVisitRecordEditing = false;
 let pendingVisitRemovals = new Set();
 let visitedRouteLayer = null;
 let pendingVisitAnimationId = null;
+let routeWalkerMarker = null;
+let routeWalkerFrame = null;
+let routeWalkerPoints = [];
+let routeWalkerDistances = [];
+let routeWalkerTotalDistance = 0;
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -1251,11 +1265,14 @@ function renderVisitedRoute() {
     visitedRouteLayer = null;
   }
   const routeSpots = getVisitedRouteSpots();
-  if (routeSpots.length < 2) return;
+  if (routeSpots.length < 2) {
+    stopRouteWalker();
+    return;
+  }
   const points = getCurvedRoutePoints(routeSpots);
   visitedRouteLayer = L.polyline(points, {
     color:'#f6ad55',
-    weight:1.35,
+    weight:1.62,
     opacity:.42,
     dashArray:'1 8',
     interactive:false,
@@ -1263,6 +1280,7 @@ function renderVisitedRoute() {
   }).addTo(map);
   if (clusterGroup && clusterGroup.bringToFront) clusterGroup.bringToFront();
   requestAnimationFrame(animateVisitedRoute);
+  startRouteWalker(points);
 }
 
 function animateVisitedRoute() {
@@ -1317,6 +1335,74 @@ function buildCurveSegment(start, end, index) {
     points.push([lat, lng]);
   }
   return points;
+}
+
+function stopRouteWalker() {
+  if (routeWalkerFrame) {
+    cancelAnimationFrame(routeWalkerFrame);
+    routeWalkerFrame = null;
+  }
+  if (routeWalkerMarker && map) {
+    map.removeLayer(routeWalkerMarker);
+  }
+  routeWalkerMarker = null;
+  routeWalkerPoints = [];
+  routeWalkerDistances = [];
+  routeWalkerTotalDistance = 0;
+}
+
+function startRouteWalker(points) {
+  if (!map || prefersReducedMotion() || points.length < 2) {
+    stopRouteWalker();
+    return;
+  }
+  if (routeWalkerFrame) cancelAnimationFrame(routeWalkerFrame);
+  routeWalkerPoints = points.map(p => L.latLng(p[0], p[1]));
+  routeWalkerDistances = [0];
+  routeWalkerTotalDistance = 0;
+  for (let i = 1; i < routeWalkerPoints.length; i++) {
+    routeWalkerTotalDistance += map.distance(routeWalkerPoints[i - 1], routeWalkerPoints[i]);
+    routeWalkerDistances.push(routeWalkerTotalDistance);
+  }
+  if (!routeWalkerTotalDistance) return;
+  if (!routeWalkerMarker) {
+    routeWalkerMarker = L.marker(routeWalkerPoints[0], {
+      interactive:false,
+      zIndexOffset:900,
+      icon:L.divIcon({
+        className:'route-walker-icon',
+        iconSize:[42,54],
+        iconAnchor:[21,48],
+        html:'<div class="route-walker-avatar"><img src="assets/images/route-walker.png" alt=""></div>'
+      })
+    }).addTo(map);
+  } else {
+    routeWalkerMarker.setLatLng(routeWalkerPoints[0]).addTo(map);
+  }
+  const duration = Math.max(32000, Math.min(routeWalkerTotalDistance * 18, 76000));
+  const startedAt = performance.now();
+  const tick = now => {
+    const elapsed = (now - startedAt) % duration;
+    const distance = routeWalkerTotalDistance * (elapsed / duration);
+    routeWalkerMarker.setLatLng(getRouteWalkerPosition(distance));
+    routeWalkerFrame = requestAnimationFrame(tick);
+  };
+  routeWalkerFrame = requestAnimationFrame(tick);
+}
+
+function getRouteWalkerPosition(distance) {
+  let index = 1;
+  while (index < routeWalkerDistances.length && routeWalkerDistances[index] < distance) index++;
+  if (index >= routeWalkerPoints.length) return routeWalkerPoints[routeWalkerPoints.length - 1];
+  const start = routeWalkerPoints[index - 1];
+  const end = routeWalkerPoints[index];
+  const segmentStart = routeWalkerDistances[index - 1];
+  const segmentLength = Math.max(routeWalkerDistances[index] - segmentStart, 1);
+  const t = Math.min(Math.max((distance - segmentStart) / segmentLength, 0), 1);
+  return L.latLng(
+    start.lat + (end.lat - start.lat) * t,
+    start.lng + (end.lng - start.lng) * t
+  );
 }
 
 function pulseMarker(spotId) {
