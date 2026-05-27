@@ -194,6 +194,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #panel-stamp.visited{
   width:112px;height:112px;border:none;background:transparent;box-shadow:none;margin-bottom:12px;
 }
+#panel-stamp.pop{animation:stampPop .56s cubic-bezier(.2,.9,.2,1) both}
 #panel-stamp img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}
 #panel-btn{
   display:block;width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;
@@ -362,6 +363,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   cursor:pointer;transition:all .18s;
 }
 .rec-item:hover{border-color:rgba(246,173,85,.45);background:rgba(246,173,85,.08)}
+.rec-item.entering{animation:listItemIn .28s ease both}
+.rec-item.entering:nth-child(2){animation-delay:.035s}
+.rec-item.entering:nth-child(3){animation-delay:.07s}
+.rec-item.entering:nth-child(4){animation-delay:.105s}
+.rec-item.entering:nth-child(5){animation-delay:.14s}
 .rec-dot{width:9px;height:9px;border-radius:50%}
 .rec-name{font-size:.78rem;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rec-meta{font-size:.62rem;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -380,10 +386,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .custom-cluster:hover{border-color:rgba(246,173,85,0.75);box-shadow:var(--sh-md)}
 .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:none!important}
 .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{display:none!important}
+.visited-route{
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 5px rgba(246,173,85,.36));
+}
 .spot-dot{position:relative}
 .spot-dot.selected::after{
   content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid currentColor;
   opacity:.75;animation:spotPulse 1.25s ease-out infinite;pointer-events:none;
+}
+.spot-dot:not(.selected):hover{transform:translateY(-2px) scale(1.12)}
+.spot-dot.visit-pop{animation:visitMarkerPop .72s cubic-bezier(.2,.9,.2,1) both}
+.spot-dot.visit-pop::before{
+  content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;
+  animation:visitMarkerRing .72s ease-out both;pointer-events:none;
+}
+.spot-dot.region-pulse::before{
+  content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid currentColor;
+  animation:visitMarkerRing .95s ease-out both;pointer-events:none;
 }
 #map.filtering .spot-icon>div{animation:markerRefresh .28s ease both}
 
@@ -395,6 +415,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   background:var(--surface2);margin-bottom:5px;cursor:pointer;transition:background .15s;
 }
 .nearby-item:hover{background:var(--border)}
+.nearby-item.entering{animation:listItemIn .28s ease both}
+.nearby-item.entering:nth-child(2){animation-delay:.04s}
+.nearby-item.entering:nth-child(3){animation-delay:.08s}
 .nearby-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .nearby-name{font-size:0.78rem;color:var(--text);font-weight:600;flex:1}
 .nearby-dist{font-size:0.65rem;color:var(--text2)}
@@ -525,6 +548,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 @keyframes filterPick{0%{transform:scale(.96)}70%{transform:scale(1.04)}100%{transform:scale(1)}}
 @keyframes achGlow{0%{box-shadow:0 4px 24px rgba(0,0,0,.5)}45%{box-shadow:0 0 0 4px rgba(246,173,85,.22),0 8px 28px rgba(246,173,85,.24)}100%{box-shadow:0 4px 24px rgba(0,0,0,.5)}}
 @keyframes achIconPop{0%{transform:scale(.55) rotate(-12deg)}65%{transform:scale(1.18) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes visitMarkerPop{0%{transform:scale(.58);filter:brightness(1)}48%{transform:scale(1.72);filter:brightness(1.7)}100%{transform:scale(1);filter:brightness(1.08)}}
+@keyframes visitMarkerRing{0%{opacity:.75;transform:scale(.55)}100%{opacity:0;transform:scale(3.1)}}
+@keyframes stampPop{0%{transform:scale(.58) rotate(-14deg);opacity:.55}60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes routeFlow{to{stroke-dashoffset:-24}}
+@keyframes listItemIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── 검색 키보드 포커스 ─── */
 .sr-item.focused{background:rgba(246,173,85,0.12)}
@@ -890,6 +918,8 @@ let recOffset = 0, recContextSpot = null;
 const spotImageCache = new Map();
 let isVisitRecordEditing = false;
 let pendingVisitRemovals = new Set();
+let visitedRouteLayer = null;
+let pendingVisitAnimationId = null;
 
 // 지역별 색상 (시도 코드 → 지역명 매핑)
 const CODE_TO_REGION = {
@@ -1148,10 +1178,10 @@ function makeSpotIcon(spot, isVisited, isSelected) {
     const glow = isSelected
       ? `box-shadow:0 0 0 2px ${col}50,0 0 10px ${col}90;transform:scale(1.3);`
       : `box-shadow:0 0 4px ${col}60;`;
-    inner = `<div class="spot-dot${isSelected?' selected':''}" style="width:${size}px;height:${size}px;border-radius:50%;background:${col};color:${col};opacity:0.85;border:2px solid ${col};${glow};transition:all .2s"></div>`;
+    inner = `<div class="spot-dot visited${isSelected?' selected':''}" style="width:${size}px;height:${size}px;border-radius:50%;background:${col};color:${col};opacity:0.85;border:2px solid ${col};${glow};transition:all .2s"></div>`;
   } else {
     const glow = isSelected ? `box-shadow:0 0 7px ${col}70;transform:scale(1.18);` : '';
-    inner = `<div class="spot-dot${isSelected?' selected':''}" style="width:${size}px;height:${size}px;border-radius:50%;background:${col}20;color:${col};border:1.5px solid ${col}BB;${glow};transition:all .2s"></div>`;
+    inner = `<div class="spot-dot unvisited${isSelected?' selected':''}" style="width:${size}px;height:${size}px;border-radius:50%;background:${col}20;color:${col};border:1.5px solid ${col}BB;${glow};transition:all .2s"></div>`;
   }
   return L.divIcon({ html:inner, className:'spot-icon', iconSize:[size,size], iconAnchor:[size/2,size/2] });
 }
@@ -1192,6 +1222,97 @@ function renderSpots() {
       document.getElementById('map-empty-msg').textContent =
         activeRegion ? `${activeRegion}에 아직 발자국이 없습니다` : '아직 이 테마의 발자국은 없습니다';
     }
+  }
+  if (activeRegion) setTimeout(() => pulseRegionMarkers(activeRegion), 120);
+}
+
+function getVisitedRouteSpots(limit=42) {
+  return [...visitedSet]
+    .map((id, idx) => {
+      const spot = spotsData.find(s => s.id === id);
+      const record = visitRecords[id] || {};
+      return spot ? {...spot, visitedAt: record.visitedAt || '', visitOrder: idx} : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      if (a.visitedAt && b.visitedAt && a.visitedAt !== b.visitedAt) return a.visitedAt.localeCompare(b.visitedAt);
+      if (a.visitedAt && !b.visitedAt) return -1;
+      if (!a.visitedAt && b.visitedAt) return 1;
+      return a.visitOrder - b.visitOrder;
+    })
+    .slice(-limit);
+}
+
+function renderVisitedRoute() {
+  if (!map) return;
+  if (visitedRouteLayer) {
+    map.removeLayer(visitedRouteLayer);
+    visitedRouteLayer = null;
+  }
+  const routeSpots = getVisitedRouteSpots();
+  if (routeSpots.length < 2) return;
+  const points = routeSpots.map(s => [s.lat, s.lng]);
+  visitedRouteLayer = L.polyline(points, {
+    color:'#f6ad55',
+    weight:2.4,
+    opacity:.58,
+    interactive:false,
+    className:'visited-route'
+  }).addTo(map);
+  if (clusterGroup && clusterGroup.bringToFront) clusterGroup.bringToFront();
+  requestAnimationFrame(animateVisitedRoute);
+}
+
+function animateVisitedRoute() {
+  const path = document.querySelector('.visited-route');
+  if (!path || typeof path.getTotalLength !== 'function') return;
+  if (prefersReducedMotion()) return;
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = `${length} ${length}`;
+  path.style.strokeDashoffset = length;
+  path.getBoundingClientRect();
+  path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(.22,1,.36,1)';
+  path.style.strokeDashoffset = '0';
+}
+
+function pulseMarker(spotId) {
+  const marker = markerMap[spotId];
+  const markerEl = marker && marker.getElement ? marker.getElement() : null;
+  const dot = markerEl ? markerEl.querySelector('.spot-dot') : null;
+  if (!dot) return;
+  dot.classList.remove('visit-pop');
+  void dot.offsetWidth;
+  dot.classList.add('visit-pop');
+  setTimeout(() => dot.classList.remove('visit-pop'), 850);
+}
+
+function pulseRegionMarkers(region) {
+  if (!region) return;
+  spotsData
+    .filter(s => s.region === region)
+    .slice(0, 80)
+    .forEach((spot, index) => {
+      setTimeout(() => {
+        const marker = markerMap[spot.id];
+        const markerEl = marker && marker.getElement ? marker.getElement() : null;
+        const dot = markerEl ? markerEl.querySelector('.spot-dot') : null;
+        if (!dot) return;
+        dot.classList.remove('region-pulse');
+        void dot.offsetWidth;
+        dot.classList.add('region-pulse');
+        setTimeout(() => dot.classList.remove('region-pulse'), 1000);
+      }, index * 18);
+    });
+}
+
+function celebrateVisit(spot) {
+  if (!spot) return;
+  pulseMarker(spot.id);
+  const stamp = document.getElementById('panel-stamp');
+  if (stamp) {
+    stamp.classList.remove('pop');
+    void stamp.offsetWidth;
+    stamp.classList.add('pop');
   }
 }
 
@@ -1308,7 +1429,7 @@ function renderRecommendations(contextSpot=null, reset=false) {
     const score = s.dist != null
       ? (s.dist < 1 ? Math.round(s.dist * 1000) + 'm' : s.dist.toFixed(1) + 'km')
       : s.reason;
-    return `<div class="rec-item" data-id="${s.id}">
+    return `<div class="rec-item entering" data-id="${s.id}">
       <div class="rec-dot" style="background:${color}"></div>
       <div>
         <div class="rec-name">${s.name}</div>
@@ -1642,13 +1763,37 @@ function showAchToast(a) {
   setTimeout(() => el.remove(), 4000);
 }
 
+function prefersReducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function animateNumber(el, value, suffix='') {
+  if (!el) return;
+  const next = Number(value) || 0;
+  const prev = Number(el.dataset.value ?? el.textContent.replace(/[^\d.-]/g, '')) || 0;
+  el.dataset.value = next;
+  if (prefersReducedMotion() || prev === next) {
+    el.textContent = next + suffix;
+    return;
+  }
+  const start = performance.now();
+  const duration = 620;
+  function tick(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(prev + (next - prev) * eased) + suffix;
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function updateStats() {
   const total = spotsData.length;
   const n = visitedSet.size;
   const pct = total ? Math.round(n/total*100) : 0;
-  document.getElementById('prog-visited').textContent = n;
+  animateNumber(document.getElementById('prog-visited'), n);
   document.getElementById('prog-total').textContent = total;
-  document.getElementById('prog-pct').textContent = pct+'%';
+  animateNumber(document.getElementById('prog-pct'), pct, '%');
   const fill = document.getElementById('prog-fill');
   fill.style.width = pct+'%';
   fill.classList.remove('bump');
@@ -1656,6 +1801,7 @@ function updateStats() {
   fill.classList.add('bump');
   updateRegionStats();
   updateLegendCounts();
+  renderVisitedRoute();
   if (regionLayer) regionLayer.setStyle(f => regionStyle(f));
 }
 
@@ -1746,7 +1892,7 @@ function openPanel(spot) {
   document.getElementById('nearby-list').innerHTML = nearby.map(n => {
     const nc = CAT_COLOR[n.category]||'#888';
     const nv = visitedSet.has(n.id) ? '✓ ' : '';
-    return `<div class="nearby-item" data-id="${n.id}">
+    return `<div class="nearby-item entering" data-id="${n.id}">
       <div class="nearby-dot" style="background:${nc}"></div>
       <span class="nearby-name">${nv}${n.name}</span>
       <span class="nearby-dist">${n.dist < 1 ? Math.round(n.dist*1000)+'m' : n.dist.toFixed(1)+'km'}</span>
@@ -1765,6 +1911,10 @@ function openPanel(spot) {
   stamp.className = v ? 'visited' : '';
   // 방문 시 팝 애니메이션
   if (v) { stamp.classList.remove('pop'); void stamp.offsetWidth; stamp.classList.add('pop'); }
+  if (pendingVisitAnimationId === spot.id) {
+    pendingVisitAnimationId = null;
+    setTimeout(() => celebrateVisit(spot), 80);
+  }
 
   const btn = document.getElementById('panel-btn');
   if (btn.disabled) {
@@ -1859,6 +2009,7 @@ async function toggleVisited() {
 
   try {
     await syncGitHub(id, !wasV, token);
+    if (!wasV) pendingVisitAnimationId = id;
     renderSpots();
     updateStats();
     renderRecommendations(selectedSpot, true);
@@ -1934,6 +2085,7 @@ async function saveVisitRecord() {
   try {
     await pushVisitedToGitHub(token);
     isVisitRecordEditing = false;
+    if (!wasVisited) pendingVisitAnimationId = id;
     renderSpots();
     updateStats();
     if (selectedSpot) openPanel(selectedSpot);
