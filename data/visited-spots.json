@@ -127,7 +127,8 @@
     "gg-morning-calm-arboretum",
     "resort-shinhwa",
     "hike-seoul-dulle",
-    "seoul-cheongwadae-road"
+    "seoul-cheongwadae-road",
+    "seoul-cheonggye-plaza"
   ],
   "records": {
     "hike-seoul-dulle": {
@@ -139,6 +140,11 @@
       "visitedAt": "2026-04-26",
       "memo": "러너의 성지",
       "rating": 4
+    },
+    "seoul-cheonggye-plaza": {
+      "visitedAt": "2020-01-05",
+      "memo": "도심속 힐링 스팟",
+      "rating": 3
     }
   },
   "lastUpdated": "2026-05-27"
