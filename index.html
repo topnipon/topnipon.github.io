@@ -408,12 +408,22 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .route-walker-icon{background:transparent;border:none}
 .route-walker-avatar{
-  width:42px;height:54px;display:flex;align-items:flex-end;justify-content:center;
+  --walker-tilt:0deg;
+  width:32px;height:41px;display:flex;align-items:flex-end;justify-content:center;
+  position:relative;
   transform-origin:50% 100%;
   filter:drop-shadow(0 8px 10px rgba(0,0,0,.42));
-  animation:routeWalkerStep .72s ease-in-out infinite;
+  animation:routeWalkerStep .82s ease-in-out infinite;
 }
-.route-walker-avatar img{width:100%;height:100%;object-fit:contain;display:block}
+.route-walker-avatar::after{
+  content:"";position:absolute;left:50%;bottom:-3px;width:24px;height:6px;border-radius:50%;
+  background:rgba(0,0,0,.34);transform:translateX(-50%);
+  animation:routeWalkerShadow .82s ease-in-out infinite;z-index:-1;
+}
+.route-walker-avatar img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  animation:routeWalkerStride .82s steps(2,end) infinite;
+}
 #map.filtering .spot-icon>div{animation:markerRefresh .28s ease both}
 
 /* ─── 근처 스팟 ─── */
@@ -561,7 +571,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 @keyframes visitMarkerRing{0%{opacity:.75;transform:scale(.55)}100%{opacity:0;transform:scale(3.1)}}
 @keyframes stampPop{0%{transform:scale(.58) rotate(-14deg);opacity:.55}60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
 @keyframes routeFlow{to{stroke-dashoffset:-36}}
-@keyframes routeWalkerStep{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
+@keyframes routeWalkerStep{
+  0%,100%{transform:translateY(0) rotate(calc(var(--walker-tilt) - 2deg))}
+  25%{transform:translateY(-2px) rotate(calc(var(--walker-tilt) + 3deg))}
+  50%{transform:translateY(0) rotate(calc(var(--walker-tilt) + 1deg))}
+  75%{transform:translateY(-2px) rotate(calc(var(--walker-tilt) - 3deg))}
+}
+@keyframes routeWalkerStride{
+  0%,49%{transform:translateX(-1px) skewX(-2deg)}
+  50%,100%{transform:translateX(1px) skewX(2deg)}
+}
+@keyframes routeWalkerShadow{0%,100%{transform:translateX(-50%) scaleX(1.08);opacity:.34}50%{transform:translateX(-50%) scaleX(.78);opacity:.2}}
 @keyframes listItemIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── 검색 키보드 포커스 ─── */
@@ -1371,20 +1391,22 @@ function startRouteWalker(points) {
       zIndexOffset:900,
       icon:L.divIcon({
         className:'route-walker-icon',
-        iconSize:[42,54],
-        iconAnchor:[21,48],
+        iconSize:[32,41],
+        iconAnchor:[16,37],
         html:'<div class="route-walker-avatar"><img src="assets/images/route-walker.png" alt=""></div>'
       })
     }).addTo(map);
   } else {
     routeWalkerMarker.setLatLng(routeWalkerPoints[0]).addTo(map);
   }
-  const duration = Math.max(32000, Math.min(routeWalkerTotalDistance * 18, 76000));
+  const duration = Math.max(62000, Math.min(routeWalkerTotalDistance * 34, 148000));
   const startedAt = performance.now();
   const tick = now => {
     const elapsed = (now - startedAt) % duration;
     const distance = routeWalkerTotalDistance * (elapsed / duration);
-    routeWalkerMarker.setLatLng(getRouteWalkerPosition(distance));
+    const position = getRouteWalkerPosition(distance);
+    routeWalkerMarker.setLatLng(position.latLng);
+    updateRouteWalkerDirection(position.angle);
     routeWalkerFrame = requestAnimationFrame(tick);
   };
   routeWalkerFrame = requestAnimationFrame(tick);
@@ -1393,16 +1415,38 @@ function startRouteWalker(points) {
 function getRouteWalkerPosition(distance) {
   let index = 1;
   while (index < routeWalkerDistances.length && routeWalkerDistances[index] < distance) index++;
-  if (index >= routeWalkerPoints.length) return routeWalkerPoints[routeWalkerPoints.length - 1];
+  if (index >= routeWalkerPoints.length) {
+    const last = routeWalkerPoints[routeWalkerPoints.length - 1];
+    const prev = routeWalkerPoints[routeWalkerPoints.length - 2] || last;
+    return { latLng:last, angle:getRouteWalkerAngle(prev, last) };
+  }
   const start = routeWalkerPoints[index - 1];
   const end = routeWalkerPoints[index];
   const segmentStart = routeWalkerDistances[index - 1];
   const segmentLength = Math.max(routeWalkerDistances[index] - segmentStart, 1);
   const t = Math.min(Math.max((distance - segmentStart) / segmentLength, 0), 1);
-  return L.latLng(
-    start.lat + (end.lat - start.lat) * t,
-    start.lng + (end.lng - start.lng) * t
-  );
+  return {
+    latLng:L.latLng(
+      start.lat + (end.lat - start.lat) * t,
+      start.lng + (end.lng - start.lng) * t
+    ),
+    angle:getRouteWalkerAngle(start, end)
+  };
+}
+
+function getRouteWalkerAngle(start, end) {
+  const a = map.latLngToLayerPoint(start);
+  const b = map.latLngToLayerPoint(end);
+  return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+}
+
+function updateRouteWalkerDirection(angle) {
+  if (!routeWalkerMarker || !Number.isFinite(angle)) return;
+  const markerEl = routeWalkerMarker.getElement && routeWalkerMarker.getElement();
+  const avatar = markerEl ? markerEl.querySelector('.route-walker-avatar') : null;
+  if (!avatar) return;
+  const normalized = ((angle + 540) % 360) - 180;
+  avatar.style.setProperty('--walker-tilt', `${Math.max(-9, Math.min(9, normalized / 12))}deg`);
 }
 
 function pulseMarker(spotId) {
