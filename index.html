@@ -388,7 +388,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{display:none!important}
 .visited-route{
   stroke-linecap:round;stroke-linejoin:round;
-  filter:drop-shadow(0 0 5px rgba(246,173,85,.36));
+  filter:drop-shadow(0 0 3px rgba(246,173,85,.18));
 }
 .spot-dot{position:relative}
 .spot-dot.selected::after{
@@ -1254,8 +1254,9 @@ function renderVisitedRoute() {
   const points = routeSpots.map(s => [s.lat, s.lng]);
   visitedRouteLayer = L.polyline(points, {
     color:'#f6ad55',
-    weight:2.4,
-    opacity:.58,
+    weight:1.35,
+    opacity:.28,
+    dashArray:'1 8',
     interactive:false,
     className:'visited-route'
   }).addTo(map);
@@ -1267,11 +1268,11 @@ function animateVisitedRoute() {
   const path = document.querySelector('.visited-route');
   if (!path || typeof path.getTotalLength !== 'function') return;
   if (prefersReducedMotion()) return;
-  const length = path.getTotalLength();
-  path.style.strokeDasharray = `${length} ${length}`;
-  path.style.strokeDashoffset = length;
+  path.style.opacity = '0';
+  path.style.strokeDashoffset = '24';
   path.getBoundingClientRect();
-  path.style.transition = 'stroke-dashoffset 1.15s cubic-bezier(.22,1,.36,1)';
+  path.style.transition = 'opacity 2.2s ease, stroke-dashoffset 2.2s cubic-bezier(.22,1,.36,1)';
+  path.style.opacity = '1';
   path.style.strokeDashoffset = '0';
 }
 
